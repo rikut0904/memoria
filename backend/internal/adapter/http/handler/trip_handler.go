@@ -27,6 +27,22 @@ type CreateTripRequest struct {
 	EndAt    string  `json:"end_at" validate:"required"`
 	Note     string  `json:"note"`
 	NotifyAt *string `json:"notify_at"`
+	AlbumIDs []uint  `json:"album_ids"`
+	PostIDs  []uint  `json:"post_ids"`
+}
+
+type TripAlbumResponse struct {
+	ID          uint   `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type TripPostResponse struct {
+	ID          uint   `json:"id"`
+	Type        string `json:"type"`
+	Title       string `json:"title"`
+	Body        string `json:"body"`
+	PublishedAt string `json:"published_at"`
 }
 
 type TripResponse struct {
@@ -38,6 +54,8 @@ type TripResponse struct {
 	CreatedBy uint    `json:"created_by"`
 	NotifyAt  *string `json:"notify_at,omitempty"`
 	CreatedAt string  `json:"created_at"`
+	Albums    []TripAlbumResponse `json:"albums,omitempty"`
+	Posts     []TripPostResponse  `json:"posts,omitempty"`
 }
 
 func (h *TripHandler) CreateTrip(c echo.Context) error {
@@ -71,7 +89,7 @@ func (h *TripHandler) CreateTrip(c echo.Context) error {
 		notifyAt = &parsed
 	}
 
-	trip, err := h.tripUsecase.CreateTrip(req.Title, startAt, endAt, req.Note, user.ID, notifyAt)
+	trip, err := h.tripUsecase.CreateTrip(req.Title, startAt, endAt, req.Note, user.ID, notifyAt, req.AlbumIDs, req.PostIDs)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -134,10 +152,34 @@ func (h *TripHandler) GetTrip(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "trip not found")
 	}
 
+	albums, posts, err := h.tripUsecase.GetTripRelations(trip.ID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	var notifyAtStr *string
 	if trip.NotifyAt != nil {
 		str := trip.NotifyAt.Format("2006-01-02T15:04:05Z07:00")
 		notifyAtStr = &str
+	}
+
+	albumResponses := make([]TripAlbumResponse, len(albums))
+	for i, album := range albums {
+		albumResponses[i] = TripAlbumResponse{
+			ID:          album.ID,
+			Title:       album.Title,
+			Description: album.Description,
+		}
+	}
+	postResponses := make([]TripPostResponse, len(posts))
+	for i, post := range posts {
+		postResponses[i] = TripPostResponse{
+			ID:          post.ID,
+			Type:        post.Type,
+			Title:       post.Title,
+			Body:        post.Body,
+			PublishedAt: post.PublishedAt.Format("2006-01-02T15:04:05Z07:00"),
+		}
 	}
 
 	return c.JSON(http.StatusOK, TripResponse{
@@ -149,6 +191,8 @@ func (h *TripHandler) GetTrip(c echo.Context) error {
 		CreatedBy: trip.CreatedBy,
 		NotifyAt:  notifyAtStr,
 		CreatedAt: trip.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		Albums:    albumResponses,
+		Posts:     postResponses,
 	})
 }
 

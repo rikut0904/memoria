@@ -11,6 +11,7 @@ type TripUsecase struct {
 	itineraryRepo     repository.TripItineraryRepository
 	wishlistRepo      repository.TripWishlistRepository
 	expenseRepo       repository.TripExpenseRepository
+	relationRepo      repository.TripRelationRepository
 }
 
 func NewTripUsecase(
@@ -18,17 +19,19 @@ func NewTripUsecase(
 	itineraryRepo repository.TripItineraryRepository,
 	wishlistRepo repository.TripWishlistRepository,
 	expenseRepo repository.TripExpenseRepository,
+	relationRepo repository.TripRelationRepository,
 ) *TripUsecase {
 	return &TripUsecase{
 		tripRepo:      tripRepo,
 		itineraryRepo: itineraryRepo,
 		wishlistRepo:  wishlistRepo,
 		expenseRepo:   expenseRepo,
+		relationRepo:  relationRepo,
 	}
 }
 
 // Trip operations
-func (u *TripUsecase) CreateTrip(title string, startAt, endAt time.Time, note string, createdBy uint, notifyAt *time.Time) (*model.Trip, error) {
+func (u *TripUsecase) CreateTrip(title string, startAt, endAt time.Time, note string, createdBy uint, notifyAt *time.Time, albumIDs, postIDs []uint) (*model.Trip, error) {
 	trip := &model.Trip{
 		Title:     title,
 		StartAt:   startAt,
@@ -42,11 +45,30 @@ func (u *TripUsecase) CreateTrip(title string, startAt, endAt time.Time, note st
 		return nil, err
 	}
 
+	if err := u.relationRepo.AddAlbums(trip.ID, albumIDs); err != nil {
+		return nil, err
+	}
+	if err := u.relationRepo.AddPosts(trip.ID, postIDs); err != nil {
+		return nil, err
+	}
+
 	return trip, nil
 }
 
 func (u *TripUsecase) GetTrip(id uint) (*model.Trip, error) {
 	return u.tripRepo.FindByID(id)
+}
+
+func (u *TripUsecase) GetTripRelations(tripID uint) ([]*model.Album, []*model.Post, error) {
+	albums, err := u.relationRepo.FindAlbumsByTripID(tripID)
+	if err != nil {
+		return nil, nil, err
+	}
+	posts, err := u.relationRepo.FindPostsByTripID(tripID)
+	if err != nil {
+		return nil, nil, err
+	}
+	return albums, posts, nil
 }
 
 func (u *TripUsecase) GetAllTrips() ([]*model.Trip, error) {

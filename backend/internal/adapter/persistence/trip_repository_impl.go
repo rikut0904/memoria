@@ -126,3 +126,71 @@ func (r *tripExpenseRepositoryImpl) Update(expense *model.TripExpense) error {
 func (r *tripExpenseRepositoryImpl) Delete(id uint) error {
 	return r.db.Delete(&model.TripExpense{}, id).Error
 }
+
+type tripRelationRepositoryImpl struct {
+	db *gorm.DB
+}
+
+func NewTripRelationRepository(db *gorm.DB) repository.TripRelationRepository {
+	return &tripRelationRepositoryImpl{db: db}
+}
+
+func (r *tripRelationRepositoryImpl) AddAlbums(tripID uint, albumIDs []uint) error {
+	if len(albumIDs) == 0 {
+		return nil
+	}
+
+	relations := make([]model.TripAlbum, 0, len(albumIDs))
+	for _, albumID := range albumIDs {
+		relations = append(relations, model.TripAlbum{
+			TripID:  tripID,
+			AlbumID: albumID,
+		})
+	}
+
+	return r.db.Create(&relations).Error
+}
+
+func (r *tripRelationRepositoryImpl) AddPosts(tripID uint, postIDs []uint) error {
+	if len(postIDs) == 0 {
+		return nil
+	}
+
+	relations := make([]model.TripPost, 0, len(postIDs))
+	for _, postID := range postIDs {
+		relations = append(relations, model.TripPost{
+			TripID: tripID,
+			PostID: postID,
+		})
+	}
+
+	return r.db.Create(&relations).Error
+}
+
+func (r *tripRelationRepositoryImpl) FindAlbumsByTripID(tripID uint) ([]*model.Album, error) {
+	var albums []*model.Album
+	if err := r.db.
+		Table("trip_albums").
+		Select("albums.*").
+		Joins("JOIN albums ON albums.id = trip_albums.album_id").
+		Where("trip_albums.trip_id = ?", tripID).
+		Order("albums.created_at DESC").
+		Find(&albums).Error; err != nil {
+		return nil, err
+	}
+	return albums, nil
+}
+
+func (r *tripRelationRepositoryImpl) FindPostsByTripID(tripID uint) ([]*model.Post, error) {
+	var posts []*model.Post
+	if err := r.db.
+		Table("trip_posts").
+		Select("posts.*").
+		Joins("JOIN posts ON posts.id = trip_posts.post_id").
+		Where("trip_posts.trip_id = ?", tripID).
+		Order("posts.published_at DESC").
+		Find(&posts).Error; err != nil {
+		return nil, err
+	}
+	return posts, nil
+}

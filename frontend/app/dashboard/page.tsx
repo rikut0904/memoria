@@ -199,6 +199,15 @@ export default function DashboardPage() {
             <h3 className="font-semibold text-gray-800">記念日</h3>
             <p className="text-sm text-gray-600 mt-1">記念日を管理</p>
           </button>
+
+          <button
+            onClick={() => router.push('/trips')}
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow text-center"
+          >
+            <div className="text-4xl mb-2">🧳</div>
+            <h3 className="font-semibold text-gray-800">旅行</h3>
+            <p className="text-sm text-gray-600 mt-1">旅行の予定を管理</p>
+          </button>
         </div>
       </main>
     </div>

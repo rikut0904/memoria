@@ -164,3 +164,15 @@ type TripExpense struct {
 	IsActual bool   `gorm:"not null"`
 	Note     string
 }
+
+type TripAlbum struct {
+	TripID    uint      `gorm:"primaryKey"`
+	AlbumID   uint      `gorm:"primaryKey"`
+	CreatedAt time.Time `gorm:"not null"`
+}
+
+type TripPost struct {
+	TripID    uint      `gorm:"primaryKey"`
+	PostID    uint      `gorm:"primaryKey"`
+	CreatedAt time.Time `gorm:"not null"`
+}
