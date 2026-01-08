@@ -71,6 +71,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	wishlistRepo := persistence.NewTripWishlistRepository(db)
 	expenseRepo := persistence.NewTripExpenseRepository(db)
 	tripRelationRepo := persistence.NewTripRelationRepository(db)
+	tripDetailRepo := persistence.NewTripDetailRepository(db)
 
 	// Usecases
 	userUsecase := usecase.NewUserUsecase(userRepo, firebaseAuth)
@@ -79,7 +80,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	photoUsecase := usecase.NewPhotoUsecase(photoRepo, s3Service)
 	postUsecase := usecase.NewPostUsecase(postRepo, tagRepo)
 	anniversaryUsecase := usecase.NewAnniversaryUsecase(anniversaryRepo)
-	tripUsecase := usecase.NewTripUsecase(tripRepo, itineraryRepo, wishlistRepo, expenseRepo, tripRelationRepo)
+	tripUsecase := usecase.NewTripUsecase(tripRepo, itineraryRepo, wishlistRepo, expenseRepo, tripRelationRepo, tripDetailRepo)
 
 	// Handlers
 	userHandler := handler.NewUserHandler(userUsecase)

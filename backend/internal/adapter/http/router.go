@@ -90,6 +90,14 @@ func RegisterRoutes(
 	protected.POST("/trips", tripHandler.CreateTrip)
 	protected.GET("/trips/:id", tripHandler.GetTrip)
 	protected.DELETE("/trips/:id", tripHandler.DeleteTrip)
+	protected.GET("/trips/:id/schedule", tripHandler.GetSchedule)
+	protected.PUT("/trips/:id/schedule", tripHandler.UpdateSchedule)
+	protected.GET("/trips/:id/transports", tripHandler.GetTransports)
+	protected.PUT("/trips/:id/transports", tripHandler.UpdateTransports)
+	protected.GET("/trips/:id/lodgings", tripHandler.GetLodgings)
+	protected.PUT("/trips/:id/lodgings", tripHandler.UpdateLodgings)
+	protected.GET("/trips/:id/budget", tripHandler.GetBudget)
+	protected.PUT("/trips/:id/budget", tripHandler.UpdateBudget)
 
 	// Admin routes
 	admin := api.Group("", authMiddleware.RequireAdmin)

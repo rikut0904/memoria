@@ -65,6 +65,10 @@ func autoMigrate(db *gorm.DB) error {
 		&model.TripExpense{},
 		&model.TripAlbum{},
 		&model.TripPost{},
+		&model.TripScheduleItem{},
+		&model.TripTransport{},
+		&model.TripLodging{},
+		&model.TripBudgetItem{},
 	}
 
 	if err := db.AutoMigrate(models...); err != nil {

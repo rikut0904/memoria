@@ -1,9 +1,10 @@
 package usecase
 
 import (
+	"time"
+
 	"memoria/internal/domain/model"
 	"memoria/internal/domain/repository"
-	"time"
 )
 
 type TripUsecase struct {
@@ -12,6 +13,7 @@ type TripUsecase struct {
 	wishlistRepo      repository.TripWishlistRepository
 	expenseRepo       repository.TripExpenseRepository
 	relationRepo      repository.TripRelationRepository
+	detailRepo        repository.TripDetailRepository
 }
 
 func NewTripUsecase(
@@ -20,6 +22,7 @@ func NewTripUsecase(
 	wishlistRepo repository.TripWishlistRepository,
 	expenseRepo repository.TripExpenseRepository,
 	relationRepo repository.TripRelationRepository,
+	detailRepo repository.TripDetailRepository,
 ) *TripUsecase {
 	return &TripUsecase{
 		tripRepo:      tripRepo,
@@ -27,6 +30,7 @@ func NewTripUsecase(
 		wishlistRepo:  wishlistRepo,
 		expenseRepo:   expenseRepo,
 		relationRepo:  relationRepo,
+		detailRepo:    detailRepo,
 	}
 }
 
@@ -69,6 +73,97 @@ func (u *TripUsecase) GetTripRelations(tripID uint) ([]*model.Album, []*model.Po
 		return nil, nil, err
 	}
 	return albums, posts, nil
+}
+
+func (u *TripUsecase) GetSchedule(tripID uint) ([]*model.TripScheduleItem, error) {
+	return u.detailRepo.FindScheduleItems(tripID)
+}
+
+func (u *TripUsecase) UpdateSchedule(tripID uint, items []*model.TripScheduleItem) error {
+	return u.detailRepo.ReplaceScheduleItems(tripID, items)
+}
+
+func (u *TripUsecase) GetTransports(tripID uint) ([]*model.TripTransport, error) {
+	return u.detailRepo.FindTransports(tripID)
+}
+
+func (u *TripUsecase) UpdateTransports(tripID uint, transports []*model.TripTransport) error {
+	for _, transport := range transports {
+		u.applyTransportCosts(transport)
+	}
+	return u.detailRepo.ReplaceTransports(tripID, transports)
+}
+
+func (u *TripUsecase) GetLodgings(tripID uint) ([]*model.TripLodging, error) {
+	return u.detailRepo.FindLodgings(tripID)
+}
+
+func (u *TripUsecase) UpdateLodgings(tripID uint, lodgings []*model.TripLodging) error {
+	return u.detailRepo.ReplaceLodgings(tripID, lodgings)
+}
+
+func (u *TripUsecase) GetBudget(tripID uint) ([]*model.TripBudgetItem, int64, int64, int64, error) {
+	transportTotal, err := u.sumTransportCosts(tripID)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	}
+	lodgingTotal, err := u.sumLodgingCosts(tripID)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	}
+	items, err := u.detailRepo.FindBudgetItems(tripID)
+	if err != nil {
+		return nil, 0, 0, 0, err
+	}
+	var manualTotal int64
+	for _, item := range items {
+		manualTotal += item.CostYen
+	}
+	total := transportTotal + lodgingTotal + manualTotal
+	return items, transportTotal, lodgingTotal, total, nil
+}
+
+func (u *TripUsecase) UpdateBudget(tripID uint, items []*model.TripBudgetItem) error {
+	return u.detailRepo.ReplaceBudgetItems(tripID, items)
+}
+
+func (u *TripUsecase) sumTransportCosts(tripID uint) (int64, error) {
+	transports, err := u.detailRepo.FindTransports(tripID)
+	if err != nil {
+		return 0, err
+	}
+	var total int64
+	for _, transport := range transports {
+		switch transport.Mode {
+		case "car":
+			total += transport.GasolineCostYen + transport.HighwayCostYen
+		case "rental":
+			total += transport.GasolineCostYen + transport.RentalFeeYen
+		default:
+			total += transport.FareYen
+		}
+	}
+	return total, nil
+}
+
+func (u *TripUsecase) sumLodgingCosts(tripID uint) (int64, error) {
+	lodgings, err := u.detailRepo.FindLodgings(tripID)
+	if err != nil {
+		return 0, err
+	}
+	var total int64
+	for _, lodging := range lodgings {
+		total += lodging.CostYen
+	}
+	return total, nil
+}
+
+func (u *TripUsecase) applyTransportCosts(transport *model.TripTransport) {
+	if transport.Mode == "car" || transport.Mode == "rental" {
+		if transport.GasolinePriceYenPerL > 0 && transport.DistanceKm > 0 && transport.FuelEfficiencyKmPerL > 0 {
+			transport.GasolineCostYen = int64((transport.DistanceKm / transport.FuelEfficiencyKmPerL) * transport.GasolinePriceYenPerL)
+		}
+	}
 }
 
 func (u *TripUsecase) GetAllTrips() ([]*model.Trip, error) {

@@ -58,6 +58,115 @@ type TripResponse struct {
 	Posts     []TripPostResponse  `json:"posts,omitempty"`
 }
 
+type TripScheduleItemRequest struct {
+	Date    string `json:"date"`
+	Time    string `json:"time"`
+	Content string `json:"content"`
+}
+
+type TripScheduleItemResponse struct {
+	ID      uint   `json:"id"`
+	Date    string `json:"date"`
+	Time    string `json:"time"`
+	Content string `json:"content"`
+}
+
+type TripTransportRequest struct {
+	Mode                 string  `json:"mode"`
+	Date                 string  `json:"date"`
+	FromLocation         string  `json:"from_location"`
+	ToLocation           string  `json:"to_location"`
+	Note                 string  `json:"note"`
+	DepartureTime        string  `json:"departure_time"`
+	ArrivalTime          string  `json:"arrival_time"`
+	RouteName            string  `json:"route_name"`
+	TrainName            string  `json:"train_name"`
+	FerryName            string  `json:"ferry_name"`
+	FlightNumber         string  `json:"flight_number"`
+	Airline              string  `json:"airline"`
+	Terminal             string  `json:"terminal"`
+	CompanyName          string  `json:"company_name"`
+	PickupLocation       string  `json:"pickup_location"`
+	DropoffLocation      string  `json:"dropoff_location"`
+	RentalURL            string  `json:"rental_url"`
+	DistanceKm           float64 `json:"distance_km"`
+	FuelEfficiencyKmPerL float64 `json:"fuel_efficiency_km_per_l"`
+	GasolinePriceYenPerL float64 `json:"gasoline_price_yen_per_l"`
+	GasolineCostYen      int64   `json:"gasoline_cost_yen"`
+	HighwayCostYen       int64   `json:"highway_cost_yen"`
+	RentalFeeYen         int64   `json:"rental_fee_yen"`
+	FareYen              int64   `json:"fare_yen"`
+}
+
+type TripTransportResponse struct {
+	ID                   uint    `json:"id"`
+	Mode                 string  `json:"mode"`
+	Date                 string  `json:"date"`
+	FromLocation         string  `json:"from_location"`
+	ToLocation           string  `json:"to_location"`
+	Note                 string  `json:"note"`
+	DepartureTime        string  `json:"departure_time"`
+	ArrivalTime          string  `json:"arrival_time"`
+	RouteName            string  `json:"route_name"`
+	TrainName            string  `json:"train_name"`
+	FerryName            string  `json:"ferry_name"`
+	FlightNumber         string  `json:"flight_number"`
+	Airline              string  `json:"airline"`
+	Terminal             string  `json:"terminal"`
+	CompanyName          string  `json:"company_name"`
+	PickupLocation       string  `json:"pickup_location"`
+	DropoffLocation      string  `json:"dropoff_location"`
+	RentalURL            string  `json:"rental_url"`
+	DistanceKm           float64 `json:"distance_km"`
+	FuelEfficiencyKmPerL float64 `json:"fuel_efficiency_km_per_l"`
+	GasolinePriceYenPerL float64 `json:"gasoline_price_yen_per_l"`
+	GasolineCostYen      int64   `json:"gasoline_cost_yen"`
+	HighwayCostYen       int64   `json:"highway_cost_yen"`
+	RentalFeeYen         int64   `json:"rental_fee_yen"`
+	FareYen              int64   `json:"fare_yen"`
+}
+
+type TripLodgingRequest struct {
+	Date              string `json:"date"`
+	Name              string `json:"name"`
+	ReservationURL    string `json:"reservation_url"`
+	Address           string `json:"address"`
+	CheckIn           string `json:"check_in"`
+	CheckOut          string `json:"check_out"`
+	ReservationNumber string `json:"reservation_number"`
+	CostYen           int64  `json:"cost_yen"`
+}
+
+type TripLodgingResponse struct {
+	ID                uint   `json:"id"`
+	Date              string `json:"date"`
+	Name              string `json:"name"`
+	ReservationURL    string `json:"reservation_url"`
+	Address           string `json:"address"`
+	CheckIn           string `json:"check_in"`
+	CheckOut          string `json:"check_out"`
+	ReservationNumber string `json:"reservation_number"`
+	CostYen           int64  `json:"cost_yen"`
+}
+
+type TripBudgetItemRequest struct {
+	Name    string `json:"name"`
+	CostYen int64  `json:"cost_yen"`
+}
+
+type TripBudgetItemResponse struct {
+	ID      uint   `json:"id"`
+	Name    string `json:"name"`
+	CostYen int64  `json:"cost_yen"`
+}
+
+type TripBudgetResponse struct {
+	TransportTotal int64                   `json:"transport_total"`
+	LodgingTotal   int64                   `json:"lodging_total"`
+	Total          int64                   `json:"total"`
+	Items          []TripBudgetItemResponse `json:"items"`
+}
+
 func (h *TripHandler) CreateTrip(c echo.Context) error {
 	userVal := c.Get("user")
 	user, ok := userVal.(*model.User)
@@ -194,6 +303,262 @@ func (h *TripHandler) GetTrip(c echo.Context) error {
 		Albums:    albumResponses,
 		Posts:     postResponses,
 	})
+}
+
+func (h *TripHandler) GetSchedule(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+
+	items, err := h.tripUsecase.GetSchedule(uint(id))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	response := make([]TripScheduleItemResponse, len(items))
+	for i, item := range items {
+		response[i] = TripScheduleItemResponse{
+			ID:      item.ID,
+			Date:    item.Date,
+			Time:    item.Time,
+			Content: item.Content,
+		}
+	}
+	return c.JSON(http.StatusOK, response)
+}
+
+func (h *TripHandler) UpdateSchedule(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+
+	var req []TripScheduleItemRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	items := make([]*model.TripScheduleItem, len(req))
+	for i, item := range req {
+		items[i] = &model.TripScheduleItem{
+			TripID:  uint(id),
+			Date:    item.Date,
+			Time:    item.Time,
+			Content: item.Content,
+		}
+	}
+
+	if err := h.tripUsecase.UpdateSchedule(uint(id), items); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *TripHandler) GetTransports(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+
+	transports, err := h.tripUsecase.GetTransports(uint(id))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	response := make([]TripTransportResponse, len(transports))
+	for i, transport := range transports {
+		response[i] = TripTransportResponse{
+			ID:                   transport.ID,
+			Mode:                 transport.Mode,
+			Date:                 transport.Date,
+			FromLocation:         transport.FromLocation,
+			ToLocation:           transport.ToLocation,
+			Note:                 transport.Note,
+			DepartureTime:        transport.DepartureTime,
+			ArrivalTime:          transport.ArrivalTime,
+			RouteName:            transport.RouteName,
+			TrainName:            transport.TrainName,
+			FerryName:            transport.FerryName,
+			FlightNumber:         transport.FlightNumber,
+			Airline:              transport.Airline,
+			Terminal:             transport.Terminal,
+			CompanyName:          transport.CompanyName,
+			PickupLocation:       transport.PickupLocation,
+			DropoffLocation:      transport.DropoffLocation,
+			RentalURL:            transport.RentalURL,
+			DistanceKm:           transport.DistanceKm,
+			FuelEfficiencyKmPerL: transport.FuelEfficiencyKmPerL,
+			GasolinePriceYenPerL: transport.GasolinePriceYenPerL,
+			GasolineCostYen:      transport.GasolineCostYen,
+			HighwayCostYen:       transport.HighwayCostYen,
+			RentalFeeYen:         transport.RentalFeeYen,
+			FareYen:              transport.FareYen,
+		}
+	}
+	return c.JSON(http.StatusOK, response)
+}
+
+func (h *TripHandler) UpdateTransports(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+
+	var req []TripTransportRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	transports := make([]*model.TripTransport, len(req))
+	for i, transport := range req {
+		transports[i] = &model.TripTransport{
+			TripID:               uint(id),
+			Mode:                 transport.Mode,
+			Date:                 transport.Date,
+			FromLocation:         transport.FromLocation,
+			ToLocation:           transport.ToLocation,
+			Note:                 transport.Note,
+			DepartureTime:        transport.DepartureTime,
+			ArrivalTime:          transport.ArrivalTime,
+			RouteName:            transport.RouteName,
+			TrainName:            transport.TrainName,
+			FerryName:            transport.FerryName,
+			FlightNumber:         transport.FlightNumber,
+			Airline:              transport.Airline,
+			Terminal:             transport.Terminal,
+			CompanyName:          transport.CompanyName,
+			PickupLocation:       transport.PickupLocation,
+			DropoffLocation:      transport.DropoffLocation,
+			RentalURL:            transport.RentalURL,
+			DistanceKm:           transport.DistanceKm,
+			FuelEfficiencyKmPerL: transport.FuelEfficiencyKmPerL,
+			GasolinePriceYenPerL: transport.GasolinePriceYenPerL,
+			GasolineCostYen:      transport.GasolineCostYen,
+			HighwayCostYen:       transport.HighwayCostYen,
+			RentalFeeYen:         transport.RentalFeeYen,
+			FareYen:              transport.FareYen,
+		}
+	}
+
+	if err := h.tripUsecase.UpdateTransports(uint(id), transports); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *TripHandler) GetLodgings(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+
+	lodgings, err := h.tripUsecase.GetLodgings(uint(id))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	response := make([]TripLodgingResponse, len(lodgings))
+	for i, lodging := range lodgings {
+		response[i] = TripLodgingResponse{
+			ID:                lodging.ID,
+			Date:              lodging.Date,
+			Name:              lodging.Name,
+			ReservationURL:    lodging.ReservationURL,
+			Address:           lodging.Address,
+			CheckIn:           lodging.CheckIn,
+			CheckOut:          lodging.CheckOut,
+			ReservationNumber: lodging.ReservationNumber,
+			CostYen:           lodging.CostYen,
+		}
+	}
+	return c.JSON(http.StatusOK, response)
+}
+
+func (h *TripHandler) UpdateLodgings(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+
+	var req []TripLodgingRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	lodgings := make([]*model.TripLodging, len(req))
+	for i, lodging := range req {
+		lodgings[i] = &model.TripLodging{
+			TripID:            uint(id),
+			Date:              lodging.Date,
+			Name:              lodging.Name,
+			ReservationURL:    lodging.ReservationURL,
+			Address:           lodging.Address,
+			CheckIn:           lodging.CheckIn,
+			CheckOut:          lodging.CheckOut,
+			ReservationNumber: lodging.ReservationNumber,
+			CostYen:           lodging.CostYen,
+		}
+	}
+
+	if err := h.tripUsecase.UpdateLodgings(uint(id), lodgings); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *TripHandler) GetBudget(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+
+	items, transportTotal, lodgingTotal, total, err := h.tripUsecase.GetBudget(uint(id))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	responseItems := make([]TripBudgetItemResponse, len(items))
+	for i, item := range items {
+		responseItems[i] = TripBudgetItemResponse{
+			ID:      item.ID,
+			Name:    item.Name,
+			CostYen: item.CostYen,
+		}
+	}
+
+	return c.JSON(http.StatusOK, TripBudgetResponse{
+		TransportTotal: transportTotal,
+		LodgingTotal:   lodgingTotal,
+		Total:          total,
+		Items:          responseItems,
+	})
+}
+
+func (h *TripHandler) UpdateBudget(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+
+	var req []TripBudgetItemRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	items := make([]*model.TripBudgetItem, len(req))
+	for i, item := range req {
+		items[i] = &model.TripBudgetItem{
+			TripID:  uint(id),
+			Name:    item.Name,
+			CostYen: item.CostYen,
+		}
+	}
+
+	if err := h.tripUsecase.UpdateBudget(uint(id), items); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *TripHandler) DeleteTrip(c echo.Context) error {
