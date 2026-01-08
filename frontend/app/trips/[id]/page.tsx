@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
 import { auth } from '@/lib/firebase'
@@ -11,14 +11,8 @@ import ScheduleTab from './components/ScheduleTab'
 import TransportTab from './components/TransportTab'
 import LodgingTab from './components/LodgingTab'
 import BudgetTab from './components/BudgetTab'
-import type {
-  BudgetItem,
-  BudgetSummary,
-  LodgingItem,
-  ScheduleItem,
-  TransportItem,
-  Trip,
-} from './types'
+import useItineraryState from './hooks/useItineraryState'
+import type { Trip } from './types'
 
 type ItineraryTab = 'schedule' | 'transport' | 'lodging' | 'budget'
 
@@ -32,20 +26,6 @@ export default function TripDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [activeTab, setActiveTab] = useState<'overview' | 'itinerary'>('overview')
   const [activeItineraryTab, setActiveItineraryTab] = useState<ItineraryTab>('schedule')
-  const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([])
-  const [transports, setTransports] = useState<TransportItem[]>([])
-  const [lodgings, setLodgings] = useState<LodgingItem[]>([])
-  const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([])
-  const [budgetSummary, setBudgetSummary] = useState<BudgetSummary>({
-    transport_total: 0,
-    lodging_total: 0,
-    total: 0,
-  })
-  const [selectedDayIndex, setSelectedDayIndex] = useState(0)
-  const [dirtySchedule, setDirtySchedule] = useState(false)
-  const [dirtyTransport, setDirtyTransport] = useState(false)
-  const [dirtyLodging, setDirtyLodging] = useState(false)
-  const [dirtyBudget, setDirtyBudget] = useState(false)
   const [overviewSaving, setOverviewSaving] = useState(false)
   const [overviewError, setOverviewError] = useState('')
   const [overviewModalOpen, setOverviewModalOpen] = useState(false)
@@ -54,11 +34,42 @@ export default function TripDetailPage() {
   const [overviewEnd, setOverviewEnd] = useState('')
   const [overviewNote, setOverviewNote] = useState('')
   const [overviewNotify, setOverviewNotify] = useState('')
-  const [openTransports, setOpenTransports] = useState<Set<string>>(new Set())
-  const scheduleSnapshot = useRef('')
-  const transportSnapshot = useRef('')
-  const lodgingSnapshot = useRef('')
-  const budgetSnapshot = useRef('')
+  const {
+    scheduleItems,
+    transports,
+    lodgings,
+    budgetItems,
+    budgetSummary,
+    selectedDayIndex,
+    openTransports,
+    dirtySchedule,
+    dirtyTransport,
+    dirtyLodging,
+    dirtyBudget,
+    initialize,
+    setSelectedDayIndex,
+    addScheduleItem,
+    updateScheduleItem,
+    updateScheduleTimePart,
+    removeScheduleItem,
+    markScheduleSaved,
+    addTransport,
+    updateTransport,
+    removeTransport,
+    toggleTransport,
+    markTransportSaved,
+    addLodging,
+    updateLodging,
+    removeLodging,
+    markLodgingSaved,
+    addBudgetItem,
+    updateBudgetItem,
+    removeBudgetItem,
+    markBudgetSaved,
+    setBudgetSummary,
+    splitTime,
+    totalBudget,
+  } = useItineraryState()
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
@@ -89,8 +100,6 @@ export default function TripDetailPage() {
           time: item.time,
           content: item.content,
         }))
-        setScheduleItems(loadedSchedule)
-        scheduleSnapshot.current = serializeSchedule(loadedSchedule)
 
         const loadedTransports = (transportRes.data || []).map((item: any) => ({
           id: item.id,
@@ -120,8 +129,6 @@ export default function TripDetailPage() {
           rental_fee_yen: item.rental_fee_yen ? String(item.rental_fee_yen) : '',
           fare_yen: item.fare_yen ? String(item.fare_yen) : '',
         }))
-        setTransports(loadedTransports)
-        transportSnapshot.current = serializeTransports(loadedTransports)
 
         const loadedLodgings = (lodgingRes.data || []).map((item: any) => ({
           id: item.id,
@@ -135,8 +142,6 @@ export default function TripDetailPage() {
           reservation_number: item.reservation_number || '',
           cost_yen: item.cost_yen ? String(item.cost_yen) : '',
         }))
-        setLodgings(loadedLodgings)
-        lodgingSnapshot.current = serializeLodgings(loadedLodgings)
 
         const loadedBudget = (budgetRes.data?.items || []).map((item: any) => ({
           id: item.id,
@@ -144,12 +149,16 @@ export default function TripDetailPage() {
           name: item.name || '',
           cost_yen: item.cost_yen ? String(item.cost_yen) : '',
         }))
-        setBudgetItems(loadedBudget)
-        budgetSnapshot.current = serializeBudgetItems(loadedBudget)
-        setBudgetSummary({
-          transport_total: budgetRes.data?.transport_total || 0,
-          lodging_total: budgetRes.data?.lodging_total || 0,
-          total: budgetRes.data?.total || 0,
+        initialize({
+          scheduleItems: loadedSchedule,
+          transports: loadedTransports,
+          lodgings: loadedLodgings,
+          budgetItems: loadedBudget,
+          budgetSummary: {
+            transport_total: budgetRes.data?.transport_total || 0,
+            lodging_total: budgetRes.data?.lodging_total || 0,
+            total: budgetRes.data?.total || 0,
+          },
         })
       } catch (err: any) {
         console.error('Failed to fetch trip data:', err)
@@ -160,7 +169,7 @@ export default function TripDetailPage() {
     })
 
     return () => unsubscribe()
-  }, [router, tripId])
+  }, [router, tripId, initialize])
 
   const toDateInput = (isoString: string) => {
     const date = new Date(isoString)
@@ -179,34 +188,6 @@ export default function TripDetailPage() {
     const date = new Date(Date.UTC(year, month - 1, day))
     return date.toISOString()
   }
-
-  useEffect(() => {
-    if (!scheduleSnapshot.current) {
-      return
-    }
-    setDirtySchedule(serializeSchedule(scheduleItems) !== scheduleSnapshot.current)
-  }, [scheduleItems])
-
-  useEffect(() => {
-    if (!transportSnapshot.current) {
-      return
-    }
-    setDirtyTransport(serializeTransports(transports) !== transportSnapshot.current)
-  }, [transports])
-
-  useEffect(() => {
-    if (!lodgingSnapshot.current) {
-      return
-    }
-    setDirtyLodging(serializeLodgings(lodgings) !== lodgingSnapshot.current)
-  }, [lodgings])
-
-  useEffect(() => {
-    if (!budgetSnapshot.current) {
-      return
-    }
-    setDirtyBudget(serializeBudgetItems(budgetItems) !== budgetSnapshot.current)
-  }, [budgetItems])
 
   const tripDates = useMemo(() => {
     if (!trip) {
@@ -281,22 +262,6 @@ export default function TripDetailPage() {
     }
   }
 
-  const addScheduleItem = () => {
-    if (!currentDate) {
-      return
-    }
-    setScheduleItems((prev) => [
-      ...prev,
-      {
-        localId: `schedule-${Date.now()}`,
-        date: currentDate,
-        time: '09:00',
-        content: '',
-      },
-    ])
-    setDirtySchedule(true)
-  }
-
   const hourOptions = useMemo(() => {
     const options: string[] = []
     for (let hour = 0; hour < 24; hour += 1) {
@@ -313,180 +278,6 @@ export default function TripDetailPage() {
     return options
   }, [])
 
-  const splitTime = (time: string) => {
-    const parts = time.split(':')
-    if (parts.length !== 2) {
-      return { hour: '00', minute: '00' }
-    }
-    return { hour: parts[0], minute: parts[1] }
-  }
-
-  const updateScheduleTimePart = (localId: string, part: 'hour' | 'minute', value: string) => {
-    setScheduleItems((prev) =>
-      prev.map((item) => {
-        if (item.localId !== localId) {
-          return item
-        }
-        const current = splitTime(item.time)
-        const nextTime =
-          part === 'hour'
-            ? `${value}:${current.minute}`
-            : `${current.hour}:${value}`
-        return { ...item, time: nextTime }
-      })
-    )
-    setDirtySchedule(true)
-  }
-
-  const updateScheduleItem = (localId: string, field: keyof ScheduleItem, value: string) => {
-    setScheduleItems((prev) =>
-      prev.map((item) => (item.localId === localId ? { ...item, [field]: value } : item))
-    )
-    setDirtySchedule(true)
-  }
-
-  const removeScheduleItem = (localId: string) => {
-    setScheduleItems((prev) => prev.filter((item) => item.localId !== localId))
-    setDirtySchedule(true)
-  }
-
-  const addTransport = () => {
-    const date = currentDate || tripDates[0] || ''
-    const newId = `transport-${Date.now()}`
-    setTransports((prev) => [
-      ...prev,
-      {
-        localId: newId,
-        mode: 'car',
-        date,
-        from_location: '',
-        to_location: '',
-        note: '',
-        departure_time: '',
-        arrival_time: '',
-        route_name: '',
-        train_name: '',
-        ferry_name: '',
-        flight_number: '',
-        airline: '',
-        terminal: '',
-        company_name: '',
-        pickup_location: '',
-        dropoff_location: '',
-        rental_url: '',
-        distance_km: '',
-        fuel_efficiency_km_per_l: '',
-        gasoline_price_yen_per_l: '',
-        gasoline_cost_yen: 0,
-        highway_cost_yen: '',
-        rental_fee_yen: '',
-        fare_yen: '',
-      },
-    ])
-    setOpenTransports((prev) => new Set(prev).add(newId))
-    setDirtyTransport(true)
-  }
-
-  const updateTransport = (localId: string, field: keyof TransportItem, value: string) => {
-    setTransports((prev) =>
-      prev.map((item) => {
-        if (item.localId !== localId) {
-          return item
-        }
-        const next = { ...item, [field]: value }
-        if (next.mode === 'car' || next.mode === 'rental') {
-          const distance = Number(next.distance_km)
-          const efficiency = Number(next.fuel_efficiency_km_per_l)
-          const price = Number(next.gasoline_price_yen_per_l)
-          if (distance > 0 && efficiency > 0 && price > 0) {
-            next.gasoline_cost_yen = Math.round((distance / efficiency) * price)
-          } else {
-            next.gasoline_cost_yen = 0
-          }
-        }
-        return next
-      })
-    )
-    setDirtyTransport(true)
-  }
-
-  const removeTransport = (localId: string) => {
-    setTransports((prev) => prev.filter((item) => item.localId !== localId))
-    setOpenTransports((prev) => {
-      const next = new Set(prev)
-      next.delete(localId)
-      return next
-    })
-    setDirtyTransport(true)
-  }
-
-  const toggleTransport = (localId: string) => {
-    setOpenTransports((prev) => {
-      const next = new Set(prev)
-      if (next.has(localId)) {
-        next.delete(localId)
-      } else {
-        next.add(localId)
-      }
-      return next
-    })
-  }
-
-  const addLodging = () => {
-    const date = currentDate || tripDates[0] || ''
-    setLodgings((prev) => [
-      ...prev,
-      {
-        localId: `lodging-${Date.now()}`,
-        date,
-        name: '',
-        reservation_url: '',
-        address: '',
-        check_in: '',
-        check_out: '',
-        reservation_number: '',
-        cost_yen: '',
-      },
-    ])
-    setDirtyLodging(true)
-  }
-
-  const updateLodging = (localId: string, field: keyof LodgingItem, value: string) => {
-    setLodgings((prev) =>
-      prev.map((item) => (item.localId === localId ? { ...item, [field]: value } : item))
-    )
-    setDirtyLodging(true)
-  }
-
-  const removeLodging = (localId: string) => {
-    setLodgings((prev) => prev.filter((item) => item.localId !== localId))
-    setDirtyLodging(true)
-  }
-
-  const addBudgetItem = () => {
-    setBudgetItems((prev) => [
-      ...prev,
-      {
-        localId: `budget-${Date.now()}`,
-        name: '',
-        cost_yen: '',
-      },
-    ])
-    setDirtyBudget(true)
-  }
-
-  const updateBudgetItem = (localId: string, field: keyof BudgetItem, value: string) => {
-    setBudgetItems((prev) =>
-      prev.map((item) => (item.localId === localId ? { ...item, [field]: value } : item))
-    )
-    setDirtyBudget(true)
-  }
-
-  const removeBudgetItem = (localId: string) => {
-    setBudgetItems((prev) => prev.filter((item) => item.localId !== localId))
-    setDirtyBudget(true)
-  }
-
   const saveSchedule = async () => {
     if (!trip) {
       return
@@ -497,8 +288,7 @@ export default function TripDetailPage() {
       content: item.content,
     }))
     await api.put(`/trips/${trip.id}/schedule`, payload)
-    scheduleSnapshot.current = serializeSchedule(scheduleItems)
-    setDirtySchedule(false)
+    markScheduleSaved()
   }
 
   const saveTransports = async () => {
@@ -538,8 +328,7 @@ export default function TripDetailPage() {
       lodging_total: budgetRes.data?.lodging_total || 0,
       total: budgetRes.data?.total || 0,
     })
-    transportSnapshot.current = serializeTransports(transports)
-    setDirtyTransport(false)
+    markTransportSaved()
   }
 
   const saveLodgings = async () => {
@@ -563,8 +352,7 @@ export default function TripDetailPage() {
       lodging_total: budgetRes.data?.lodging_total || 0,
       total: budgetRes.data?.total || 0,
     })
-    lodgingSnapshot.current = serializeLodgings(lodgings)
-    setDirtyLodging(false)
+    markLodgingSaved()
   }
 
   const saveBudget = async () => {
@@ -582,8 +370,7 @@ export default function TripDetailPage() {
       lodging_total: budgetRes.data?.lodging_total || 0,
       total: budgetRes.data?.total || 0,
     })
-    budgetSnapshot.current = serializeBudgetItems(budgetItems)
-    setDirtyBudget(false)
+    markBudgetSaved()
   }
 
   const saveOverview = async () => {
@@ -635,70 +422,6 @@ export default function TripDetailPage() {
       setOverviewSaving(false)
     }
   }
-
-  const serializeSchedule = (items: ScheduleItem[]) =>
-    JSON.stringify(
-      items.map((item) => ({
-        date: item.date,
-        time: item.time,
-        content: item.content,
-      }))
-    )
-
-  const serializeTransports = (items: TransportItem[]) =>
-    JSON.stringify(
-      items.map((item) => ({
-        mode: item.mode,
-        date: item.date,
-        from_location: item.from_location,
-        to_location: item.to_location,
-        note: item.note,
-        departure_time: item.departure_time,
-        arrival_time: item.arrival_time,
-        route_name: item.route_name,
-        train_name: item.train_name,
-        ferry_name: item.ferry_name,
-        flight_number: item.flight_number,
-        airline: item.airline,
-        terminal: item.terminal,
-        company_name: item.company_name,
-        pickup_location: item.pickup_location,
-        dropoff_location: item.dropoff_location,
-        rental_url: item.rental_url,
-        distance_km: item.distance_km,
-        fuel_efficiency_km_per_l: item.fuel_efficiency_km_per_l,
-        gasoline_price_yen_per_l: item.gasoline_price_yen_per_l,
-        gasoline_cost_yen: item.gasoline_cost_yen,
-        highway_cost_yen: item.highway_cost_yen,
-        rental_fee_yen: item.rental_fee_yen,
-        fare_yen: item.fare_yen,
-      }))
-    )
-
-  const serializeLodgings = (items: LodgingItem[]) =>
-    JSON.stringify(
-      items.map((item) => ({
-        date: item.date,
-        name: item.name,
-        reservation_url: item.reservation_url,
-        address: item.address,
-        check_in: item.check_in,
-        check_out: item.check_out,
-        reservation_number: item.reservation_number,
-        cost_yen: item.cost_yen,
-      }))
-    )
-
-  const serializeBudgetItems = (items: BudgetItem[]) =>
-    JSON.stringify(
-      items.map((item) => ({
-        name: item.name,
-        cost_yen: item.cost_yen,
-      }))
-    )
-
-  const manualTotal = budgetItems.reduce((sum, item) => sum + (Number(item.cost_yen) || 0), 0)
-  const totalBudget = budgetSummary.transport_total + budgetSummary.lodging_total + manualTotal
 
   if (loading) {
     return (
@@ -822,7 +545,7 @@ export default function TripDetailPage() {
                   hourOptions={hourOptions}
                   minuteOptions={minuteOptions}
                   onSelectDay={setSelectedDayIndex}
-                  onAdd={addScheduleItem}
+                  onAdd={() => addScheduleItem(currentDate)}
                   onSave={saveSchedule}
                   onRemove={removeScheduleItem}
                   onContentChange={(localId, value) =>
@@ -837,7 +560,7 @@ export default function TripDetailPage() {
                 <TransportTab
                   transports={transports}
                   openTransports={openTransports}
-                  onAdd={addTransport}
+                  onAdd={() => addTransport(currentDate || tripDates[0] || '')}
                   onSave={saveTransports}
                   onToggle={toggleTransport}
                   onRemove={removeTransport}
@@ -848,7 +571,7 @@ export default function TripDetailPage() {
               {activeItineraryTab === 'lodging' && (
                 <LodgingTab
                   lodgings={lodgings}
-                  onAdd={addLodging}
+                  onAdd={() => addLodging(currentDate || tripDates[0] || '')}
                   onSave={saveLodgings}
                   onRemove={removeLodging}
                   onUpdate={updateLodging}
