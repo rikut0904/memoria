@@ -14,4 +14,7 @@ type TripDetailRepository interface {
 
 	ReplaceBudgetItems(tripID uint, items []*model.TripBudgetItem) error
 	FindBudgetItems(tripID uint) ([]*model.TripBudgetItem, error)
+
+	SumTransportCosts(tripID uint) (int64, error)
+	SumLodgingCosts(tripID uint) (int64, error)
 }

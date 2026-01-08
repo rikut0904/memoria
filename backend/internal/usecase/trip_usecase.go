@@ -128,34 +128,11 @@ func (u *TripUsecase) UpdateBudget(tripID uint, items []*model.TripBudgetItem) e
 }
 
 func (u *TripUsecase) sumTransportCosts(tripID uint) (int64, error) {
-	transports, err := u.detailRepo.FindTransports(tripID)
-	if err != nil {
-		return 0, err
-	}
-	var total int64
-	for _, transport := range transports {
-		switch transport.Mode {
-		case "car":
-			total += transport.GasolineCostYen + transport.HighwayCostYen
-		case "rental":
-			total += transport.GasolineCostYen + transport.RentalFeeYen
-		default:
-			total += transport.FareYen
-		}
-	}
-	return total, nil
+	return u.detailRepo.SumTransportCosts(tripID)
 }
 
 func (u *TripUsecase) sumLodgingCosts(tripID uint) (int64, error) {
-	lodgings, err := u.detailRepo.FindLodgings(tripID)
-	if err != nil {
-		return 0, err
-	}
-	var total int64
-	for _, lodging := range lodgings {
-		total += lodging.CostYen
-	}
-	return total, nil
+	return u.detailRepo.SumLodgingCosts(tripID)
 }
 
 func (u *TripUsecase) applyTransportCosts(transport *model.TripTransport) {

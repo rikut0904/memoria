@@ -282,3 +282,35 @@ func (r *tripDetailRepositoryImpl) FindBudgetItems(tripID uint) ([]*model.TripBu
 	}
 	return items, nil
 }
+
+func (r *tripDetailRepositoryImpl) SumTransportCosts(tripID uint) (int64, error) {
+	var total int64
+	err := r.db.
+		Table("trip_transports").
+		Select(`COALESCE(SUM(
+			CASE
+				WHEN mode = 'car' THEN gasoline_cost_yen + highway_cost_yen
+				WHEN mode = 'rental' THEN gasoline_cost_yen + rental_fee_yen
+				ELSE fare_yen
+			END
+		), 0) AS total`).
+		Where("trip_id = ?", tripID).
+		Scan(&total).Error
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func (r *tripDetailRepositoryImpl) SumLodgingCosts(tripID uint) (int64, error) {
+	var total int64
+	err := r.db.
+		Table("trip_lodgings").
+		Select("COALESCE(SUM(cost_yen), 0) AS total").
+		Where("trip_id = ?", tripID).
+		Scan(&total).Error
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
+}
