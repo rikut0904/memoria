@@ -310,10 +310,12 @@ func (h *TripHandler) GetSchedule(c echo.Context) error {
 	response := make([]TripScheduleItemResponse, len(items))
 	for i, item := range items {
 		response[i] = TripScheduleItemResponse{
-			ID:      item.ID,
-			Date:    item.Date,
-			Time:    item.Time,
-			Content: item.Content,
+			ID: item.ID,
+			TripScheduleItemPayload: TripScheduleItemPayload{
+				Date:    item.Date,
+				Time:    item.Time,
+				Content: item.Content,
+			},
 		}
 	}
 	return c.JSON(http.StatusOK, response)
@@ -360,31 +362,33 @@ func (h *TripHandler) GetTransports(c echo.Context) error {
 	response := make([]TripTransportResponse, len(transports))
 	for i, transport := range transports {
 		response[i] = TripTransportResponse{
-			ID:                   transport.ID,
-			Mode:                 transport.Mode,
-			Date:                 transport.Date,
-			FromLocation:         transport.FromLocation,
-			ToLocation:           transport.ToLocation,
-			Note:                 transport.Note,
-			DepartureTime:        transport.DepartureTime,
-			ArrivalTime:          transport.ArrivalTime,
-			RouteName:            transport.RouteName,
-			TrainName:            transport.TrainName,
-			FerryName:            transport.FerryName,
-			FlightNumber:         transport.FlightNumber,
-			Airline:              transport.Airline,
-			Terminal:             transport.Terminal,
-			CompanyName:          transport.CompanyName,
-			PickupLocation:       transport.PickupLocation,
-			DropoffLocation:      transport.DropoffLocation,
-			RentalURL:            transport.RentalURL,
-			DistanceKm:           transport.DistanceKm,
-			FuelEfficiencyKmPerL: transport.FuelEfficiencyKmPerL,
-			GasolinePriceYenPerL: transport.GasolinePriceYenPerL,
-			GasolineCostYen:      transport.GasolineCostYen,
-			HighwayCostYen:       transport.HighwayCostYen,
-			RentalFeeYen:         transport.RentalFeeYen,
-			FareYen:              transport.FareYen,
+			ID: transport.ID,
+			TripTransportPayload: TripTransportPayload{
+				Mode:                 transport.Mode,
+				Date:                 transport.Date,
+				FromLocation:         transport.FromLocation,
+				ToLocation:           transport.ToLocation,
+				Note:                 transport.Note,
+				DepartureTime:        transport.DepartureTime,
+				ArrivalTime:          transport.ArrivalTime,
+				RouteName:            transport.RouteName,
+				TrainName:            transport.TrainName,
+				FerryName:            transport.FerryName,
+				FlightNumber:         transport.FlightNumber,
+				Airline:              transport.Airline,
+				Terminal:             transport.Terminal,
+				CompanyName:          transport.CompanyName,
+				PickupLocation:       transport.PickupLocation,
+				DropoffLocation:      transport.DropoffLocation,
+				RentalURL:            transport.RentalURL,
+				DistanceKm:           transport.DistanceKm,
+				FuelEfficiencyKmPerL: transport.FuelEfficiencyKmPerL,
+				GasolinePriceYenPerL: transport.GasolinePriceYenPerL,
+				GasolineCostYen:      transport.GasolineCostYen,
+				HighwayCostYen:       transport.HighwayCostYen,
+				RentalFeeYen:         transport.RentalFeeYen,
+				FareYen:              transport.FareYen,
+			},
 		}
 	}
 	return c.JSON(http.StatusOK, response)
@@ -452,15 +456,17 @@ func (h *TripHandler) GetLodgings(c echo.Context) error {
 	response := make([]TripLodgingResponse, len(lodgings))
 	for i, lodging := range lodgings {
 		response[i] = TripLodgingResponse{
-			ID:                lodging.ID,
-			Date:              lodging.Date,
-			Name:              lodging.Name,
-			ReservationURL:    lodging.ReservationURL,
-			Address:           lodging.Address,
-			CheckIn:           lodging.CheckIn,
-			CheckOut:          lodging.CheckOut,
-			ReservationNumber: lodging.ReservationNumber,
-			CostYen:           lodging.CostYen,
+			ID: lodging.ID,
+			TripLodgingPayload: TripLodgingPayload{
+				Date:              lodging.Date,
+				Name:              lodging.Name,
+				ReservationURL:    lodging.ReservationURL,
+				Address:           lodging.Address,
+				CheckIn:           lodging.CheckIn,
+				CheckOut:          lodging.CheckOut,
+				ReservationNumber: lodging.ReservationNumber,
+				CostYen:           lodging.CostYen,
+			},
 		}
 	}
 	return c.JSON(http.StatusOK, response)
@@ -512,9 +518,11 @@ func (h *TripHandler) GetBudget(c echo.Context) error {
 	responseItems := make([]TripBudgetItemResponse, len(items))
 	for i, item := range items {
 		responseItems[i] = TripBudgetItemResponse{
-			ID:      item.ID,
-			Name:    item.Name,
-			CostYen: item.CostYen,
+			ID: item.ID,
+			TripBudgetItemPayload: TripBudgetItemPayload{
+				Name:    item.Name,
+				CostYen: item.CostYen,
+			},
 		}
 	}
 
