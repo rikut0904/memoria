@@ -125,6 +125,14 @@ export default function TripDetailPage() {
   const [dirtyTransport, setDirtyTransport] = useState(false)
   const [dirtyLodging, setDirtyLodging] = useState(false)
   const [dirtyBudget, setDirtyBudget] = useState(false)
+  const [overviewSaving, setOverviewSaving] = useState(false)
+  const [overviewError, setOverviewError] = useState('')
+  const [overviewModalOpen, setOverviewModalOpen] = useState(false)
+  const [overviewTitle, setOverviewTitle] = useState('')
+  const [overviewStart, setOverviewStart] = useState('')
+  const [overviewEnd, setOverviewEnd] = useState('')
+  const [overviewNote, setOverviewNote] = useState('')
+  const [overviewNotify, setOverviewNotify] = useState('')
   const [openTransports, setOpenTransports] = useState<Set<string>>(new Set())
   const scheduleSnapshot = useRef('')
   const transportSnapshot = useRef('')
@@ -148,6 +156,11 @@ export default function TripDetailPage() {
         ])
 
         setTrip(tripRes.data)
+        setOverviewTitle(tripRes.data.title || '')
+        setOverviewStart(toDateInput(tripRes.data.start_at))
+        setOverviewEnd(toDateInput(tripRes.data.end_at))
+        setOverviewNote(tripRes.data.note || '')
+        setOverviewNotify(tripRes.data.notify_at ? toDateInput(tripRes.data.notify_at) : '')
         const loadedSchedule = (scheduleRes.data || []).map((item: any) => ({
           id: item.id,
           localId: `schedule-${item.id}`,
@@ -227,6 +240,24 @@ export default function TripDetailPage() {
 
     return () => unsubscribe()
   }, [router, tripId])
+
+  const toDateInput = (isoString: string) => {
+    const date = new Date(isoString)
+    if (Number.isNaN(date.getTime())) {
+      return ''
+    }
+    return date.toISOString().slice(0, 10)
+  }
+
+  const toDateISOString = (value: string) => {
+    const parts = value.split('-').map(Number)
+    if (parts.length !== 3 || parts.some((part) => Number.isNaN(part))) {
+      return ''
+    }
+    const [year, month, day] = parts
+    const date = new Date(Date.UTC(year, month - 1, day))
+    return date.toISOString()
+  }
 
   useEffect(() => {
     if (!scheduleSnapshot.current) {
@@ -634,6 +665,56 @@ export default function TripDetailPage() {
     setDirtyBudget(false)
   }
 
+  const saveOverview = async () => {
+    if (!trip) {
+      return
+    }
+    setOverviewError('')
+
+    if (!overviewTitle || !overviewStart || !overviewEnd) {
+      setOverviewError('必須項目を入力してください')
+      return
+    }
+
+    const startISO = toDateISOString(overviewStart)
+    const endISO = toDateISOString(overviewEnd)
+    if (!startISO || !endISO) {
+      setOverviewError('日付の形式が正しくありません')
+      return
+    }
+
+    const payload: any = {
+      title: overviewTitle,
+      start_at: startISO,
+      end_at: endISO,
+      note: overviewNote,
+    }
+    if (overviewNotify) {
+      const notifyISO = toDateISOString(overviewNotify)
+      if (!notifyISO) {
+        setOverviewError('通知日の形式が正しくありません')
+        return
+      }
+      payload.notify_at = notifyISO
+    }
+
+    setOverviewSaving(true)
+    try {
+      const res = await api.patch(`/trips/${trip.id}`, payload)
+      setTrip(res.data)
+      setOverviewTitle(res.data.title || '')
+      setOverviewStart(toDateInput(res.data.start_at))
+      setOverviewEnd(toDateInput(res.data.end_at))
+      setOverviewNote(res.data.note || '')
+      setOverviewNotify(res.data.notify_at ? toDateInput(res.data.notify_at) : '')
+    } catch (err: any) {
+      console.error('Failed to update trip overview:', err)
+      setOverviewError(err.response?.data?.message || '概要の更新に失敗しました')
+    } finally {
+      setOverviewSaving(false)
+    }
+  }
+
   const serializeSchedule = (items: ScheduleItem[]) =>
     JSON.stringify(
       items.map((item) => ({
@@ -797,6 +878,18 @@ export default function TripDetailPage() {
 
           {activeTab === 'overview' && (
             <div className="mt-6 space-y-4">
+              {trip.note && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap">
+                  {trip.note}
+                </div>
+              )}
+
+              {trip.notify_at && (
+                <p className="text-sm text-gray-500">
+                  通知予定: {new Date(trip.notify_at).toLocaleString('ja-JP')}
+                </p>
+              )}
+
               {(trip.albums && trip.albums.length > 0) || (trip.posts && trip.posts.length > 0) ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -843,19 +936,13 @@ export default function TripDetailPage() {
                 </div>
               ) : null}
 
-              {trip.notify_at && (
-                <p className="text-sm text-gray-500">
-                  通知予定: {new Date(trip.notify_at).toLocaleString('ja-JP')}
-                </p>
-              )}
-
-              {trip.note && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap">
-                  {trip.note}
-                </div>
-              )}
-
-              <div className="pt-2 flex justify-end">
+              <div className="pt-2 flex justify-between">
+                <button
+                  onClick={() => setOverviewModalOpen(true)}
+                  className="px-4 py-2 text-sm border border-primary-300 text-primary-600 rounded-lg hover:bg-primary-50"
+                >
+                  概要を編集
+                </button>
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
@@ -1582,6 +1669,88 @@ export default function TripDetailPage() {
           )}
         </div>
       </main>
+      {overviewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-800">旅行の概要を編集</h2>
+              <button
+                onClick={() => setOverviewModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                閉じる
+              </button>
+            </div>
+            {overviewError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                {overviewError}
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1">旅行タイトル</label>
+                <input
+                  type="text"
+                  value={overviewTitle}
+                  onChange={(e) => setOverviewTitle(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1">通知日（任意）</label>
+                <input
+                  type="date"
+                  value={overviewNotify}
+                  onChange={(e) => setOverviewNotify(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1">開始日</label>
+                <input
+                  type="date"
+                  value={overviewStart}
+                  onChange={(e) => setOverviewStart(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-600 mb-1">終了日</label>
+                <input
+                  type="date"
+                  value={overviewEnd}
+                  onChange={(e) => setOverviewEnd(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex flex-col md:col-span-2">
+                <label className="text-sm text-gray-600 mb-1">メモ</label>
+                <textarea
+                  value={overviewNote}
+                  onChange={(e) => setOverviewNote(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  rows={4}
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setOverviewModalOpen(false)}
+                className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={saveOverview}
+                disabled={overviewSaving}
+                className="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+              >
+                {overviewSaving ? '保存中...' : '保存'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

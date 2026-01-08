@@ -31,6 +31,14 @@ type CreateTripRequest struct {
 	PostIDs  []uint  `json:"post_ids"`
 }
 
+type UpdateTripRequest struct {
+	Title    string  `json:"title" validate:"required"`
+	StartAt  string  `json:"start_at" validate:"required"`
+	EndAt    string  `json:"end_at" validate:"required"`
+	Note     string  `json:"note"`
+	NotifyAt *string `json:"notify_at"`
+}
+
 type TripAlbumResponse struct {
 	ID          uint   `json:"id"`
 	Title       string `json:"title"`
@@ -572,4 +580,57 @@ func (h *TripHandler) DeleteTrip(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *TripHandler) UpdateTrip(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+
+	var req UpdateTripRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	startAt, err := time.Parse("2006-01-02T15:04:05Z07:00", req.StartAt)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid start_at format")
+	}
+
+	endAt, err := time.Parse("2006-01-02T15:04:05Z07:00", req.EndAt)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid end_at format")
+	}
+
+	var notifyAt *time.Time
+	if req.NotifyAt != nil {
+		parsed, err := time.Parse("2006-01-02T15:04:05Z07:00", *req.NotifyAt)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid notify_at format")
+		}
+		notifyAt = &parsed
+	}
+
+	trip, err := h.tripUsecase.UpdateTrip(uint(id), req.Title, startAt, endAt, req.Note, notifyAt)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	var notifyAtStr *string
+	if trip.NotifyAt != nil {
+		str := trip.NotifyAt.Format("2006-01-02T15:04:05Z07:00")
+		notifyAtStr = &str
+	}
+
+	return c.JSON(http.StatusOK, TripResponse{
+		ID:        trip.ID,
+		Title:     trip.Title,
+		StartAt:   trip.StartAt.Format("2006-01-02T15:04:05Z07:00"),
+		EndAt:     trip.EndAt.Format("2006-01-02T15:04:05Z07:00"),
+		Note:      trip.Note,
+		CreatedBy: trip.CreatedBy,
+		NotifyAt:  notifyAtStr,
+		CreatedAt: trip.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+	})
 }

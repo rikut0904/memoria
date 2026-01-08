@@ -89,6 +89,7 @@ func RegisterRoutes(
 	protected.GET("/trips", tripHandler.GetAllTrips)
 	protected.POST("/trips", tripHandler.CreateTrip)
 	protected.GET("/trips/:id", tripHandler.GetTrip)
+	protected.PATCH("/trips/:id", tripHandler.UpdateTrip)
 	protected.DELETE("/trips/:id", tripHandler.DeleteTrip)
 	protected.GET("/trips/:id/schedule", tripHandler.GetSchedule)
 	protected.PUT("/trips/:id/schedule", tripHandler.UpdateSchedule)
