@@ -112,9 +112,6 @@ export default function TripsPage() {
                   <p className="text-sm text-gray-600 mt-3 line-clamp-2">{trip.note}</p>
                 )}
                 <div className="mt-4 flex items-center justify-between text-sm">
-                  <span className="text-gray-400">
-                    作成日: {new Date(trip.created_at).toLocaleDateString('ja-JP')}
-                  </span>
                   <div className="flex flex-col items-end gap-2">
                     <button
                       onClick={() => router.push(`/posts/new?trip_id=${trip.id}`)}

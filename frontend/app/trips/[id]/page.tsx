@@ -855,21 +855,19 @@ export default function TripDetailPage() {
             <nav className="-mb-px flex space-x-6">
               <button
                 onClick={() => handleTabSwitch('overview')}
-                className={`border-b-2 py-2 text-sm font-medium ${
-                  activeTab === 'overview'
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+                className={`border-b-2 py-2 text-sm font-medium ${activeTab === 'overview'
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
               >
                 概要
               </button>
               <button
                 onClick={() => handleTabSwitch('itinerary')}
-                className={`border-b-2 py-2 text-sm font-medium ${
-                  activeTab === 'itinerary'
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+                className={`border-b-2 py-2 text-sm font-medium ${activeTab === 'itinerary'
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
               >
                 旅程
               </button>
@@ -889,6 +887,10 @@ export default function TripDetailPage() {
                   通知予定: {new Date(trip.notify_at).toLocaleString('ja-JP')}
                 </p>
               )}
+
+              <span className="text-sm text-gray-500">
+                作成日: {new Date(trip.created_at).toLocaleDateString('ja-JP')}
+              </span>
 
               {(trip.albums && trip.albums.length > 0) || (trip.posts && trip.posts.length > 0) ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -967,11 +969,10 @@ export default function TripDetailPage() {
                     <button
                       key={tab.key}
                       onClick={() => handleItineraryTabSwitch(tab.key as typeof activeItineraryTab)}
-                      className={`border-b-2 py-2 text-sm font-medium ${
-                        activeItineraryTab === tab.key
-                          ? 'border-primary-500 text-primary-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
-                      }`}
+                      className={`border-b-2 py-2 text-sm font-medium ${activeItineraryTab === tab.key
+                        ? 'border-primary-500 text-primary-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
                     >
                       {tab.label}
                     </button>
@@ -987,11 +988,10 @@ export default function TripDetailPage() {
                         <button
                           key={date}
                           onClick={() => setSelectedDayIndex(index)}
-                          className={`px-3 py-1 text-sm rounded-full border ${
-                            selectedDayIndex === index
-                              ? 'border-primary-500 text-primary-600 bg-primary-50'
-                              : 'border-gray-200 text-gray-500 hover:text-gray-700'
-                          }`}
+                          className={`px-3 py-1 text-sm rounded-full border ${selectedDayIndex === index
+                            ? 'border-primary-500 text-primary-600 bg-primary-50'
+                            : 'border-gray-200 text-gray-500 hover:text-gray-700'
+                            }`}
                         >
                           {index + 1}日目
                         </button>
@@ -1152,9 +1152,8 @@ export default function TripDetailPage() {
                                 aria-label={isOpen ? '折りたたむ' : '開く'}
                               >
                                 <span
-                                  className={`material-symbols-outlined text-[20px] transition-transform ${
-                                    isOpen ? 'rotate-180' : ''
-                                  }`}
+                                  className={`material-symbols-outlined text-[20px] transition-transform ${isOpen ? 'rotate-180' : ''
+                                    }`}
                                   aria-hidden="true"
                                 >
                                   expand_more
@@ -1166,327 +1165,327 @@ export default function TripDetailPage() {
                           {isOpen && (
                             <>
 
-                        {(transport.mode === 'car' || transport.mode === 'rental') && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {transport.mode === 'rental' && (
-                              <>
-                                <div className="flex flex-col">
-                                  <label className="text-xs text-gray-500 mb-1">レンタカー会社名</label>
-                                  <input
-                                    type="text"
-                                    value={transport.company_name}
-                                    onChange={(e) => updateTransport(transport.localId, 'company_name', e.target.value)}
-                                    className="px-3 py-2 border border-gray-300 rounded-lg"
-                                    placeholder="レンタカー会社名"
-                                  />
+                              {(transport.mode === 'car' || transport.mode === 'rental') && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {transport.mode === 'rental' && (
+                                    <>
+                                      <div className="flex flex-col">
+                                        <label className="text-xs text-gray-500 mb-1">レンタカー会社名</label>
+                                        <input
+                                          type="text"
+                                          value={transport.company_name}
+                                          onChange={(e) => updateTransport(transport.localId, 'company_name', e.target.value)}
+                                          className="px-3 py-2 border border-gray-300 rounded-lg"
+                                          placeholder="レンタカー会社名"
+                                        />
+                                      </div>
+                                      <div className="flex flex-col">
+                                        <label className="text-xs text-gray-500 mb-1">受取場所</label>
+                                        <input
+                                          type="text"
+                                          value={transport.pickup_location}
+                                          onChange={(e) => updateTransport(transport.localId, 'pickup_location', e.target.value)}
+                                          className="px-3 py-2 border border-gray-300 rounded-lg"
+                                          placeholder="受取場所"
+                                        />
+                                      </div>
+                                      <div className="flex flex-col">
+                                        <label className="text-xs text-gray-500 mb-1">返却場所</label>
+                                        <input
+                                          type="text"
+                                          value={transport.dropoff_location}
+                                          onChange={(e) => updateTransport(transport.localId, 'dropoff_location', e.target.value)}
+                                          className="px-3 py-2 border border-gray-300 rounded-lg"
+                                          placeholder="返却場所"
+                                        />
+                                      </div>
+                                      <div className="flex flex-col">
+                                        <label className="text-xs text-gray-500 mb-1">予約URL</label>
+                                        <input
+                                          type="url"
+                                          value={transport.rental_url}
+                                          onChange={(e) => updateTransport(transport.localId, 'rental_url', e.target.value)}
+                                          className="px-3 py-2 border border-gray-300 rounded-lg"
+                                          placeholder="予約URL"
+                                        />
+                                      </div>
+                                    </>
+                                  )}
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:col-span-2">
+                                    <div className="flex flex-col">
+                                      <label className="text-xs text-gray-500 mb-1">予想走行距離（km）</label>
+                                      <input
+                                        type="number"
+                                        value={transport.distance_km}
+                                        onChange={(e) => updateTransport(transport.localId, 'distance_km', e.target.value)}
+                                        className="px-3 py-2 border border-gray-300 rounded-lg"
+                                        placeholder="km"
+                                      />
+                                    </div>
+                                    <div className="flex flex-col">
+                                      <label className="text-xs text-gray-500 mb-1">燃費（km/L）</label>
+                                      <input
+                                        type="number"
+                                        value={transport.fuel_efficiency_km_per_l}
+                                        onChange={(e) => updateTransport(transport.localId, 'fuel_efficiency_km_per_l', e.target.value)}
+                                        className="px-3 py-2 border border-gray-300 rounded-lg"
+                                        placeholder="km/L"
+                                      />
+                                    </div>
+                                    <div className="flex flex-col">
+                                      <label className="text-xs text-gray-500 mb-1">ガソリン単価（円/L）</label>
+                                      <input
+                                        type="number"
+                                        value={transport.gasoline_price_yen_per_l}
+                                        onChange={(e) => updateTransport(transport.localId, 'gasoline_price_yen_per_l', e.target.value)}
+                                        className="px-3 py-2 border border-gray-300 rounded-lg"
+                                        placeholder="円/L"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">ガソリン代（自動）</label>
+                                    <input
+                                      type="text"
+                                      value={transport.gasoline_cost_yen ? `${transport.gasoline_cost_yen} 円` : '0 円'}
+                                      readOnly
+                                      className="px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg"
+                                    />
+                                  </div>
+                                  {transport.mode === 'car' && (
+                                    <div className="flex flex-col">
+                                      <label className="text-xs text-gray-500 mb-1">高速代（円）</label>
+                                      <input
+                                        type="number"
+                                        value={transport.highway_cost_yen}
+                                        onChange={(e) => updateTransport(transport.localId, 'highway_cost_yen', e.target.value)}
+                                        className="px-3 py-2 border border-gray-300 rounded-lg"
+                                        placeholder="円"
+                                      />
+                                    </div>
+                                  )}
+                                  {transport.mode === 'rental' && (
+                                    <div className="flex flex-col">
+                                      <label className="text-xs text-gray-500 mb-1">レンタル費用（円）</label>
+                                      <input
+                                        type="number"
+                                        value={transport.rental_fee_yen}
+                                        onChange={(e) => updateTransport(transport.localId, 'rental_fee_yen', e.target.value)}
+                                        className="px-3 py-2 border border-gray-300 rounded-lg"
+                                        placeholder="円"
+                                      />
+                                    </div>
+                                  )}
                                 </div>
-                                <div className="flex flex-col">
-                                  <label className="text-xs text-gray-500 mb-1">受取場所</label>
-                                  <input
-                                    type="text"
-                                    value={transport.pickup_location}
-                                    onChange={(e) => updateTransport(transport.localId, 'pickup_location', e.target.value)}
-                                    className="px-3 py-2 border border-gray-300 rounded-lg"
-                                    placeholder="受取場所"
-                                  />
+                              )}
+
+                              {(transport.mode === 'train' || transport.mode === 'bus') && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">路線名</label>
+                                    <input
+                                      type="text"
+                                      value={transport.route_name}
+                                      onChange={(e) => updateTransport(transport.localId, 'route_name', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="路線名"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">出発時刻</label>
+                                    <input
+                                      type="time"
+                                      step={600}
+                                      value={transport.departure_time}
+                                      onChange={(e) => updateTransport(transport.localId, 'departure_time', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">到着時刻</label>
+                                    <input
+                                      type="time"
+                                      step={600}
+                                      value={transport.arrival_time}
+                                      onChange={(e) => updateTransport(transport.localId, 'arrival_time', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">費用（円）</label>
+                                    <input
+                                      type="number"
+                                      value={transport.fare_yen}
+                                      onChange={(e) => updateTransport(transport.localId, 'fare_yen', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="円"
+                                    />
+                                  </div>
                                 </div>
-                                <div className="flex flex-col">
-                                  <label className="text-xs text-gray-500 mb-1">返却場所</label>
-                                  <input
-                                    type="text"
-                                    value={transport.dropoff_location}
-                                    onChange={(e) => updateTransport(transport.localId, 'dropoff_location', e.target.value)}
-                                    className="px-3 py-2 border border-gray-300 rounded-lg"
-                                    placeholder="返却場所"
-                                  />
+                              )}
+
+                              {transport.mode === 'shinkansen' && (
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">列車名</label>
+                                    <input
+                                      type="text"
+                                      value={transport.train_name}
+                                      onChange={(e) => updateTransport(transport.localId, 'train_name', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="列車名"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">出発時刻</label>
+                                    <input
+                                      type="time"
+                                      step={600}
+                                      value={transport.departure_time}
+                                      onChange={(e) => updateTransport(transport.localId, 'departure_time', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">到着時刻</label>
+                                    <input
+                                      type="time"
+                                      step={600}
+                                      value={transport.arrival_time}
+                                      onChange={(e) => updateTransport(transport.localId, 'arrival_time', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">費用（円）</label>
+                                    <input
+                                      type="number"
+                                      value={transport.fare_yen}
+                                      onChange={(e) => updateTransport(transport.localId, 'fare_yen', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="円"
+                                    />
+                                  </div>
                                 </div>
-                                <div className="flex flex-col">
-                                  <label className="text-xs text-gray-500 mb-1">予約URL</label>
-                                  <input
-                                    type="url"
-                                    value={transport.rental_url}
-                                    onChange={(e) => updateTransport(transport.localId, 'rental_url', e.target.value)}
-                                    className="px-3 py-2 border border-gray-300 rounded-lg"
-                                    placeholder="予約URL"
-                                  />
+                              )}
+
+                              {transport.mode === 'ferry' && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">便名</label>
+                                    <input
+                                      type="text"
+                                      value={transport.ferry_name}
+                                      onChange={(e) => updateTransport(transport.localId, 'ferry_name', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="便名"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">出発時刻</label>
+                                    <input
+                                      type="time"
+                                      step={600}
+                                      value={transport.departure_time}
+                                      onChange={(e) => updateTransport(transport.localId, 'departure_time', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">到着時刻</label>
+                                    <input
+                                      type="time"
+                                      step={600}
+                                      value={transport.arrival_time}
+                                      onChange={(e) => updateTransport(transport.localId, 'arrival_time', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">費用（円）</label>
+                                    <input
+                                      type="number"
+                                      value={transport.fare_yen}
+                                      onChange={(e) => updateTransport(transport.localId, 'fare_yen', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="円"
+                                    />
+                                  </div>
                                 </div>
-                              </>
-                            )}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:col-span-2">
-                              <div className="flex flex-col">
-                                <label className="text-xs text-gray-500 mb-1">予想走行距離（km）</label>
-                                <input
-                                  type="number"
-                                  value={transport.distance_km}
-                                  onChange={(e) => updateTransport(transport.localId, 'distance_km', e.target.value)}
-                                  className="px-3 py-2 border border-gray-300 rounded-lg"
-                                  placeholder="km"
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-xs text-gray-500 mb-1">燃費（km/L）</label>
-                                <input
-                                  type="number"
-                                  value={transport.fuel_efficiency_km_per_l}
-                                  onChange={(e) => updateTransport(transport.localId, 'fuel_efficiency_km_per_l', e.target.value)}
-                                  className="px-3 py-2 border border-gray-300 rounded-lg"
-                                  placeholder="km/L"
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <label className="text-xs text-gray-500 mb-1">ガソリン単価（円/L）</label>
-                                <input
-                                  type="number"
-                                  value={transport.gasoline_price_yen_per_l}
-                                  onChange={(e) => updateTransport(transport.localId, 'gasoline_price_yen_per_l', e.target.value)}
-                                  className="px-3 py-2 border border-gray-300 rounded-lg"
-                                  placeholder="円/L"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">ガソリン代（自動）</label>
-                              <input
-                                type="text"
-                                value={transport.gasoline_cost_yen ? `${transport.gasoline_cost_yen} 円` : '0 円'}
-                                readOnly
-                                className="px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg"
-                              />
-                            </div>
-                            {transport.mode === 'car' && (
-                              <div className="flex flex-col">
-                                <label className="text-xs text-gray-500 mb-1">高速代（円）</label>
-                                <input
-                                  type="number"
-                                  value={transport.highway_cost_yen}
-                                  onChange={(e) => updateTransport(transport.localId, 'highway_cost_yen', e.target.value)}
-                                  className="px-3 py-2 border border-gray-300 rounded-lg"
-                                  placeholder="円"
-                                />
-                              </div>
-                            )}
-                            {transport.mode === 'rental' && (
-                              <div className="flex flex-col">
-                                <label className="text-xs text-gray-500 mb-1">レンタル費用（円）</label>
-                                <input
-                                  type="number"
-                                  value={transport.rental_fee_yen}
-                                  onChange={(e) => updateTransport(transport.localId, 'rental_fee_yen', e.target.value)}
-                                  className="px-3 py-2 border border-gray-300 rounded-lg"
-                                  placeholder="円"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        )}
+                              )}
 
-                        {(transport.mode === 'train' || transport.mode === 'bus') && (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">路線名</label>
-                              <input
-                                type="text"
-                                value={transport.route_name}
-                                onChange={(e) => updateTransport(transport.localId, 'route_name', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="路線名"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">出発時刻</label>
-                              <input
-                                type="time"
-                                step={600}
-                                value={transport.departure_time}
-                                onChange={(e) => updateTransport(transport.localId, 'departure_time', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">到着時刻</label>
-                              <input
-                                type="time"
-                                step={600}
-                                value={transport.arrival_time}
-                                onChange={(e) => updateTransport(transport.localId, 'arrival_time', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">費用（円）</label>
-                              <input
-                                type="number"
-                                value={transport.fare_yen}
-                                onChange={(e) => updateTransport(transport.localId, 'fare_yen', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="円"
-                              />
-                            </div>
-                          </div>
-                        )}
+                              {transport.mode === 'flight' && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">便名</label>
+                                    <input
+                                      type="text"
+                                      value={transport.flight_number}
+                                      onChange={(e) => updateTransport(transport.localId, 'flight_number', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="便名"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">航空会社</label>
+                                    <input
+                                      type="text"
+                                      value={transport.airline}
+                                      onChange={(e) => updateTransport(transport.localId, 'airline', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="航空会社"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">ターミナル</label>
+                                    <input
+                                      type="text"
+                                      value={transport.terminal}
+                                      onChange={(e) => updateTransport(transport.localId, 'terminal', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="ターミナル"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">出発時刻</label>
+                                    <input
+                                      type="time"
+                                      step={600}
+                                      value={transport.departure_time}
+                                      onChange={(e) => updateTransport(transport.localId, 'departure_time', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">到着時刻</label>
+                                    <input
+                                      type="time"
+                                      step={600}
+                                      value={transport.arrival_time}
+                                      onChange={(e) => updateTransport(transport.localId, 'arrival_time', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <label className="text-xs text-gray-500 mb-1">費用（円）</label>
+                                    <input
+                                      type="number"
+                                      value={transport.fare_yen}
+                                      onChange={(e) => updateTransport(transport.localId, 'fare_yen', e.target.value)}
+                                      className="px-3 py-2 border border-gray-300 rounded-lg"
+                                      placeholder="円"
+                                    />
+                                  </div>
+                                </div>
+                              )}
 
-                        {transport.mode === 'shinkansen' && (
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">列車名</label>
-                              <input
-                                type="text"
-                                value={transport.train_name}
-                                onChange={(e) => updateTransport(transport.localId, 'train_name', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="列車名"
+                              <textarea
+                                value={transport.note}
+                                onChange={(e) => updateTransport(transport.localId, 'note', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                rows={2}
+                                placeholder="メモ（任意）"
                               />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">出発時刻</label>
-                              <input
-                                type="time"
-                                step={600}
-                                value={transport.departure_time}
-                                onChange={(e) => updateTransport(transport.localId, 'departure_time', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">到着時刻</label>
-                              <input
-                                type="time"
-                                step={600}
-                                value={transport.arrival_time}
-                                onChange={(e) => updateTransport(transport.localId, 'arrival_time', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">費用（円）</label>
-                              <input
-                                type="number"
-                                value={transport.fare_yen}
-                                onChange={(e) => updateTransport(transport.localId, 'fare_yen', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="円"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {transport.mode === 'ferry' && (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">便名</label>
-                              <input
-                                type="text"
-                                value={transport.ferry_name}
-                                onChange={(e) => updateTransport(transport.localId, 'ferry_name', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="便名"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">出発時刻</label>
-                              <input
-                                type="time"
-                                step={600}
-                                value={transport.departure_time}
-                                onChange={(e) => updateTransport(transport.localId, 'departure_time', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">到着時刻</label>
-                              <input
-                                type="time"
-                                step={600}
-                                value={transport.arrival_time}
-                                onChange={(e) => updateTransport(transport.localId, 'arrival_time', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">費用（円）</label>
-                              <input
-                                type="number"
-                                value={transport.fare_yen}
-                                onChange={(e) => updateTransport(transport.localId, 'fare_yen', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="円"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {transport.mode === 'flight' && (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">便名</label>
-                              <input
-                                type="text"
-                                value={transport.flight_number}
-                                onChange={(e) => updateTransport(transport.localId, 'flight_number', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="便名"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">航空会社</label>
-                              <input
-                                type="text"
-                                value={transport.airline}
-                                onChange={(e) => updateTransport(transport.localId, 'airline', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="航空会社"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">ターミナル</label>
-                              <input
-                                type="text"
-                                value={transport.terminal}
-                                onChange={(e) => updateTransport(transport.localId, 'terminal', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="ターミナル"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">出発時刻</label>
-                              <input
-                                type="time"
-                                step={600}
-                                value={transport.departure_time}
-                                onChange={(e) => updateTransport(transport.localId, 'departure_time', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">到着時刻</label>
-                              <input
-                                type="time"
-                                step={600}
-                                value={transport.arrival_time}
-                                onChange={(e) => updateTransport(transport.localId, 'arrival_time', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <label className="text-xs text-gray-500 mb-1">費用（円）</label>
-                              <input
-                                type="number"
-                                value={transport.fare_yen}
-                                onChange={(e) => updateTransport(transport.localId, 'fare_yen', e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="円"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        <textarea
-                          value={transport.note}
-                          onChange={(e) => updateTransport(transport.localId, 'note', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                          rows={2}
-                          placeholder="メモ（任意）"
-                        />
                             </>
                           )}
                         </div>
