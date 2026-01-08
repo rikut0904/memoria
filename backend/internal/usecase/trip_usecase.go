@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"math"
 	"time"
 
 	"memoria/internal/domain/model"
@@ -138,7 +139,8 @@ func (u *TripUsecase) sumLodgingCosts(tripID uint) (int64, error) {
 func (u *TripUsecase) applyTransportCosts(transport *model.TripTransport) {
 	if transport.Mode == "car" || transport.Mode == "rental" {
 		if transport.GasolinePriceYenPerL > 0 && transport.DistanceKm > 0 && transport.FuelEfficiencyKmPerL > 0 {
-			transport.GasolineCostYen = int64((transport.DistanceKm / transport.FuelEfficiencyKmPerL) * transport.GasolinePriceYenPerL)
+			cost := (transport.DistanceKm / transport.FuelEfficiencyKmPerL) * transport.GasolinePriceYenPerL
+			transport.GasolineCostYen = int64(math.Round(cost))
 		}
 	}
 }
