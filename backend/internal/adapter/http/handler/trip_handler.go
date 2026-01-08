@@ -66,20 +66,22 @@ type TripResponse struct {
 	Posts     []TripPostResponse  `json:"posts,omitempty"`
 }
 
-type TripScheduleItemRequest struct {
+type TripScheduleItemPayload struct {
 	Date    string `json:"date"`
 	Time    string `json:"time"`
 	Content string `json:"content"`
+}
+
+type TripScheduleItemRequest struct {
+	TripScheduleItemPayload
 }
 
 type TripScheduleItemResponse struct {
 	ID      uint   `json:"id"`
-	Date    string `json:"date"`
-	Time    string `json:"time"`
-	Content string `json:"content"`
+	TripScheduleItemPayload
 }
 
-type TripTransportRequest struct {
+type TripTransportPayload struct {
 	Mode                 string  `json:"mode"`
 	Date                 string  `json:"date"`
 	FromLocation         string  `json:"from_location"`
@@ -104,37 +106,18 @@ type TripTransportRequest struct {
 	HighwayCostYen       int64   `json:"highway_cost_yen"`
 	RentalFeeYen         int64   `json:"rental_fee_yen"`
 	FareYen              int64   `json:"fare_yen"`
+}
+
+type TripTransportRequest struct {
+	TripTransportPayload
 }
 
 type TripTransportResponse struct {
 	ID                   uint    `json:"id"`
-	Mode                 string  `json:"mode"`
-	Date                 string  `json:"date"`
-	FromLocation         string  `json:"from_location"`
-	ToLocation           string  `json:"to_location"`
-	Note                 string  `json:"note"`
-	DepartureTime        string  `json:"departure_time"`
-	ArrivalTime          string  `json:"arrival_time"`
-	RouteName            string  `json:"route_name"`
-	TrainName            string  `json:"train_name"`
-	FerryName            string  `json:"ferry_name"`
-	FlightNumber         string  `json:"flight_number"`
-	Airline              string  `json:"airline"`
-	Terminal             string  `json:"terminal"`
-	CompanyName          string  `json:"company_name"`
-	PickupLocation       string  `json:"pickup_location"`
-	DropoffLocation      string  `json:"dropoff_location"`
-	RentalURL            string  `json:"rental_url"`
-	DistanceKm           float64 `json:"distance_km"`
-	FuelEfficiencyKmPerL float64 `json:"fuel_efficiency_km_per_l"`
-	GasolinePriceYenPerL float64 `json:"gasoline_price_yen_per_l"`
-	GasolineCostYen      int64   `json:"gasoline_cost_yen"`
-	HighwayCostYen       int64   `json:"highway_cost_yen"`
-	RentalFeeYen         int64   `json:"rental_fee_yen"`
-	FareYen              int64   `json:"fare_yen"`
+	TripTransportPayload
 }
 
-type TripLodgingRequest struct {
+type TripLodgingPayload struct {
 	Date              string `json:"date"`
 	Name              string `json:"name"`
 	ReservationURL    string `json:"reservation_url"`
@@ -143,29 +126,29 @@ type TripLodgingRequest struct {
 	CheckOut          string `json:"check_out"`
 	ReservationNumber string `json:"reservation_number"`
 	CostYen           int64  `json:"cost_yen"`
+}
+
+type TripLodgingRequest struct {
+	TripLodgingPayload
 }
 
 type TripLodgingResponse struct {
 	ID                uint   `json:"id"`
-	Date              string `json:"date"`
-	Name              string `json:"name"`
-	ReservationURL    string `json:"reservation_url"`
-	Address           string `json:"address"`
-	CheckIn           string `json:"check_in"`
-	CheckOut          string `json:"check_out"`
-	ReservationNumber string `json:"reservation_number"`
-	CostYen           int64  `json:"cost_yen"`
+	TripLodgingPayload
+}
+
+type TripBudgetItemPayload struct {
+	Name    string `json:"name"`
+	CostYen int64  `json:"cost_yen"`
 }
 
 type TripBudgetItemRequest struct {
-	Name    string `json:"name"`
-	CostYen int64  `json:"cost_yen"`
+	TripBudgetItemPayload
 }
 
 type TripBudgetItemResponse struct {
 	ID      uint   `json:"id"`
-	Name    string `json:"name"`
-	CostYen int64  `json:"cost_yen"`
+	TripBudgetItemPayload
 }
 
 type TripBudgetResponse struct {
@@ -259,9 +242,9 @@ func (h *TripHandler) GetAllTrips(c echo.Context) error {
 }
 
 func (h *TripHandler) GetTrip(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	trip, err := h.tripUsecase.GetTrip(uint(id))
@@ -314,9 +297,9 @@ func (h *TripHandler) GetTrip(c echo.Context) error {
 }
 
 func (h *TripHandler) GetSchedule(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	items, err := h.tripUsecase.GetSchedule(uint(id))
@@ -337,9 +320,9 @@ func (h *TripHandler) GetSchedule(c echo.Context) error {
 }
 
 func (h *TripHandler) UpdateSchedule(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	var req []TripScheduleItemRequest
@@ -364,9 +347,9 @@ func (h *TripHandler) UpdateSchedule(c echo.Context) error {
 }
 
 func (h *TripHandler) GetTransports(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	transports, err := h.tripUsecase.GetTransports(uint(id))
@@ -408,9 +391,9 @@ func (h *TripHandler) GetTransports(c echo.Context) error {
 }
 
 func (h *TripHandler) UpdateTransports(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	var req []TripTransportRequest
@@ -456,9 +439,9 @@ func (h *TripHandler) UpdateTransports(c echo.Context) error {
 }
 
 func (h *TripHandler) GetLodgings(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	lodgings, err := h.tripUsecase.GetLodgings(uint(id))
@@ -484,9 +467,9 @@ func (h *TripHandler) GetLodgings(c echo.Context) error {
 }
 
 func (h *TripHandler) UpdateLodgings(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	var req []TripLodgingRequest
@@ -516,9 +499,9 @@ func (h *TripHandler) UpdateLodgings(c echo.Context) error {
 }
 
 func (h *TripHandler) GetBudget(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	items, transportTotal, lodgingTotal, total, err := h.tripUsecase.GetBudget(uint(id))
@@ -544,9 +527,9 @@ func (h *TripHandler) GetBudget(c echo.Context) error {
 }
 
 func (h *TripHandler) UpdateBudget(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	var req []TripBudgetItemRequest
@@ -570,9 +553,9 @@ func (h *TripHandler) UpdateBudget(c echo.Context) error {
 }
 
 func (h *TripHandler) DeleteTrip(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	if err := h.tripUsecase.DeleteTrip(uint(id)); err != nil {
@@ -583,9 +566,9 @@ func (h *TripHandler) DeleteTrip(c echo.Context) error {
 }
 
 func (h *TripHandler) UpdateTrip(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := parseTripID(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+		return err
 	}
 
 	var req UpdateTripRequest
@@ -617,10 +600,34 @@ func (h *TripHandler) UpdateTrip(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
+	albums, posts, err := h.tripUsecase.GetTripRelations(trip.ID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
 	var notifyAtStr *string
 	if trip.NotifyAt != nil {
 		str := trip.NotifyAt.Format("2006-01-02T15:04:05Z07:00")
 		notifyAtStr = &str
+	}
+
+	albumResponses := make([]TripAlbumResponse, len(albums))
+	for i, album := range albums {
+		albumResponses[i] = TripAlbumResponse{
+			ID:          album.ID,
+			Title:       album.Title,
+			Description: album.Description,
+		}
+	}
+	postResponses := make([]TripPostResponse, len(posts))
+	for i, post := range posts {
+		postResponses[i] = TripPostResponse{
+			ID:          post.ID,
+			Type:        post.Type,
+			Title:       post.Title,
+			Body:        post.Body,
+			PublishedAt: post.PublishedAt.Format("2006-01-02T15:04:05Z07:00"),
+		}
 	}
 
 	return c.JSON(http.StatusOK, TripResponse{
@@ -632,5 +639,15 @@ func (h *TripHandler) UpdateTrip(c echo.Context) error {
 		CreatedBy: trip.CreatedBy,
 		NotifyAt:  notifyAtStr,
 		CreatedAt: trip.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		Albums:    albumResponses,
+		Posts:     postResponses,
 	})
+}
+
+func parseTripID(c echo.Context) (uint, error) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return 0, echo.NewHTTPError(http.StatusBadRequest, "invalid trip ID")
+	}
+	return uint(id), nil
 }

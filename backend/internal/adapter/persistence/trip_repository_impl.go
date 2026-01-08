@@ -204,13 +204,15 @@ func NewTripDetailRepository(db *gorm.DB) repository.TripDetailRepository {
 }
 
 func (r *tripDetailRepositoryImpl) ReplaceScheduleItems(tripID uint, items []*model.TripScheduleItem) error {
-	if err := r.db.Where("trip_id = ?", tripID).Delete(&model.TripScheduleItem{}).Error; err != nil {
-		return err
-	}
-	if len(items) == 0 {
-		return nil
-	}
-	return r.db.Create(&items).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("trip_id = ?", tripID).Delete(&model.TripScheduleItem{}).Error; err != nil {
+			return err
+		}
+		if len(items) == 0 {
+			return nil
+		}
+		return tx.Create(&items).Error
+	})
 }
 
 func (r *tripDetailRepositoryImpl) FindScheduleItems(tripID uint) ([]*model.TripScheduleItem, error) {
@@ -222,13 +224,15 @@ func (r *tripDetailRepositoryImpl) FindScheduleItems(tripID uint) ([]*model.Trip
 }
 
 func (r *tripDetailRepositoryImpl) ReplaceTransports(tripID uint, transports []*model.TripTransport) error {
-	if err := r.db.Where("trip_id = ?", tripID).Delete(&model.TripTransport{}).Error; err != nil {
-		return err
-	}
-	if len(transports) == 0 {
-		return nil
-	}
-	return r.db.Create(&transports).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("trip_id = ?", tripID).Delete(&model.TripTransport{}).Error; err != nil {
+			return err
+		}
+		if len(transports) == 0 {
+			return nil
+		}
+		return tx.Create(&transports).Error
+	})
 }
 
 func (r *tripDetailRepositoryImpl) FindTransports(tripID uint) ([]*model.TripTransport, error) {
@@ -240,13 +244,15 @@ func (r *tripDetailRepositoryImpl) FindTransports(tripID uint) ([]*model.TripTra
 }
 
 func (r *tripDetailRepositoryImpl) ReplaceLodgings(tripID uint, lodgings []*model.TripLodging) error {
-	if err := r.db.Where("trip_id = ?", tripID).Delete(&model.TripLodging{}).Error; err != nil {
-		return err
-	}
-	if len(lodgings) == 0 {
-		return nil
-	}
-	return r.db.Create(&lodgings).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("trip_id = ?", tripID).Delete(&model.TripLodging{}).Error; err != nil {
+			return err
+		}
+		if len(lodgings) == 0 {
+			return nil
+		}
+		return tx.Create(&lodgings).Error
+	})
 }
 
 func (r *tripDetailRepositoryImpl) FindLodgings(tripID uint) ([]*model.TripLodging, error) {
@@ -258,13 +264,15 @@ func (r *tripDetailRepositoryImpl) FindLodgings(tripID uint) ([]*model.TripLodgi
 }
 
 func (r *tripDetailRepositoryImpl) ReplaceBudgetItems(tripID uint, items []*model.TripBudgetItem) error {
-	if err := r.db.Where("trip_id = ?", tripID).Delete(&model.TripBudgetItem{}).Error; err != nil {
-		return err
-	}
-	if len(items) == 0 {
-		return nil
-	}
-	return r.db.Create(&items).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("trip_id = ?", tripID).Delete(&model.TripBudgetItem{}).Error; err != nil {
+			return err
+		}
+		if len(items) == 0 {
+			return nil
+		}
+		return tx.Create(&items).Error
+	})
 }
 
 func (r *tripDetailRepositoryImpl) FindBudgetItems(tripID uint) ([]*model.TripBudgetItem, error) {

@@ -112,7 +112,7 @@ export default function TripsPage() {
                   <p className="text-sm text-gray-600 mt-3 line-clamp-2">{trip.note}</p>
                 )}
                 <div className="mt-4 flex items-center justify-between text-sm">
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => router.push(`/posts/new?trip_id=${trip.id}`)}
                       className="w-24 px-4 py-2 text-sm text-center bg-primary-600 text-white rounded-lg hover:bg-primary-700"
