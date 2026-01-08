@@ -576,10 +576,11 @@ func (h *TripHandler) UpdateTrip(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	startAt, err := time.Parse("2006-01-02T15:04:05Z07:00", req.StartAt)
+	startAt, err := time.Parse(time.RFC3339, req.StartAt)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid start_at format")
 	}
+
 
 	endAt, err := time.Parse("2006-01-02T15:04:05Z07:00", req.EndAt)
 	if err != nil {
