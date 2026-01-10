@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { auth } from '@/lib/firebase'
+import { getErrorMessage } from '@/lib/getErrorMessage'
 
 interface Invite {
   id: number
@@ -78,9 +79,9 @@ export default function InvitesManagementPage() {
       setNewInviteRole('user')
       await fetchInvites()
       alert('招待を作成しました')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create invite:', error)
-      alert(error.response?.data?.message || '招待の作成に失敗しました')
+      alert(getErrorMessage(error, '招待の作成に失敗しました'))
     } finally {
       setCreating(false)
     }

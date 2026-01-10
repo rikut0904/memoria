@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { auth } from '@/lib/firebase'
+import { getErrorMessage } from '@/lib/getErrorMessage'
 
 interface Trip {
   id: number
@@ -32,9 +33,9 @@ export default function TripsPage() {
       try {
         const res = await api.get('/trips')
         setTrips(res.data || [])
-      } catch (err: any) {
+      } catch (err) {
         console.error('Failed to fetch trips:', err)
-        setError(err.response?.data?.message || '旅行一覧の取得に失敗しました')
+        setError(getErrorMessage(err, '旅行一覧の取得に失敗しました'))
       } finally {
         setLoading(false)
       }

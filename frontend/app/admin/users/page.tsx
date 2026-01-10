@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { auth } from '@/lib/firebase'
+import { getErrorMessage } from '@/lib/getErrorMessage'
 
 interface User {
   id: number
@@ -79,9 +80,9 @@ export default function UsersManagementPage() {
       // ユーザーリストを更新
       setUsers(users.filter(u => u.id !== userId))
       alert('ユーザーを削除しました')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to delete user:', error)
-      alert(error.response?.data?.message || 'ユーザーの削除に失敗しました')
+      alert(getErrorMessage(error, 'ユーザーの削除に失敗しました'))
     }
   }
 

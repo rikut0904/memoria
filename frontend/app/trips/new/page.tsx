@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { auth } from '@/lib/firebase'
+import { getErrorMessage } from '@/lib/getErrorMessage'
 
 export default function NewTripPage() {
   const router = useRouter()
@@ -67,7 +68,15 @@ export default function NewTripPage() {
 
     setSaving(true)
     try {
-      const payload: any = {
+      const payload: {
+        title: string
+        start_at: string
+        end_at: string
+        note: string
+        album_ids: number[]
+        post_ids: number[]
+        notify_at?: string
+      } = {
         title,
         start_at: startISO,
         end_at: endISO,
@@ -87,9 +96,9 @@ export default function NewTripPage() {
 
       const res = await api.post('/trips', payload)
       router.push(`/trips/${res.data.id}`)
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to create trip:', err)
-      setError(err.response?.data?.message || '旅行の作成に失敗しました')
+      setError(getErrorMessage(err, '旅行の作成に失敗しました'))
     } finally {
       setSaving(false)
     }

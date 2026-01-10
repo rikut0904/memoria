@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { FirebaseError } from 'firebase/app'
 import { auth } from '@/lib/firebase'
 import api from '@/lib/api'
+import { getErrorMessage } from '@/lib/getErrorMessage'
 
 interface InviteInfo {
   email: string
@@ -31,8 +33,8 @@ export default function InviteAcceptPage() {
         const res = await api.get(`/invites/${token}`)
         setInviteInfo(res.data)
         setDisplayName(res.data.email.split('@')[0]) // デフォルトの表示名
-      } catch (err: any) {
-        setError(err.response?.data?.message || '招待が無効または期限切れです')
+      } catch (err) {
+        setError(getErrorMessage(err, '招待が無効または期限切れです'))
       } finally {
         setLoading(false)
       }
@@ -68,10 +70,7 @@ export default function InviteAcceptPage() {
         password
       )
 
-      // 2. IDトークンを取得
-      const idToken = await userCredential.user.getIdToken()
-
-      // 3. バックエンドで招待を承認してDBユーザーを作成
+      // 2. バックエンドで招待を承認してDBユーザーを作成
       await api.post(`/invites/${token}/accept`, {
         firebase_uid: userCredential.user.uid,
         email: inviteInfo!.email,
@@ -80,12 +79,12 @@ export default function InviteAcceptPage() {
 
       alert('アカウントが作成されました！ログインしてください。')
       router.push('/login')
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to accept invite:', err)
-      if (err.code === 'auth/email-already-in-use') {
+      if (err instanceof FirebaseError && err.code === 'auth/email-already-in-use') {
         setError('このメールアドレスは既に使用されています。ログインしてください。')
       } else {
-        setError(err.response?.data?.message || 'アカウント作成に失敗しました')
+        setError(getErrorMessage(err, 'アカウント作成に失敗しました'))
       }
     } finally {
       setAccepting(false)

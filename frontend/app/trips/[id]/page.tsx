@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
 import { auth } from '@/lib/firebase'
+import { getErrorMessage } from '@/lib/getErrorMessage'
 import TripHeader from './components/TripHeader'
 import OverviewTab from './components/OverviewTab'
 import OverviewModal from './components/OverviewModal'
@@ -12,7 +13,13 @@ import TransportTab from './components/TransportTab'
 import LodgingTab from './components/LodgingTab'
 import BudgetTab from './components/BudgetTab'
 import useItineraryState from './hooks/useItineraryState'
-import type { Trip } from './types'
+import type {
+  BudgetResponse,
+  LodgingResponseItem,
+  ScheduleResponseItem,
+  TransportResponseItem,
+  Trip,
+} from './types'
 
 type ItineraryTab = 'schedule' | 'transport' | 'lodging' | 'budget'
 
@@ -57,7 +64,7 @@ export default function TripDetailPage() {
     updateTransport,
     removeTransport,
     toggleTransport,
-    markTransportSaved,
+    syncTransports,
     addLodging,
     updateLodging,
     removeLodging,
@@ -80,11 +87,11 @@ export default function TripDetailPage() {
 
       try {
         const [tripRes, scheduleRes, transportRes, lodgingRes, budgetRes] = await Promise.all([
-          api.get(`/trips/${tripId}`),
-          api.get(`/trips/${tripId}/schedule`),
-          api.get(`/trips/${tripId}/transports`),
-          api.get(`/trips/${tripId}/lodgings`),
-          api.get(`/trips/${tripId}/budget`),
+          api.get<Trip>(`/trips/${tripId}`),
+          api.get<ScheduleResponseItem[]>(`/trips/${tripId}/schedule`),
+          api.get<TransportResponseItem[]>(`/trips/${tripId}/transports`),
+          api.get<LodgingResponseItem[]>(`/trips/${tripId}/lodgings`),
+          api.get<BudgetResponse>(`/trips/${tripId}/budget`),
         ])
 
         setTrip(tripRes.data)
@@ -93,7 +100,7 @@ export default function TripDetailPage() {
         setOverviewEnd(toDateInput(tripRes.data.end_at))
         setOverviewNote(tripRes.data.note || '')
         setOverviewNotify(tripRes.data.notify_at ? toDateInput(tripRes.data.notify_at) : '')
-        const loadedSchedule = (scheduleRes.data || []).map((item: any) => ({
+        const loadedSchedule = (scheduleRes.data || []).map((item) => ({
           id: item.id,
           localId: `schedule-${item.id}`,
           date: item.date,
@@ -101,36 +108,9 @@ export default function TripDetailPage() {
           content: item.content,
         }))
 
-        const loadedTransports = (transportRes.data || []).map((item: any) => ({
-          id: item.id,
-          localId: `transport-${item.id}`,
-          mode: item.mode || 'car',
-          date: item.date || '',
-          from_location: item.from_location || '',
-          to_location: item.to_location || '',
-          note: item.note || '',
-          departure_time: item.departure_time || '',
-          arrival_time: item.arrival_time || '',
-          route_name: item.route_name || '',
-          train_name: item.train_name || '',
-          ferry_name: item.ferry_name || '',
-          flight_number: item.flight_number || '',
-          airline: item.airline || '',
-          terminal: item.terminal || '',
-          company_name: item.company_name || '',
-          pickup_location: item.pickup_location || '',
-          dropoff_location: item.dropoff_location || '',
-          rental_url: item.rental_url || '',
-          distance_km: item.distance_km ? String(item.distance_km) : '',
-          fuel_efficiency_km_per_l: item.fuel_efficiency_km_per_l ? String(item.fuel_efficiency_km_per_l) : '',
-          gasoline_price_yen_per_l: item.gasoline_price_yen_per_l ? String(item.gasoline_price_yen_per_l) : '',
-          gasoline_cost_yen: item.gasoline_cost_yen || 0,
-          highway_cost_yen: item.highway_cost_yen ? String(item.highway_cost_yen) : '',
-          rental_fee_yen: item.rental_fee_yen ? String(item.rental_fee_yen) : '',
-          fare_yen: item.fare_yen ? String(item.fare_yen) : '',
-        }))
+        const loadedTransports = mapTransportResponse(transportRes.data)
 
-        const loadedLodgings = (lodgingRes.data || []).map((item: any) => ({
+        const loadedLodgings = (lodgingRes.data || []).map((item) => ({
           id: item.id,
           localId: `lodging-${item.id}`,
           date: item.date || '',
@@ -143,7 +123,7 @@ export default function TripDetailPage() {
           cost_yen: item.cost_yen ? String(item.cost_yen) : '',
         }))
 
-        const loadedBudget = (budgetRes.data?.items || []).map((item: any) => ({
+        const loadedBudget = (budgetRes.data?.items || []).map((item) => ({
           id: item.id,
           localId: `budget-${item.id}`,
           name: item.name || '',
@@ -160,9 +140,9 @@ export default function TripDetailPage() {
             total: budgetRes.data?.total || 0,
           },
         })
-      } catch (err: any) {
+      } catch (err) {
         console.error('Failed to fetch trip data:', err)
-        setError(err.response?.data?.message || '旅行の取得に失敗しました')
+        setError(getErrorMessage(err, '旅行の取得に失敗しました'))
       } finally {
         setLoading(false)
       }
@@ -188,6 +168,36 @@ export default function TripDetailPage() {
     const date = new Date(Date.UTC(year, month - 1, day))
     return date.toISOString()
   }
+
+  const mapTransportResponse = (items: TransportResponseItem[]) =>
+    (items || []).map((item, index) => ({
+      id: item.id,
+      localId: item.id ? `transport-${item.id}` : `transport-${Date.now()}-${index}`,
+      mode: item.mode || 'car',
+      date: item.date || '',
+      from_location: item.from_location || '',
+      to_location: item.to_location || '',
+      note: item.note || '',
+      departure_time: item.departure_time || '',
+      arrival_time: item.arrival_time || '',
+      route_name: item.route_name || '',
+      train_name: item.train_name || '',
+      ferry_name: item.ferry_name || '',
+      flight_number: item.flight_number || '',
+      airline: item.airline || '',
+      terminal: item.terminal || '',
+      company_name: item.company_name || '',
+      pickup_location: item.pickup_location || '',
+      dropoff_location: item.dropoff_location || '',
+      rental_url: item.rental_url || '',
+      distance_km: item.distance_km ? String(item.distance_km) : '',
+      fuel_efficiency_km_per_l: item.fuel_efficiency_km_per_l ? String(item.fuel_efficiency_km_per_l) : '',
+      gasoline_price_yen_per_l: item.gasoline_price_yen_per_l ? String(item.gasoline_price_yen_per_l) : '',
+      gasoline_cost_yen: item.gasoline_cost_yen || 0,
+      highway_cost_yen: item.highway_cost_yen ? String(item.highway_cost_yen) : '',
+      rental_fee_yen: item.rental_fee_yen ? String(item.rental_fee_yen) : '',
+      fare_yen: item.fare_yen ? String(item.fare_yen) : '',
+    }))
 
   const tripDates = useMemo(() => {
     if (!trip) {
@@ -254,9 +264,9 @@ export default function TripDetailPage() {
     try {
       await api.delete(`/trips/${trip.id}`)
       router.push('/trips')
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to delete trip:', err)
-      setError(err.response?.data?.message || '旅行の削除に失敗しました')
+      setError(getErrorMessage(err, '旅行の削除に失敗しました'))
     } finally {
       setDeleting(false)
     }
@@ -322,13 +332,14 @@ export default function TripDetailPage() {
       fare_yen: Number(item.fare_yen) || 0,
     }))
     await api.put(`/trips/${trip.id}/transports`, payload)
+    const transportRes = await api.get<TransportResponseItem[]>(`/trips/${trip.id}/transports`)
+    syncTransports(mapTransportResponse(transportRes.data))
     const budgetRes = await api.get(`/trips/${trip.id}/budget`)
     setBudgetSummary({
       transport_total: budgetRes.data?.transport_total || 0,
       lodging_total: budgetRes.data?.lodging_total || 0,
       total: budgetRes.data?.total || 0,
     })
-    markTransportSaved()
   }
 
   const saveLodgings = async () => {
@@ -391,7 +402,13 @@ export default function TripDetailPage() {
       return
     }
 
-    const payload: any = {
+    const payload: {
+      title: string
+      start_at: string
+      end_at: string
+      note: string
+      notify_at?: string
+    } = {
       title: overviewTitle,
       start_at: startISO,
       end_at: endISO,
@@ -415,9 +432,9 @@ export default function TripDetailPage() {
       setOverviewEnd(toDateInput(res.data.end_at))
       setOverviewNote(res.data.note || '')
       setOverviewNotify(res.data.notify_at ? toDateInput(res.data.notify_at) : '')
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to update trip overview:', err)
-      setOverviewError(err.response?.data?.message || '概要の更新に失敗しました')
+      setOverviewError(getErrorMessage(err, '概要の更新に失敗しました'))
     } finally {
       setOverviewSaving(false)
     }

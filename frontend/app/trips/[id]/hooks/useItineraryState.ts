@@ -363,18 +363,7 @@ export default function useItineraryState() {
         if (item.localId !== localId) {
           return item
         }
-        const next = { ...item, [field]: value }
-        if (next.mode === 'car' || next.mode === 'rental') {
-          const distance = Number(next.distance_km)
-          const efficiency = Number(next.fuel_efficiency_km_per_l)
-          const price = Number(next.gasoline_price_yen_per_l)
-          if (distance > 0 && efficiency > 0 && price > 0) {
-            next.gasoline_cost_yen = Math.round((distance / efficiency) * price)
-          } else {
-            next.gasoline_cost_yen = 0
-          }
-        }
-        return next
+        return { ...item, [field]: value }
       })
       dispatch({
         type: 'setTransports',
@@ -415,6 +404,18 @@ export default function useItineraryState() {
       payload: { items: state.transports, dirty: false, snapshot },
     })
   }, [state.transports])
+
+  const syncTransports = useCallback((items: TransportItem[]) => {
+    dispatch({
+      type: 'setTransports',
+      payload: {
+        items,
+        dirty: false,
+        snapshot: serializeTransports(items),
+      },
+      openTransports: new Set(),
+    })
+  }, [])
 
   const addLodging = useCallback(
     (date: string) => {
@@ -565,6 +566,7 @@ export default function useItineraryState() {
     removeTransport,
     toggleTransport,
     markTransportSaved,
+    syncTransports,
     addLodging,
     updateLodging,
     removeLodging,

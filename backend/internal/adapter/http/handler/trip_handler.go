@@ -257,43 +257,7 @@ func (h *TripHandler) GetTrip(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	var notifyAtStr *string
-	if trip.NotifyAt != nil {
-		str := trip.NotifyAt.Format("2006-01-02T15:04:05Z07:00")
-		notifyAtStr = &str
-	}
-
-	albumResponses := make([]TripAlbumResponse, len(albums))
-	for i, album := range albums {
-		albumResponses[i] = TripAlbumResponse{
-			ID:          album.ID,
-			Title:       album.Title,
-			Description: album.Description,
-		}
-	}
-	postResponses := make([]TripPostResponse, len(posts))
-	for i, post := range posts {
-		postResponses[i] = TripPostResponse{
-			ID:          post.ID,
-			Type:        post.Type,
-			Title:       post.Title,
-			Body:        post.Body,
-			PublishedAt: post.PublishedAt.Format("2006-01-02T15:04:05Z07:00"),
-		}
-	}
-
-	return c.JSON(http.StatusOK, TripResponse{
-		ID:        trip.ID,
-		Title:     trip.Title,
-		StartAt:   trip.StartAt.Format("2006-01-02T15:04:05Z07:00"),
-		EndAt:     trip.EndAt.Format("2006-01-02T15:04:05Z07:00"),
-		Note:      trip.Note,
-		CreatedBy: trip.CreatedBy,
-		NotifyAt:  notifyAtStr,
-		CreatedAt: trip.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		Albums:    albumResponses,
-		Posts:     postResponses,
-	})
+	return c.JSON(http.StatusOK, buildTripResponse(trip, albums, posts))
 }
 
 func (h *TripHandler) GetSchedule(c echo.Context) error {
@@ -615,6 +579,10 @@ func (h *TripHandler) UpdateTrip(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
+	return c.JSON(http.StatusOK, buildTripResponse(trip, albums, posts))
+}
+
+func buildTripResponse(trip *model.Trip, albums []*model.Album, posts []*model.Post) TripResponse {
 	var notifyAtStr *string
 	if trip.NotifyAt != nil {
 		str := trip.NotifyAt.Format("2006-01-02T15:04:05Z07:00")
@@ -640,7 +608,7 @@ func (h *TripHandler) UpdateTrip(c echo.Context) error {
 		}
 	}
 
-	return c.JSON(http.StatusOK, TripResponse{
+	return TripResponse{
 		ID:        trip.ID,
 		Title:     trip.Title,
 		StartAt:   trip.StartAt.Format("2006-01-02T15:04:05Z07:00"),
@@ -651,7 +619,7 @@ func (h *TripHandler) UpdateTrip(c echo.Context) error {
 		CreatedAt: trip.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		Albums:    albumResponses,
 		Posts:     postResponses,
-	})
+	}
 }
 
 func parseTripID(c echo.Context) (uint, error) {
