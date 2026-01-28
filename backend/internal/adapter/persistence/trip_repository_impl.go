@@ -126,3 +126,191 @@ func (r *tripExpenseRepositoryImpl) Update(expense *model.TripExpense) error {
 func (r *tripExpenseRepositoryImpl) Delete(id uint) error {
 	return r.db.Delete(&model.TripExpense{}, id).Error
 }
+
+type tripRelationRepositoryImpl struct {
+	db *gorm.DB
+}
+
+func NewTripRelationRepository(db *gorm.DB) repository.TripRelationRepository {
+	return &tripRelationRepositoryImpl{db: db}
+}
+
+func (r *tripRelationRepositoryImpl) AddAlbums(tripID uint, albumIDs []uint) error {
+	if len(albumIDs) == 0 {
+		return nil
+	}
+
+	relations := make([]model.TripAlbum, 0, len(albumIDs))
+	for _, albumID := range albumIDs {
+		relations = append(relations, model.TripAlbum{
+			TripID:  tripID,
+			AlbumID: albumID,
+		})
+	}
+
+	return r.db.Create(&relations).Error
+}
+
+func (r *tripRelationRepositoryImpl) AddPosts(tripID uint, postIDs []uint) error {
+	if len(postIDs) == 0 {
+		return nil
+	}
+
+	relations := make([]model.TripPost, 0, len(postIDs))
+	for _, postID := range postIDs {
+		relations = append(relations, model.TripPost{
+			TripID: tripID,
+			PostID: postID,
+		})
+	}
+
+	return r.db.Create(&relations).Error
+}
+
+func (r *tripRelationRepositoryImpl) FindAlbumsByTripID(tripID uint) ([]*model.Album, error) {
+	var albums []*model.Album
+	if err := r.db.
+		Table("trip_albums").
+		Select("albums.*").
+		Joins("JOIN albums ON albums.id = trip_albums.album_id").
+		Where("trip_albums.trip_id = ?", tripID).
+		Order("albums.created_at DESC").
+		Find(&albums).Error; err != nil {
+		return nil, err
+	}
+	return albums, nil
+}
+
+func (r *tripRelationRepositoryImpl) FindPostsByTripID(tripID uint) ([]*model.Post, error) {
+	var posts []*model.Post
+	if err := r.db.
+		Table("trip_posts").
+		Select("posts.*").
+		Joins("JOIN posts ON posts.id = trip_posts.post_id").
+		Where("trip_posts.trip_id = ?", tripID).
+		Order("posts.published_at DESC").
+		Find(&posts).Error; err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
+type tripDetailRepositoryImpl struct {
+	db *gorm.DB
+}
+
+func NewTripDetailRepository(db *gorm.DB) repository.TripDetailRepository {
+	return &tripDetailRepositoryImpl{db: db}
+}
+
+func (r *tripDetailRepositoryImpl) ReplaceScheduleItems(tripID uint, items []*model.TripScheduleItem) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("trip_id = ?", tripID).Delete(&model.TripScheduleItem{}).Error; err != nil {
+			return err
+		}
+		if len(items) == 0 {
+			return nil
+		}
+		return tx.Create(&items).Error
+	})
+}
+
+func (r *tripDetailRepositoryImpl) FindScheduleItems(tripID uint) ([]*model.TripScheduleItem, error) {
+	var items []*model.TripScheduleItem
+	if err := r.db.Where("trip_id = ?", tripID).Order("date ASC, time ASC").Find(&items).Error; err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *tripDetailRepositoryImpl) ReplaceTransports(tripID uint, transports []*model.TripTransport) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("trip_id = ?", tripID).Delete(&model.TripTransport{}).Error; err != nil {
+			return err
+		}
+		if len(transports) == 0 {
+			return nil
+		}
+		return tx.Create(&transports).Error
+	})
+}
+
+func (r *tripDetailRepositoryImpl) FindTransports(tripID uint) ([]*model.TripTransport, error) {
+	var transports []*model.TripTransport
+	if err := r.db.Where("trip_id = ?", tripID).Order("date ASC, id ASC").Find(&transports).Error; err != nil {
+		return nil, err
+	}
+	return transports, nil
+}
+
+func (r *tripDetailRepositoryImpl) ReplaceLodgings(tripID uint, lodgings []*model.TripLodging) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("trip_id = ?", tripID).Delete(&model.TripLodging{}).Error; err != nil {
+			return err
+		}
+		if len(lodgings) == 0 {
+			return nil
+		}
+		return tx.Create(&lodgings).Error
+	})
+}
+
+func (r *tripDetailRepositoryImpl) FindLodgings(tripID uint) ([]*model.TripLodging, error) {
+	var lodgings []*model.TripLodging
+	if err := r.db.Where("trip_id = ?", tripID).Order("date ASC, id ASC").Find(&lodgings).Error; err != nil {
+		return nil, err
+	}
+	return lodgings, nil
+}
+
+func (r *tripDetailRepositoryImpl) ReplaceBudgetItems(tripID uint, items []*model.TripBudgetItem) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("trip_id = ?", tripID).Delete(&model.TripBudgetItem{}).Error; err != nil {
+			return err
+		}
+		if len(items) == 0 {
+			return nil
+		}
+		return tx.Create(&items).Error
+	})
+}
+
+func (r *tripDetailRepositoryImpl) FindBudgetItems(tripID uint) ([]*model.TripBudgetItem, error) {
+	var items []*model.TripBudgetItem
+	if err := r.db.Where("trip_id = ?", tripID).Order("id ASC").Find(&items).Error; err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *tripDetailRepositoryImpl) SumTransportCosts(tripID uint) (int64, error) {
+	var total int64
+	err := r.db.
+		Table("trip_transports").
+		Select(`COALESCE(SUM(
+			CASE
+				WHEN mode = 'car' THEN gasoline_cost_yen + highway_cost_yen
+				WHEN mode = 'rental' THEN gasoline_cost_yen + rental_fee_yen
+				ELSE fare_yen
+			END
+		), 0) AS total`).
+		Where("trip_id = ?", tripID).
+		Scan(&total).Error
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func (r *tripDetailRepositoryImpl) SumLodgingCosts(tripID uint) (int64, error) {
+	var total int64
+	err := r.db.
+		Table("trip_lodgings").
+		Select("COALESCE(SUM(cost_yen), 0) AS total").
+		Where("trip_id = ?", tripID).
+		Scan(&total).Error
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
+}

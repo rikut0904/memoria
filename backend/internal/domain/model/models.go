@@ -164,3 +164,72 @@ type TripExpense struct {
 	IsActual bool   `gorm:"not null"`
 	Note     string
 }
+
+type TripAlbum struct {
+	TripID    uint      `gorm:"primaryKey"`
+	AlbumID   uint      `gorm:"primaryKey"`
+	CreatedAt time.Time `gorm:"not null"`
+}
+
+type TripPost struct {
+	TripID    uint      `gorm:"primaryKey"`
+	PostID    uint      `gorm:"primaryKey"`
+	CreatedAt time.Time `gorm:"not null"`
+}
+
+type TripScheduleItem struct {
+	BaseModel
+	TripID  uint   `gorm:"not null;index"`
+	Date    string `gorm:"not null;index"` // YYYY-MM-DD
+	Time    string `gorm:"not null"`       // HH:MM
+	Content string `gorm:"not null"`
+}
+
+type TripTransport struct {
+	BaseModel
+	TripID                 uint    `gorm:"not null;index"`
+	Mode                   string  `gorm:"not null"` // car, rental, train, shinkansen, ferry, flight, bus
+	Date                   string  `gorm:"not null"` // YYYY-MM-DD
+	FromLocation           string
+	ToLocation             string
+	Note                   string
+	DepartureTime          string // HH:MM
+	ArrivalTime            string // HH:MM
+	RouteName              string
+	TrainName              string
+	FerryName              string
+	FlightNumber           string
+	Airline                string
+	Terminal               string
+	CompanyName            string
+	PickupLocation         string
+	DropoffLocation        string
+	RentalURL              string
+	DistanceKm             float64
+	FuelEfficiencyKmPerL   float64
+	GasolinePriceYenPerL   float64
+	GasolineCostYen        int64
+	HighwayCostYen         int64
+	RentalFeeYen           int64
+	FareYen                int64
+}
+
+type TripLodging struct {
+	BaseModel
+	TripID            uint   `gorm:"not null;index"`
+	Date              string `gorm:"not null"` // YYYY-MM-DD
+	Name              string `gorm:"not null"`
+	ReservationURL    string
+	Address           string
+	CheckIn           string // HH:MM
+	CheckOut          string // HH:MM
+	ReservationNumber string
+	CostYen           int64
+}
+
+type TripBudgetItem struct {
+	BaseModel
+	TripID  uint   `gorm:"not null;index"`
+	Name    string `gorm:"not null"`
+	CostYen int64  `gorm:"not null"`
+}

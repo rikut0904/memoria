@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { auth } from '@/lib/firebase'
+import { getErrorMessage } from '@/lib/getErrorMessage'
 
 interface Invite {
   id: number
@@ -14,6 +15,11 @@ interface Invite {
   expires_at: string
   invited_by: number
   created_at: string
+}
+
+type CreateInviteRequest = {
+  email: string
+  role: string
 }
 
 export default function InvitesManagementPage() {
@@ -73,14 +79,15 @@ export default function InvitesManagementPage() {
 
     setCreating(true)
     try {
-      await api.post('/invites', { email: newInviteEmail, role: newInviteRole })
+      const payload: CreateInviteRequest = { email: newInviteEmail, role: newInviteRole }
+      await api.post('/invites', payload)
       setNewInviteEmail('')
       setNewInviteRole('user')
       await fetchInvites()
       alert('招待を作成しました')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create invite:', error)
-      alert(error.response?.data?.message || '招待の作成に失敗しました')
+      alert(getErrorMessage(error, '招待の作成に失敗しました'))
     } finally {
       setCreating(false)
     }
