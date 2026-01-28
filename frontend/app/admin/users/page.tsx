@@ -15,6 +15,10 @@ interface User {
   created_at: string
 }
 
+type UpdateUserRoleRequest = {
+  role: string
+}
+
 export default function UsersManagementPage() {
   const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
@@ -59,7 +63,8 @@ export default function UsersManagementPage() {
     }
 
     try {
-      await api.patch(`/users/${userId}/role`, { role: newRole })
+      const payload: UpdateUserRoleRequest = { role: newRole }
+      await api.patch(`/users/${userId}/role`, payload)
       // ユーザーリストを更新
       const usersRes = await api.get('/users')
       setUsers(usersRes.data || [])

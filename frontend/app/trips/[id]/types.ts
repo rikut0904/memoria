@@ -84,6 +84,55 @@ export type BudgetSummary = {
   total: number
 }
 
+export type ScheduleRequestItem = {
+  date: string
+  time: string
+  content: string
+}
+
+export type TransportRequestItem = {
+  mode: string
+  date: string
+  from_location: string
+  to_location: string
+  note: string
+  departure_time: string
+  arrival_time: string
+  route_name: string
+  train_name: string
+  ferry_name: string
+  flight_number: string
+  airline: string
+  terminal: string
+  company_name: string
+  pickup_location: string
+  dropoff_location: string
+  rental_url: string
+  distance_km: number
+  fuel_efficiency_km_per_l: number
+  gasoline_price_yen_per_l: number
+  gasoline_cost_yen: number
+  highway_cost_yen: number
+  rental_fee_yen: number
+  fare_yen: number
+}
+
+export type LodgingRequestItem = {
+  date: string
+  name: string
+  reservation_url: string
+  address: string
+  check_in: string
+  check_out: string
+  reservation_number: string
+  cost_yen: number
+}
+
+export type BudgetRequestItem = {
+  name: string
+  cost_yen: number
+}
+
 export type ScheduleResponseItem = {
   id: number
   date: string

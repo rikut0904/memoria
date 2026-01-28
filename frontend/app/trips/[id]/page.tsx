@@ -15,9 +15,13 @@ import BudgetTab from './components/BudgetTab'
 import useItineraryState from './hooks/useItineraryState'
 import type {
   BudgetResponse,
+  BudgetRequestItem,
   LodgingResponseItem,
+  LodgingRequestItem,
   ScheduleResponseItem,
+  ScheduleRequestItem,
   TransportResponseItem,
+  TransportRequestItem,
   Trip,
 } from './types'
 
@@ -292,7 +296,7 @@ export default function TripDetailPage() {
     if (!trip) {
       return
     }
-    const payload = scheduleItems.map((item) => ({
+    const payload: ScheduleRequestItem[] = scheduleItems.map((item) => ({
       date: item.date,
       time: item.time,
       content: item.content,
@@ -305,7 +309,7 @@ export default function TripDetailPage() {
     if (!trip) {
       return
     }
-    const payload = transports.map((item) => ({
+    const payload: TransportRequestItem[] = transports.map((item) => ({
       mode: item.mode,
       date: item.date,
       from_location: item.from_location,
@@ -346,7 +350,7 @@ export default function TripDetailPage() {
     if (!trip) {
       return
     }
-    const payload = lodgings.map((item) => ({
+    const payload: LodgingRequestItem[] = lodgings.map((item) => ({
       date: item.date,
       name: item.name,
       reservation_url: item.reservation_url,
@@ -370,7 +374,7 @@ export default function TripDetailPage() {
     if (!trip) {
       return
     }
-    const payload = budgetItems.map((item) => ({
+    const payload: BudgetRequestItem[] = budgetItems.map((item) => ({
       name: item.name,
       cost_yen: Number(item.cost_yen) || 0,
     }))

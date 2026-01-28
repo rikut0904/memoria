@@ -14,6 +14,12 @@ interface InviteInfo {
   status: string
 }
 
+type AcceptInviteRequest = {
+  firebase_uid: string
+  email: string
+  display_name: string
+}
+
 export default function InviteAcceptPage() {
   const router = useRouter()
   const params = useParams()
@@ -71,11 +77,12 @@ export default function InviteAcceptPage() {
       )
 
       // 2. バックエンドで招待を承認してDBユーザーを作成
-      await api.post(`/invites/${token}/accept`, {
+      const payload: AcceptInviteRequest = {
         firebase_uid: userCredential.user.uid,
         email: inviteInfo!.email,
         display_name: displayName,
-      })
+      }
+      await api.post(`/invites/${token}/accept`, payload)
 
       alert('アカウントが作成されました！ログインしてください。')
       router.push('/login')

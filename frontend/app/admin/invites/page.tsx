@@ -17,6 +17,11 @@ interface Invite {
   created_at: string
 }
 
+type CreateInviteRequest = {
+  email: string
+  role: string
+}
+
 export default function InvitesManagementPage() {
   const router = useRouter()
   const [invites, setInvites] = useState<Invite[]>([])
@@ -74,7 +79,8 @@ export default function InvitesManagementPage() {
 
     setCreating(true)
     try {
-      await api.post('/invites', { email: newInviteEmail, role: newInviteRole })
+      const payload: CreateInviteRequest = { email: newInviteEmail, role: newInviteRole }
+      await api.post('/invites', payload)
       setNewInviteEmail('')
       setNewInviteRole('user')
       await fetchInvites()

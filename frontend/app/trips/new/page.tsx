@@ -6,6 +6,16 @@ import api from '@/lib/api'
 import { auth } from '@/lib/firebase'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 
+type CreateTripRequest = {
+  title: string
+  start_at: string
+  end_at: string
+  note: string
+  album_ids: number[]
+  post_ids: number[]
+  notify_at?: string
+}
+
 export default function NewTripPage() {
   const router = useRouter()
   const [albums, setAlbums] = useState<{ id: number; title: string }[]>([])
@@ -68,15 +78,7 @@ export default function NewTripPage() {
 
     setSaving(true)
     try {
-      const payload: {
-        title: string
-        start_at: string
-        end_at: string
-        note: string
-        album_ids: number[]
-        post_ids: number[]
-        notify_at?: string
-      } = {
+      const payload: CreateTripRequest = {
         title,
         start_at: startISO,
         end_at: endISO,
