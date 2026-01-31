@@ -54,17 +54,17 @@ func NewSESMailer(region, accessKey, secretKey, fromEmail, baseURL, inviteTempla
 	}, nil
 }
 
-func (m *SESMailer) SendInvite(email, role, token string) error {
+func (m *SESMailer) SendGroupInvite(email, role, token, groupName string, isExisting bool) error {
 	inviteURL := fmt.Sprintf("%s/invites/%s", m.baseURL, token)
-	roleLabel := "一般ユーザー"
-	if role == "admin" {
-		roleLabel = "管理者"
+	roleLabel := "通常メンバー"
+	if role == "manager" {
+		roleLabel = "グループ管理者"
 	}
 
-	subject := "Memoria 招待のお知らせ"
-	textBody := m.defaultTextBody(inviteURL, roleLabel)
+	subject := "Memoria グループ招待のお知らせ"
+	textBody := m.defaultGroupInviteBody(inviteURL, roleLabel, groupName, isExisting)
 	if m.textTemplate != "" {
-		textBody = applyTemplate(m.textTemplate, inviteURL, roleLabel, email)
+		textBody = applyTemplate(m.textTemplate, inviteURL, roleLabel, email, groupName, isExisting)
 	}
 	htmlBody := textToHTML(textBody)
 
@@ -95,19 +95,33 @@ func (m *SESMailer) SendInvite(email, role, token string) error {
 	return err
 }
 
-func (m *SESMailer) defaultTextBody(inviteURL, roleLabel string) string {
+func (m *SESMailer) defaultGroupInviteBody(inviteURL, roleLabel, groupName string, isExisting bool) string {
+	var firstLine string
+	if isExisting {
+		firstLine = "既存アカウントへのグループ追加の確認依頼です。"
+	} else {
+		firstLine = "新規アカウント登録後にグループへ参加できます。"
+	}
 	return fmt.Sprintf(
-		"以下のリンクから招待を受け取ってください。\n\n招待リンク: %s\n権限: %s\n\nこのメールに心当たりがない場合は破棄してください。",
+		"%s\n\nグループ名: %s\n招待リンク: %s\n権限: %s\n\nこのメールに心当たりがない場合は破棄してください。",
+		firstLine,
+		groupName,
 		inviteURL,
 		roleLabel,
 	)
 }
 
-func applyTemplate(templateText, inviteURL, roleLabel, email string) string {
+func applyTemplate(templateText, inviteURL, roleLabel, email, groupName string, isExisting bool) string {
+	inviteType := "new"
+	if isExisting {
+		inviteType = "existing"
+	}
 	replacer := strings.NewReplacer(
 		"{{INVITE_URL}}", inviteURL,
 		"{{ROLE}}", roleLabel,
 		"{{EMAIL}}", email,
+		"{{GROUP_NAME}}", groupName,
+		"{{INVITE_TYPE}}", inviteType,
 	)
 	return replacer.Replace(templateText)
 }

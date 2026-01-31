@@ -12,17 +12,23 @@ import (
 
 type PhotoUsecase struct {
 	photoRepo repository.PhotoRepository
+	albumRepo repository.AlbumRepository
 	s3Service *storage.S3Service
 }
 
-func NewPhotoUsecase(photoRepo repository.PhotoRepository, s3Service *storage.S3Service) *PhotoUsecase {
+func NewPhotoUsecase(photoRepo repository.PhotoRepository, albumRepo repository.AlbumRepository, s3Service *storage.S3Service) *PhotoUsecase {
 	return &PhotoUsecase{
 		photoRepo: photoRepo,
+		albumRepo: albumRepo,
 		s3Service: s3Service,
 	}
 }
 
-func (u *PhotoUsecase) GenerateUploadURL(albumID uint, filename, contentType string, userID uint) (string, string, error) {
+func (u *PhotoUsecase) GenerateUploadURL(albumID uint, filename, contentType string, userID uint, groupID uint) (string, string, error) {
+	if _, err := u.albumRepo.FindByID(albumID, groupID); err != nil {
+		return "", "", err
+	}
+
 	// Generate unique key
 	timestamp := time.Now().UnixNano()
 	ext := filepath.Ext(filename)
@@ -37,8 +43,13 @@ func (u *PhotoUsecase) GenerateUploadURL(albumID uint, filename, contentType str
 	return url, key, nil
 }
 
-func (u *PhotoUsecase) CreatePhoto(albumID uint, s3Key, contentType string, sizeBytes int64, width, height int, uploadedBy uint) (*model.Photo, error) {
+func (u *PhotoUsecase) CreatePhoto(albumID uint, s3Key, contentType string, sizeBytes int64, width, height int, uploadedBy uint, groupID uint) (*model.Photo, error) {
+	if _, err := u.albumRepo.FindByID(albumID, groupID); err != nil {
+		return nil, err
+	}
+
 	photo := &model.Photo{
+		GroupID:     groupID,
 		AlbumID:     albumID,
 		S3Key:       s3Key,
 		ContentType: contentType,
@@ -55,12 +66,12 @@ func (u *PhotoUsecase) CreatePhoto(albumID uint, s3Key, contentType string, size
 	return photo, nil
 }
 
-func (u *PhotoUsecase) GetPhoto(id uint) (*model.Photo, error) {
-	return u.photoRepo.FindByID(id)
+func (u *PhotoUsecase) GetPhoto(id uint, groupID uint) (*model.Photo, error) {
+	return u.photoRepo.FindByID(id, groupID)
 }
 
-func (u *PhotoUsecase) DeletePhoto(id uint) error {
-	photo, err := u.photoRepo.FindByID(id)
+func (u *PhotoUsecase) DeletePhoto(id uint, groupID uint) error {
+	photo, err := u.photoRepo.FindByID(id, groupID)
 	if err != nil {
 		return err
 	}

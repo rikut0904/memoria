@@ -16,7 +16,7 @@ func NewAnniversaryUsecase(anniversaryRepo repository.AnniversaryRepository) *An
 	}
 }
 
-func (u *AnniversaryUsecase) CreateAnniversary(title string, date time.Time, remindDaysBefore int, note string, createdBy uint) (*model.Anniversary, error) {
+func (u *AnniversaryUsecase) CreateAnniversary(title string, date time.Time, remindDaysBefore int, note string, createdBy uint, groupID uint) (*model.Anniversary, error) {
 	// Calculate reminder time
 	var remindAt *time.Time
 	if remindDaysBefore > 0 {
@@ -25,6 +25,7 @@ func (u *AnniversaryUsecase) CreateAnniversary(title string, date time.Time, rem
 	}
 
 	anniversary := &model.Anniversary{
+		GroupID:          groupID,
 		Title:            title,
 		Date:             date,
 		RemindDaysBefore: remindDaysBefore,
@@ -40,16 +41,16 @@ func (u *AnniversaryUsecase) CreateAnniversary(title string, date time.Time, rem
 	return anniversary, nil
 }
 
-func (u *AnniversaryUsecase) GetAnniversary(id uint) (*model.Anniversary, error) {
-	return u.anniversaryRepo.FindByID(id)
+func (u *AnniversaryUsecase) GetAnniversary(id uint, groupID uint) (*model.Anniversary, error) {
+	return u.anniversaryRepo.FindByID(id, groupID)
 }
 
-func (u *AnniversaryUsecase) GetAllAnniversaries() ([]*model.Anniversary, error) {
-	return u.anniversaryRepo.FindAll()
+func (u *AnniversaryUsecase) GetAllAnniversaries(groupID uint) ([]*model.Anniversary, error) {
+	return u.anniversaryRepo.FindAll(groupID)
 }
 
-func (u *AnniversaryUsecase) UpdateAnniversary(id uint, title string, date time.Time, remindDaysBefore int, note string) (*model.Anniversary, error) {
-	anniversary, err := u.anniversaryRepo.FindByID(id)
+func (u *AnniversaryUsecase) UpdateAnniversary(id uint, title string, date time.Time, remindDaysBefore int, note string, groupID uint) (*model.Anniversary, error) {
+	anniversary, err := u.anniversaryRepo.FindByID(id, groupID)
 	if err != nil {
 		return nil, err
 	}

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
 import api from '@/lib/api'
+import { clearCurrentGroup, getCurrentGroupId, getCurrentGroupName } from '@/lib/group'
 
 interface User {
   id: number
@@ -36,17 +35,20 @@ export default function DashboardPage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [albums, setAlbums] = useState<Album[]>([])
   const [loading, setLoading] = useState(true)
+  const [groupName, setGroupName] = useState<string | null>(null)
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (!firebaseUser) {
-        router.push('/login')
+    const fetchData = async () => {
+      const groupId = getCurrentGroupId()
+      if (!groupId) {
+        router.push('/')
         return
       }
 
       try {
         const userRes = await api.get('/me')
         setUser(userRes.data)
+        setGroupName(getCurrentGroupName())
 
         const postsRes = await api.get('/posts')
         setPosts(postsRes.data || [])
@@ -55,17 +57,19 @@ export default function DashboardPage() {
         setAlbums(albumsRes.data || [])
       } catch (error) {
         console.error('Failed to fetch data:', error)
+        router.push('/login')
       } finally {
         setLoading(false)
       }
-    })
+    }
 
-    return () => unsubscribe()
+    fetchData()
   }, [router])
 
   const handleLogout = async () => {
     try {
-      await signOut(auth)
+      clearCurrentGroup()
+      await api.post('/logout')
       router.push('/login')
     } catch (error) {
       console.error('Logout failed:', error)
@@ -85,7 +89,12 @@ export default function DashboardPage() {
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-primary-600">Memoria</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-primary-600">Memoria</h1>
+              {groupName && (
+                <p className="text-xs text-gray-500 mt-1">グループ: {groupName}</p>
+              )}
+            </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">{user?.display_name || user?.email}</span>
               {user?.role === 'admin' && (

@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"strings"
 	"time"
 
 	"memoria/internal/domain/model"
@@ -12,31 +11,52 @@ import (
 )
 
 type InviteUsecase struct {
-	inviteRepo repository.InviteRepository
-	userRepo   repository.UserRepository
-	mailer     InviteMailer
-	adminEmails string
+	inviteRepo      repository.InviteRepository
+	userRepo        repository.UserRepository
+	groupRepo       repository.GroupRepository
+	groupMemberRepo repository.GroupMemberRepository
+	mailer          InviteMailer
 }
 
 type InviteMailer interface {
-	SendInvite(email, role, token string) error
+	SendGroupInvite(email, role, token, groupName string, isExisting bool) error
 }
 
-func NewInviteUsecase(inviteRepo repository.InviteRepository, userRepo repository.UserRepository, mailer InviteMailer, adminEmails string) *InviteUsecase {
+func NewInviteUsecase(
+	inviteRepo repository.InviteRepository,
+	userRepo repository.UserRepository,
+	groupRepo repository.GroupRepository,
+	groupMemberRepo repository.GroupMemberRepository,
+	mailer InviteMailer,
+) *InviteUsecase {
 	return &InviteUsecase{
-		inviteRepo: inviteRepo,
-		userRepo:   userRepo,
-		mailer:     mailer,
-		adminEmails: adminEmails,
+		inviteRepo:      inviteRepo,
+		userRepo:        userRepo,
+		groupRepo:       groupRepo,
+		groupMemberRepo: groupMemberRepo,
+		mailer:          mailer,
 	}
 }
 
-func (u *InviteUsecase) CreateInvite(email, role string, invitedBy uint) (*model.Invite, error) {
+func (u *InviteUsecase) CreateInvite(email, role string, invitedBy uint, groupID uint) (*model.Invite, error) {
 	if role == "" {
-		role = "user"
+		role = "member"
 	}
-	if role != "admin" && role != "user" {
-		return nil, errors.New("invalid role: must be 'admin' or 'user'")
+	if role != "member" && role != "manager" {
+		return nil, errors.New("invalid role: must be 'member' or 'manager'")
+	}
+
+	group, err := u.groupRepo.FindByID(groupID)
+	if err != nil {
+		return nil, errors.New("group not found")
+	}
+
+	isExisting := false
+	if user, err := u.userRepo.FindByEmail(email); err == nil && user != nil {
+		isExisting = true
+		if _, err := u.groupMemberRepo.FindByGroupAndUser(groupID, user.ID); err == nil {
+			return nil, errors.New("user already belongs to the group")
+		}
 	}
 
 	// Generate random token
@@ -46,6 +66,7 @@ func (u *InviteUsecase) CreateInvite(email, role string, invitedBy uint) (*model
 	}
 
 	invite := &model.Invite{
+		GroupID:   groupID,
 		Email:     email,
 		Token:     token,
 		Status:    "pending",
@@ -59,7 +80,7 @@ func (u *InviteUsecase) CreateInvite(email, role string, invitedBy uint) (*model
 	}
 
 	if u.mailer != nil {
-		if err := u.mailer.SendInvite(invite.Email, invite.Role, invite.Token); err != nil {
+		if err := u.mailer.SendGroupInvite(invite.Email, invite.Role, invite.Token, group.Name, isExisting); err != nil {
 			_ = u.inviteRepo.Delete(invite.ID)
 			return nil, err
 		}
@@ -87,64 +108,60 @@ func (u *InviteUsecase) VerifyInvite(token string) (*model.Invite, error) {
 	return invite, nil
 }
 
-func (u *InviteUsecase) AcceptInvite(token, firebaseUID, email, displayName string) (*model.User, error) {
+func (u *InviteUsecase) AcceptInviteForUser(token string, user *model.User) error {
 	invite, err := u.VerifyInvite(token)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	// Check if email matches
-	if invite.Email != email {
-		return nil, errors.New("email does not match invite")
+	if invite.Email != user.Email {
+		return errors.New("email does not match invite")
 	}
 
-	// Determine role from invite (fallback to admin email list for legacy invites).
-	role := invite.Role
-	if role == "" {
-		role = "user"
-		if u.isAdminEmail(email) {
-			role = "admin"
-		}
+	if _, err := u.groupMemberRepo.FindByGroupAndUser(invite.GroupID, user.ID); err == nil {
+		return errors.New("user already belongs to the group")
 	}
 
-	// Create user
-	user := &model.User{
-		FirebaseUID: firebaseUID,
-		Email:       email,
-		DisplayName: displayName,
-		Role:        role,
+	member := &model.GroupMember{
+		GroupID:  invite.GroupID,
+		UserID:   user.ID,
+		Role:     invite.Role,
+		JoinedAt: time.Now(),
+	}
+	if err := u.groupMemberRepo.Add(member); err != nil {
+		return err
 	}
 
-	if err := u.userRepo.Create(user); err != nil {
-		return nil, err
-	}
-
-	// After successful use, delete invite to prevent reuse.
-	if err := u.inviteRepo.Delete(invite.ID); err != nil {
-		invite.Status = "accepted"
-		_ = u.inviteRepo.Update(invite)
-	}
-
-	return user, nil
+	invite.Status = "accepted"
+	return u.inviteRepo.Update(invite)
 }
 
-func (u *InviteUsecase) isAdminEmail(email string) bool {
-	adminEmails := strings.Split(u.adminEmails, ",")
-	for _, adminEmail := range adminEmails {
-		if strings.TrimSpace(adminEmail) == email {
-			return true
-		}
+func (u *InviteUsecase) DeclineInviteForUser(token string, user *model.User) error {
+	invite, err := u.VerifyInvite(token)
+	if err != nil {
+		return err
 	}
-	return false
+
+	if invite.Email != user.Email {
+		return errors.New("email does not match invite")
+	}
+
+	invite.Status = "declined"
+	return u.inviteRepo.Update(invite)
 }
 
-// 管理者用: 全招待一覧取得
-func (u *InviteUsecase) GetAllInvites() ([]*model.Invite, error) {
-	return u.inviteRepo.FindAll()
+func (u *InviteUsecase) GetGroupInvites(groupID uint) ([]*model.Invite, error) {
+	return u.inviteRepo.FindByGroupID(groupID)
 }
 
-// 管理者用: 招待の削除
-func (u *InviteUsecase) DeleteInvite(inviteID uint) error {
+func (u *InviteUsecase) DeleteInvite(inviteID, groupID uint) error {
+	invite, err := u.inviteRepo.FindByID(inviteID)
+	if err != nil {
+		return err
+	}
+	if invite.GroupID != groupID {
+		return errors.New("invite does not belong to group")
+	}
 	return u.inviteRepo.Delete(inviteID)
 }
 

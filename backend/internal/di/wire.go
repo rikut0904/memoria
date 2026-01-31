@@ -10,6 +10,7 @@ import (
 	"memoria/internal/adapter/storage"
 	"memoria/internal/config"
 	"memoria/internal/usecase"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -61,6 +62,8 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	// Repositories
 	userRepo := persistence.NewUserRepository(db)
 	inviteRepo := persistence.NewInviteRepository(db)
+	groupRepo := persistence.NewGroupRepository(db)
+	groupMemberRepo := persistence.NewGroupMemberRepository(db)
 	albumRepo := persistence.NewAlbumRepository(db)
 	photoRepo := persistence.NewPhotoRepository(db)
 	postRepo := persistence.NewPostRepository(db)
@@ -75,16 +78,22 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 
 	// Usecases
 	userUsecase := usecase.NewUserUsecase(userRepo, firebaseAuth)
-	inviteUsecase := usecase.NewInviteUsecase(inviteRepo, userRepo, mailer, cfg.AdminEmails)
+	groupUsecase := usecase.NewGroupUsecase(groupRepo, groupMemberRepo)
+	sessionTTL := 7 * 24 * time.Hour
+	authUsecase := usecase.NewAuthUsecase(firebaseAuth, userRepo, cfg.FirebaseAPIKey, sessionTTL)
+	inviteUsecase := usecase.NewInviteUsecase(inviteRepo, userRepo, groupRepo, groupMemberRepo, mailer)
 	albumUsecase := usecase.NewAlbumUsecase(albumRepo, photoRepo)
-	photoUsecase := usecase.NewPhotoUsecase(photoRepo, s3Service)
-	postUsecase := usecase.NewPostUsecase(postRepo, tagRepo)
+	photoUsecase := usecase.NewPhotoUsecase(photoRepo, albumRepo, s3Service)
+	postUsecase := usecase.NewPostUsecase(postRepo, tagRepo, albumRepo, photoRepo)
 	anniversaryUsecase := usecase.NewAnniversaryUsecase(anniversaryRepo)
-	tripUsecase := usecase.NewTripUsecase(tripRepo, itineraryRepo, wishlistRepo, expenseRepo, tripRelationRepo, tripDetailRepo)
+	tripUsecase := usecase.NewTripUsecase(tripRepo, itineraryRepo, wishlistRepo, expenseRepo, tripRelationRepo, tripDetailRepo, albumRepo, postRepo)
 
 	// Handlers
 	userHandler := handler.NewUserHandler(userUsecase)
-	inviteHandler := handler.NewInviteHandler(inviteUsecase)
+	groupHandler := handler.NewGroupHandler(groupUsecase, userUsecase)
+	secureCookie := cfg.AppEnv == "production"
+	authHandler := handler.NewAuthHandler(authUsecase, secureCookie, sessionTTL)
+	inviteHandler := handler.NewInviteHandler(inviteUsecase, groupUsecase, userUsecase, authUsecase, secureCookie, sessionTTL)
 	albumHandler := handler.NewAlbumHandler(albumUsecase)
 	photoHandler := handler.NewPhotoHandler(photoUsecase)
 	postHandler := handler.NewPostHandler(postUsecase)
@@ -92,9 +101,9 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	tripHandler := handler.NewTripHandler(tripUsecase)
 
 	// Middleware
-	authMiddleware := middleware.NewAuthMiddleware(firebaseAuth, userRepo)
+	authMiddleware := middleware.NewAuthMiddleware(firebaseAuth, userRepo, groupMemberRepo)
 
 	// Register routes
-	http.RegisterRoutes(e, userHandler, inviteHandler, albumHandler, photoHandler, postHandler, anniversaryHandler, tripHandler, authMiddleware)
+	http.RegisterRoutes(e, userHandler, groupHandler, authHandler, inviteHandler, albumHandler, photoHandler, postHandler, anniversaryHandler, tripHandler, authMiddleware)
 	return e, nil
 }

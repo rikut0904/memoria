@@ -41,12 +41,17 @@ func (h *AlbumHandler) CreateAlbum(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid user")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req CreateAlbumRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	album, err := h.albumUsecase.CreateAlbum(req.Title, req.Description, user.ID)
+	album, err := h.albumUsecase.CreateAlbum(req.Title, req.Description, user.ID, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -66,7 +71,12 @@ func (h *AlbumHandler) GetAlbum(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid album ID")
 	}
 
-	album, err := h.albumUsecase.GetAlbum(uint(id))
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	album, err := h.albumUsecase.GetAlbum(uint(id), groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "album not found")
 	}
@@ -82,7 +92,12 @@ func (h *AlbumHandler) GetAlbum(c echo.Context) error {
 }
 
 func (h *AlbumHandler) GetAllAlbums(c echo.Context) error {
-	albums, err := h.albumUsecase.GetAllAlbums()
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	albums, err := h.albumUsecase.GetAllAlbums(groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -114,12 +129,17 @@ func (h *AlbumHandler) UpdateAlbum(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid album ID")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req UpdateAlbumRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	album, err := h.albumUsecase.UpdateAlbum(uint(id), req.Title, req.Description, req.CoverPhotoID)
+	album, err := h.albumUsecase.UpdateAlbum(uint(id), req.Title, req.Description, req.CoverPhotoID, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -138,6 +158,15 @@ func (h *AlbumHandler) DeleteAlbum(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid album ID")
+	}
+
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	if _, err := h.albumUsecase.GetAlbum(uint(id), groupID); err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "album not found")
 	}
 
 	if err := h.albumUsecase.DeleteAlbum(uint(id)); err != nil {
@@ -165,7 +194,12 @@ func (h *AlbumHandler) GetAlbumPhotos(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid album ID")
 	}
 
-	photos, err := h.albumUsecase.GetAlbumPhotos(uint(id))
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	photos, err := h.albumUsecase.GetAlbumPhotos(uint(id), groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

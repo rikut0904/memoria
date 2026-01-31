@@ -4,8 +4,8 @@ import "memoria/internal/domain/model"
 
 type TripRepository interface {
 	Create(trip *model.Trip) error
-	FindByID(id uint) (*model.Trip, error)
-	FindAll() ([]*model.Trip, error)
+	FindByID(id uint, groupID uint) (*model.Trip, error)
+	FindAll(groupID uint) ([]*model.Trip, error)
 	Update(trip *model.Trip) error
 	Delete(id uint) error
 }

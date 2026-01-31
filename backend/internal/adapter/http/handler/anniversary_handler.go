@@ -46,6 +46,11 @@ func (h *AnniversaryHandler) CreateAnniversary(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid user")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req CreateAnniversaryRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -56,7 +61,7 @@ func (h *AnniversaryHandler) CreateAnniversary(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid date format")
 	}
 
-	anniversary, err := h.anniversaryUsecase.CreateAnniversary(req.Title, date, req.RemindDaysBefore, req.Note, user.ID)
+	anniversary, err := h.anniversaryUsecase.CreateAnniversary(req.Title, date, req.RemindDaysBefore, req.Note, user.ID, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -80,7 +85,12 @@ func (h *AnniversaryHandler) CreateAnniversary(c echo.Context) error {
 }
 
 func (h *AnniversaryHandler) GetAllAnniversaries(c echo.Context) error {
-	anniversaries, err := h.anniversaryUsecase.GetAllAnniversaries()
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	anniversaries, err := h.anniversaryUsecase.GetAllAnniversaries(groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -121,6 +131,11 @@ func (h *AnniversaryHandler) UpdateAnniversary(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid anniversary ID")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req UpdateAnniversaryRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -131,7 +146,7 @@ func (h *AnniversaryHandler) UpdateAnniversary(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid date format")
 	}
 
-	anniversary, err := h.anniversaryUsecase.UpdateAnniversary(uint(id), req.Title, date, req.RemindDaysBefore, req.Note)
+	anniversary, err := h.anniversaryUsecase.UpdateAnniversary(uint(id), req.Title, date, req.RemindDaysBefore, req.Note, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -158,6 +173,15 @@ func (h *AnniversaryHandler) DeleteAnniversary(c echo.Context) error {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid anniversary ID")
+	}
+
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	if _, err := h.anniversaryUsecase.GetAnniversary(uint(id), groupID); err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "anniversary not found")
 	}
 
 	if err := h.anniversaryUsecase.DeleteAnniversary(uint(id)); err != nil {

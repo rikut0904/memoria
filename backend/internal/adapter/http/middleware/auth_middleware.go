@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -14,16 +15,48 @@ import (
 type AuthMiddleware struct {
 	firebaseAuth *auth.FirebaseAuth
 	userRepo     repository.UserRepository
+	groupMemberRepo repository.GroupMemberRepository
 }
 
-func NewAuthMiddleware(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository) *AuthMiddleware {
+func NewAuthMiddleware(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, groupMemberRepo repository.GroupMemberRepository) *AuthMiddleware {
 	return &AuthMiddleware{
 		firebaseAuth: firebaseAuth,
 		userRepo:     userRepo,
+		groupMemberRepo: groupMemberRepo,
 	}
 }
 
 func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		cookie, err := c.Cookie("memoria_session")
+		if err != nil || cookie.Value == "" {
+			return echo.NewHTTPError(http.StatusUnauthorized, "missing session cookie")
+		}
+
+		token, err := m.firebaseAuth.VerifyIDToken(c.Request().Context(), cookie.Value)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, "invalid session")
+		}
+
+		user, err := m.userRepo.FindByFirebaseUID(token.UID)
+		if err != nil {
+			email, _ := token.Claims["email"].(string)
+			if email == "" {
+				return echo.NewHTTPError(http.StatusUnauthorized, "user not found")
+			}
+			user, err = m.userRepo.FindByEmail(email)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusUnauthorized, "user not found")
+			}
+		}
+
+		c.Set("user_id", user.ID)
+		c.Set("user", user)
+		return next(c)
+	}
+}
+
+func (m *AuthMiddleware) RequireFirebaseAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authHeader := c.Request().Header.Get("Authorization")
 		if authHeader == "" {
@@ -41,13 +74,12 @@ func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnauthorized, "invalid token")
 		}
 
-		user, err := m.userRepo.FindByFirebaseUID(token.UID)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusUnauthorized, "user not found")
-		}
+		email, _ := token.Claims["email"].(string)
+		name, _ := token.Claims["name"].(string)
 
-		c.Set("user_id", user.ID)
-		c.Set("user", user)
+		c.Set("firebase_uid", token.UID)
+		c.Set("firebase_email", email)
+		c.Set("firebase_name", name)
 		return next(c)
 	}
 }
@@ -68,6 +100,34 @@ func (m *AuthMiddleware) RequireAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusForbidden, "admin access required")
 		}
 
+		return next(c)
+	})
+}
+
+func (m *AuthMiddleware) RequireGroup(next echo.HandlerFunc) echo.HandlerFunc {
+	return m.RequireAuth(func(c echo.Context) error {
+		userVal := c.Get("user")
+		user, ok := userVal.(*model.User)
+		if !ok {
+			return echo.NewHTTPError(http.StatusUnauthorized, "invalid user")
+		}
+
+		groupIDHeader := c.Request().Header.Get("X-Group-ID")
+		if groupIDHeader == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "missing X-Group-ID header")
+		}
+		var groupID uint
+		if _, err := fmt.Sscanf(groupIDHeader, "%d", &groupID); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid X-Group-ID header")
+		}
+
+		member, err := m.groupMemberRepo.FindByGroupAndUser(groupID, user.ID)
+		if err != nil || member == nil {
+			return echo.NewHTTPError(http.StatusForbidden, "group access required")
+		}
+
+		c.Set("group_id", groupID)
+		c.Set("group_member", member)
 		return next(c)
 	})
 }

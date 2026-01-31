@@ -19,17 +19,17 @@ func (r *tripRepositoryImpl) Create(trip *model.Trip) error {
 	return r.db.Create(trip).Error
 }
 
-func (r *tripRepositoryImpl) FindByID(id uint) (*model.Trip, error) {
+func (r *tripRepositoryImpl) FindByID(id uint, groupID uint) (*model.Trip, error) {
 	var trip model.Trip
-	if err := r.db.First(&trip, id).Error; err != nil {
+	if err := r.db.Where("id = ? AND group_id = ?", id, groupID).First(&trip).Error; err != nil {
 		return nil, err
 	}
 	return &trip, nil
 }
 
-func (r *tripRepositoryImpl) FindAll() ([]*model.Trip, error) {
+func (r *tripRepositoryImpl) FindAll(groupID uint) ([]*model.Trip, error) {
 	var trips []*model.Trip
-	if err := r.db.Order("start_at DESC").Find(&trips).Error; err != nil {
+	if err := r.db.Where("group_id = ?", groupID).Order("start_at DESC").Find(&trips).Error; err != nil {
 		return nil, err
 	}
 	return trips, nil

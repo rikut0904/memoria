@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
-import { auth } from '@/lib/firebase'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 
 interface User {
@@ -26,35 +25,27 @@ export default function UsersManagementPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (!firebaseUser) {
-        router.push('/login')
-        return
-      }
-
+    const fetchUsers = async () => {
       try {
-        // 現在のユーザー情報を取得
         const meRes = await api.get('/me')
         setCurrentUser(meRes.data)
 
-        // 管理者権限チェック
         if (meRes.data.role !== 'admin') {
-          router.push('/dashboard')
+          router.push('/')
           return
         }
 
-        // 全ユーザー取得
         const usersRes = await api.get('/users')
         setUsers(usersRes.data || [])
       } catch (error) {
         console.error('Failed to fetch data:', error)
-        router.push('/dashboard')
+        router.push('/login')
       } finally {
         setLoading(false)
       }
-    })
+    }
 
-    return () => unsubscribe()
+    fetchUsers()
   }, [router])
 
   const handleRoleChange = async (userId: number, newRole: string) => {
@@ -125,12 +116,6 @@ export default function UsersManagementPage() {
               >
                 ユーザー管理
               </button>
-              <button
-                onClick={() => router.push('/admin/invites')}
-                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 py-4 px-1 text-sm font-medium"
-              >
-                招待管理
-              </button>
             </nav>
           </div>
         </div>
@@ -183,7 +168,7 @@ export default function UsersManagementPage() {
                       </span>
                     ) : (
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                        一般
+                        通常
                       </span>
                     )}
                   </td>
@@ -193,11 +178,11 @@ export default function UsersManagementPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     {user.role === 'admin' ? (
                       <button
-                        onClick={() => handleRoleChange(user.id, 'user')}
+                        onClick={() => handleRoleChange(user.id, 'member')}
                         className="text-yellow-600 hover:text-yellow-900"
                         disabled={currentUser?.id === user.id}
                       >
-                        一般に降格
+                        通常に降格
                       </button>
                     ) : (
                       <button

@@ -20,27 +20,27 @@ func (r *postRepositoryImpl) Create(post *model.Post) error {
 	return r.db.Create(post).Error
 }
 
-func (r *postRepositoryImpl) FindByID(id uint) (*model.Post, error) {
+func (r *postRepositoryImpl) FindByID(id uint, groupID uint) (*model.Post, error) {
 	var post model.Post
-	if err := r.db.First(&post, id).Error; err != nil {
+	if err := r.db.Where("id = ? AND group_id = ?", id, groupID).First(&post).Error; err != nil {
 		return nil, err
 	}
 	return &post, nil
 }
 
-func (r *postRepositoryImpl) FindAll() ([]*model.Post, error) {
+func (r *postRepositoryImpl) FindAll(groupID uint) ([]*model.Post, error) {
 	var posts []*model.Post
-	if err := r.db.Order("published_at DESC").Find(&posts).Error; err != nil {
+	if err := r.db.Where("group_id = ?", groupID).Order("published_at DESC").Find(&posts).Error; err != nil {
 		return nil, err
 	}
 	return posts, nil
 }
 
-func (r *postRepositoryImpl) FindByTagID(tagID uint) ([]*model.Post, error) {
+func (r *postRepositoryImpl) FindByTagID(tagID uint, groupID uint) ([]*model.Post, error) {
 	var posts []*model.Post
 	if err := r.db.
 		Joins("JOIN post_tags ON post_tags.post_id = posts.id").
-		Where("post_tags.tag_id = ?", tagID).
+		Where("post_tags.tag_id = ? AND posts.group_id = ?", tagID, groupID).
 		Order("published_at DESC").
 		Find(&posts).Error; err != nil {
 		return nil, err

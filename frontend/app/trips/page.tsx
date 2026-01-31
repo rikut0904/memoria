@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
-import { auth } from '@/lib/firebase'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 
 interface Trip {
@@ -24,24 +23,21 @@ export default function TripsPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (!firebaseUser) {
-        router.push('/login')
-        return
-      }
-
+    const fetchTrips = async () => {
       try {
+        await api.get('/me')
         const res = await api.get('/trips')
         setTrips(res.data || [])
       } catch (err) {
         console.error('Failed to fetch trips:', err)
         setError(getErrorMessage(err, '旅行一覧の取得に失敗しました'))
+        router.push('/login')
       } finally {
         setLoading(false)
       }
-    })
+    }
 
-    return () => unsubscribe()
+    fetchTrips()
   }, [router])
 
   if (loading) {

@@ -4,9 +4,9 @@ import "memoria/internal/domain/model"
 
 type PostRepository interface {
 	Create(post *model.Post) error
-	FindByID(id uint) (*model.Post, error)
-	FindAll() ([]*model.Post, error)
-	FindByTagID(tagID uint) ([]*model.Post, error)
+	FindByID(id uint, groupID uint) (*model.Post, error)
+	FindAll(groupID uint) ([]*model.Post, error)
+	FindByTagID(tagID uint, groupID uint) ([]*model.Post, error)
 	Update(post *model.Post) error
 	Delete(id uint) error
 

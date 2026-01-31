@@ -19,17 +19,17 @@ func (r *anniversaryRepositoryImpl) Create(anniversary *model.Anniversary) error
 	return r.db.Create(anniversary).Error
 }
 
-func (r *anniversaryRepositoryImpl) FindByID(id uint) (*model.Anniversary, error) {
+func (r *anniversaryRepositoryImpl) FindByID(id uint, groupID uint) (*model.Anniversary, error) {
 	var anniversary model.Anniversary
-	if err := r.db.First(&anniversary, id).Error; err != nil {
+	if err := r.db.Where("id = ? AND group_id = ?", id, groupID).First(&anniversary).Error; err != nil {
 		return nil, err
 	}
 	return &anniversary, nil
 }
 
-func (r *anniversaryRepositoryImpl) FindAll() ([]*model.Anniversary, error) {
+func (r *anniversaryRepositoryImpl) FindAll(groupID uint) ([]*model.Anniversary, error) {
 	var anniversaries []*model.Anniversary
-	if err := r.db.Order("date ASC").Find(&anniversaries).Error; err != nil {
+	if err := r.db.Where("group_id = ?", groupID).Order("date ASC").Find(&anniversaries).Error; err != nil {
 		return nil, err
 	}
 	return anniversaries, nil

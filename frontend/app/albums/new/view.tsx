@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { auth } from '@/lib/firebase'
+import api from '@/lib/api'
 
 export default function NewAlbumClient() {
   const router = useRouter()
@@ -12,13 +12,14 @@ export default function NewAlbumClient() {
   const backPath = redirect && redirect.startsWith('/') ? redirect : '/trips'
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      if (!firebaseUser) {
+    const checkAuth = async () => {
+      try {
+        await api.get('/me')
+      } catch {
         router.push('/login')
       }
-    })
-
-    return () => unsubscribe()
+    }
+    checkAuth()
   }, [router])
 
   return (

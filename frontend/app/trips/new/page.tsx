@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
-import { auth } from '@/lib/firebase'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 
 type CreateTripRequest = {
@@ -31,23 +30,18 @@ export default function NewTripPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      if (!firebaseUser) {
+    const fetchOptions = async () => {
+      try {
+        await api.get('/me')
+        const [albumRes, postRes] = await Promise.all([api.get('/albums'), api.get('/posts')])
+        setAlbums(albumRes.data || [])
+        setPosts(postRes.data || [])
+      } catch (err) {
+        console.error('Failed to fetch trip relation options:', err)
         router.push('/login')
-        return
       }
-
-      Promise.all([api.get('/albums'), api.get('/posts')])
-        .then(([albumRes, postRes]) => {
-          setAlbums(albumRes.data || [])
-          setPosts(postRes.data || [])
-        })
-        .catch((err) => {
-          console.error('Failed to fetch trip relation options:', err)
-        })
-    })
-
-    return () => unsubscribe()
+    }
+    fetchOptions()
   }, [router])
 
   const toDateISOString = (value: string) => {

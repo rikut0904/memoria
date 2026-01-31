@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
-import { auth } from '@/lib/firebase'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import TripHeader from './components/TripHeader'
 import OverviewTab from './components/OverviewTab'
@@ -83,13 +82,9 @@ export default function TripDetailPage() {
   } = useItineraryState()
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (!firebaseUser) {
-        router.push('/login')
-        return
-      }
-
+    const fetchTrip = async () => {
       try {
+        await api.get('/me')
         const [tripRes, scheduleRes, transportRes, lodgingRes, budgetRes] = await Promise.all([
           api.get<Trip>(`/trips/${tripId}`),
           api.get<ScheduleResponseItem[]>(`/trips/${tripId}/schedule`),
@@ -147,12 +142,13 @@ export default function TripDetailPage() {
       } catch (err) {
         console.error('Failed to fetch trip data:', err)
         setError(getErrorMessage(err, '旅行の取得に失敗しました'))
+        router.push('/login')
       } finally {
         setLoading(false)
       }
-    })
+    }
 
-    return () => unsubscribe()
+    fetchTrip()
   }, [router, tripId, initialize])
 
   const toDateInput = (isoString: string) => {

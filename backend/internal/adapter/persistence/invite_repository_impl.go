@@ -27,9 +27,17 @@ func (r *inviteRepositoryImpl) FindByToken(token string) (*model.Invite, error) 
 	return &invite, nil
 }
 
-func (r *inviteRepositoryImpl) FindAll() ([]*model.Invite, error) {
+func (r *inviteRepositoryImpl) FindByID(id uint) (*model.Invite, error) {
+	var invite model.Invite
+	if err := r.db.First(&invite, id).Error; err != nil {
+		return nil, err
+	}
+	return &invite, nil
+}
+
+func (r *inviteRepositoryImpl) FindByGroupID(groupID uint) ([]*model.Invite, error) {
 	var invites []*model.Invite
-	if err := r.db.Order("created_at DESC").Find(&invites).Error; err != nil {
+	if err := r.db.Where("group_id = ?", groupID).Order("created_at DESC").Find(&invites).Error; err != nil {
 		return nil, err
 	}
 	return invites, nil
