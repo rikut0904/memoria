@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { setCurrentGroup } from '@/lib/group'
+import { buildLoginUrl, getCurrentPathWithQuery, normalizeBackPath } from '@/lib/backPath'
 
 interface InviteInfo {
   email: string
@@ -27,6 +28,7 @@ export default function InviteAcceptPage() {
   const router = useRouter()
   const params = useParams()
   const token = params.token as string
+  const searchParams = useSearchParams()
 
   const [inviteInfo, setInviteInfo] = useState<InviteInfo | null>(null)
   const [me, setMe] = useState<MeInfo | null>(null)
@@ -37,6 +39,7 @@ export default function InviteAcceptPage() {
   const [displayName, setDisplayName] = useState('')
   const [accepting, setAccepting] = useState(false)
   const [declining, setDeclining] = useState(false)
+  const backPath = normalizeBackPath(searchParams.get('back-path'))
 
   useEffect(() => {
     const verifyInvite = async () => {
@@ -68,6 +71,12 @@ export default function InviteAcceptPage() {
     fetchMe()
   }, [])
 
+  useEffect(() => {
+    if (inviteInfo?.user_exists && !me) {
+      router.push(buildLoginUrl(getCurrentPathWithQuery()))
+    }
+  }, [inviteInfo, me, router])
+
   const handleAcceptExisting = async () => {
     if (!inviteInfo) return
     setError('')
@@ -76,7 +85,7 @@ export default function InviteAcceptPage() {
       await api.post(`/invites/${token}/accept`)
       setCurrentGroup(inviteInfo.group_id, inviteInfo.group_name)
       alert('グループに参加しました！')
-      router.push('/dashboard')
+      router.push(backPath || '/dashboard')
     } catch (err) {
       console.error('Failed to accept invite:', err)
       setError(getErrorMessage(err, '招待の承認に失敗しました'))
@@ -92,7 +101,7 @@ export default function InviteAcceptPage() {
     try {
       await api.post(`/invites/${token}/decline`)
       alert('招待を拒否しました')
-      router.push('/')
+      router.push(backPath || '/')
     } catch (err) {
       console.error('Failed to decline invite:', err)
       setError(getErrorMessage(err, '招待の拒否に失敗しました'))
@@ -120,10 +129,11 @@ export default function InviteAcceptPage() {
         email: inviteInfo!.email,
         password,
         display_name: displayName,
+        back_path: getCurrentPathWithQuery(),
       })
       setCurrentGroup(inviteInfo!.group_id, inviteInfo!.group_name)
       alert('アカウントが作成されました！')
-      router.push('/dashboard')
+      router.push(backPath || '/dashboard')
     } catch (err) {
       console.error('Failed to signup with invite:', err)
       setError(getErrorMessage(err, 'アカウント作成に失敗しました'))
@@ -184,7 +194,7 @@ export default function InviteAcceptPage() {
                 既にアカウントをお持ちのため、ログインして承認/拒否を選択してください。
               </p>
               <button
-                onClick={() => router.push('/login')}
+                onClick={() => router.push(buildLoginUrl(getCurrentPathWithQuery()))}
                 className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium"
               >
                 ログインへ
@@ -315,7 +325,7 @@ export default function InviteAcceptPage() {
           <p className="text-sm text-gray-600">
             既にアカウントをお持ちですか？{' '}
             <button
-              onClick={() => router.push('/login')}
+              onClick={() => router.push(buildLoginUrl(getCurrentPathWithQuery()))}
               className="text-primary-600 hover:text-primary-700 font-medium"
             >
               ログイン

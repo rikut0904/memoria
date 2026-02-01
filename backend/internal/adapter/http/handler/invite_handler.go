@@ -123,6 +123,7 @@ type InviteSignupRequest struct {
 	Email       string `json:"email" validate:"required,email"`
 	Password    string `json:"password" validate:"required"`
 	DisplayName string `json:"display_name"`
+	BackPath    string `json:"back_path"`
 }
 
 type AcceptInviteResponse struct {
@@ -170,8 +171,15 @@ func (h *InviteHandler) SignupInvite(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "email does not match invite")
 	}
 
-	user, sessionCookie, err := h.authUsecase.Signup(req.Email, req.Password, req.DisplayName)
+	backPath := sanitizeBackPath(req.BackPath)
+	user, sessionCookie, err := h.authUsecase.Signup(req.Email, req.Password, req.DisplayName, backPath)
 	if err != nil {
+		if authErr, ok := err.(*usecase.AuthError); ok {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"code":    authErr.Code,
+				"message": authErr.Message,
+			})
+		}
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 

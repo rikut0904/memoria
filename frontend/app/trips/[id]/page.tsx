@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
+import { getCurrentGroupId } from '@/lib/group'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import TripHeader from './components/TripHeader'
 import OverviewTab from './components/OverviewTab'
 import OverviewModal from './components/OverviewModal'
@@ -84,6 +86,11 @@ export default function TripDetailPage() {
   useEffect(() => {
     const fetchTrip = async () => {
       try {
+        const groupId = getCurrentGroupId()
+        if (!groupId) {
+          router.push('/')
+          return
+        }
         await api.get('/me')
         const [tripRes, scheduleRes, transportRes, lodgingRes, budgetRes] = await Promise.all([
           api.get<Trip>(`/trips/${tripId}`),
@@ -142,7 +149,7 @@ export default function TripDetailPage() {
       } catch (err) {
         console.error('Failed to fetch trip data:', err)
         setError(getErrorMessage(err, '旅行の取得に失敗しました'))
-        router.push('/login')
+        router.push(buildLoginUrl(getCurrentPathWithQuery()))
       } finally {
         setLoading(false)
       }

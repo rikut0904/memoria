@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { clearCurrentGroup, setCurrentGroup } from '@/lib/group'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 
 interface Group {
   id: number
@@ -28,7 +29,7 @@ export default function Home() {
         setGroups(res.data || [])
       } catch (err) {
         console.error('Failed to fetch groups:', err)
-        router.push('/login')
+        router.push(buildLoginUrl(getCurrentPathWithQuery()))
       } finally {
         setLoading(false)
       }
@@ -88,9 +89,13 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             <h1 className="text-2xl font-bold text-primary-600">Memoria</h1>
             <button
-              onClick={() => {
+              onClick={async () => {
                 clearCurrentGroup()
-                api.post('/logout')
+                try {
+                  await api.post('/logout')
+                } finally {
+                  router.push('/login')
+                }
               }}
               className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
             >

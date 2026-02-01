@@ -3,6 +3,8 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import api from '@/lib/api'
+import { getCurrentGroupId } from '@/lib/group'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 
 export default function NewPostClient() {
   const router = useRouter()
@@ -14,9 +16,14 @@ export default function NewPostClient() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        const groupId = getCurrentGroupId()
+        if (!groupId) {
+          router.push('/')
+          return
+        }
         await api.get('/me')
       } catch {
-        router.push('/login')
+        router.push(buildLoginUrl(getCurrentPathWithQuery()))
       }
     }
     checkAuth()

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 
 interface User {
@@ -39,7 +40,7 @@ export default function UsersManagementPage() {
         setUsers(usersRes.data || [])
       } catch (error) {
         console.error('Failed to fetch data:', error)
-        router.push('/login')
+        router.push(buildLoginUrl(getCurrentPathWithQuery()))
       } finally {
         setLoading(false)
       }

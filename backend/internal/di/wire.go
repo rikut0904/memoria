@@ -80,7 +80,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	userUsecase := usecase.NewUserUsecase(userRepo, firebaseAuth)
 	groupUsecase := usecase.NewGroupUsecase(groupRepo, groupMemberRepo)
 	sessionTTL := 7 * 24 * time.Hour
-	authUsecase := usecase.NewAuthUsecase(firebaseAuth, userRepo, cfg.FirebaseAPIKey, sessionTTL)
+	authUsecase := usecase.NewAuthUsecase(firebaseAuth, userRepo, cfg.FirebaseAPIKey, sessionTTL, cfg.FrontendBaseURL)
 	inviteUsecase := usecase.NewInviteUsecase(inviteRepo, userRepo, groupRepo, groupMemberRepo, mailer)
 	albumUsecase := usecase.NewAlbumUsecase(albumRepo, photoRepo)
 	photoUsecase := usecase.NewPhotoUsecase(photoRepo, albumRepo, s3Service)

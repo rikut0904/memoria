@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
+import { getCurrentGroupId } from '@/lib/group'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 
 type CreateTripRequest = {
   title: string
@@ -32,13 +34,18 @@ export default function NewTripPage() {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
+        const groupId = getCurrentGroupId()
+        if (!groupId) {
+          router.push('/')
+          return
+        }
         await api.get('/me')
         const [albumRes, postRes] = await Promise.all([api.get('/albums'), api.get('/posts')])
         setAlbums(albumRes.data || [])
         setPosts(postRes.data || [])
       } catch (err) {
         console.error('Failed to fetch trip relation options:', err)
-        router.push('/login')
+        router.push(buildLoginUrl(getCurrentPathWithQuery()))
       }
     }
     fetchOptions()

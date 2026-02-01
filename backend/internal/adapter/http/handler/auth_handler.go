@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"memoria/internal/usecase"
@@ -26,6 +27,7 @@ func NewAuthHandler(authUsecase *usecase.AuthUsecase, secureCookie bool, session
 type LoginRequest struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
+	BackPath string `json:"back_path"`
 }
 
 type AuthResponse struct {
@@ -41,7 +43,8 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	user, sessionCookie, err := h.authUsecase.Login(req.Email, req.Password)
+	backPath := sanitizeBackPath(req.BackPath)
+	user, sessionCookie, err := h.authUsecase.Login(req.Email, req.Password, backPath)
 	if err != nil {
 		if authErr, ok := err.(*usecase.AuthError); ok {
 			return c.JSON(http.StatusUnauthorized, map[string]string{
@@ -66,6 +69,7 @@ type SignupRequest struct {
 	Email       string `json:"email" validate:"required,email"`
 	Password    string `json:"password" validate:"required"`
 	DisplayName string `json:"display_name"`
+	BackPath    string `json:"back_path"`
 }
 
 func (h *AuthHandler) Signup(c echo.Context) error {
@@ -74,7 +78,8 @@ func (h *AuthHandler) Signup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	user, sessionCookie, err := h.authUsecase.Signup(req.Email, req.Password, req.DisplayName)
+	backPath := sanitizeBackPath(req.BackPath)
+	user, sessionCookie, err := h.authUsecase.Signup(req.Email, req.Password, req.DisplayName, backPath)
 	if err != nil {
 		if authErr, ok := err.(*usecase.AuthError); ok {
 			return c.JSON(http.StatusBadRequest, map[string]string{
@@ -98,4 +103,17 @@ func (h *AuthHandler) Signup(c echo.Context) error {
 func (h *AuthHandler) Logout(c echo.Context) error {
 	clearSessionCookie(c, h.secureCookie)
 	return c.NoContent(http.StatusNoContent)
+}
+
+func sanitizeBackPath(backPath string) string {
+	if backPath == "" {
+		return ""
+	}
+	if !strings.HasPrefix(backPath, "/") {
+		return ""
+	}
+	if strings.Contains(backPath, "://") {
+		return ""
+	}
+	return backPath
 }

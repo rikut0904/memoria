@@ -1,16 +1,19 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
+import { normalizeBackPath } from '@/lib/backPath'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const backPath = normalizeBackPath(searchParams.get('back-path')) || '/'
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,8 +21,8 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      await api.post('/login', { email, password })
-      router.push('/')
+      await api.post('/login', { email, password, back_path: backPath })
+      router.push(backPath)
     } catch (err) {
       setError(getErrorMessage(err, 'ログインに失敗しました。メールアドレスとパスワードを確認してください。'))
       console.error(err)
@@ -95,5 +98,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   )
 }

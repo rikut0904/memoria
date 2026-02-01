@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { setCurrentGroup } from '@/lib/group'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 
 interface Group {
   id: number
@@ -84,7 +85,7 @@ export default function GroupManagementPage() {
       } catch (err) {
         console.error('Failed to fetch group data:', err)
         setError(getErrorMessage(err, 'グループ情報の取得に失敗しました'))
-        router.push('/login')
+        router.push(buildLoginUrl(getCurrentPathWithQuery()))
       } finally {
         setLoading(false)
       }

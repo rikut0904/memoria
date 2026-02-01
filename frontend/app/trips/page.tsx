@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
+import { getCurrentGroupId } from '@/lib/group'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 
 interface Trip {
   id: number
@@ -25,13 +27,18 @@ export default function TripsPage() {
   useEffect(() => {
     const fetchTrips = async () => {
       try {
+        const groupId = getCurrentGroupId()
+        if (!groupId) {
+          router.push('/')
+          return
+        }
         await api.get('/me')
         const res = await api.get('/trips')
         setTrips(res.data || [])
       } catch (err) {
         console.error('Failed to fetch trips:', err)
         setError(getErrorMessage(err, '旅行一覧の取得に失敗しました'))
-        router.push('/login')
+        router.push(buildLoginUrl(getCurrentPathWithQuery()))
       } finally {
         setLoading(false)
       }
