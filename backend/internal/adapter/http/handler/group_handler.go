@@ -115,6 +115,7 @@ func (h *GroupHandler) GetGroupMembers(c echo.Context) error {
 	for _, member := range members {
 		userInfo, err := h.userUsecase.GetUserByID(member.UserID)
 		if err != nil {
+			c.Logger().Errorf("Failed to get user info for user ID %d: %v", member.UserID, err)
 			continue
 		}
 		response = append(response, GroupMemberResponse{
