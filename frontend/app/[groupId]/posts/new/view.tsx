@@ -8,6 +8,7 @@ import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import GroupSwitchButton from '@/components/GroupSwitchButton'
 import DashboardButton from '@/components/DashboardButton'
 import AppHeader from '@/components/AppHeader'
+import TripsListButton from '@/components/TripsListButton'
 
 export default function NewPostClient() {
   const router = useRouter()
@@ -62,12 +63,7 @@ export default function NewPostClient() {
             </p>
           )}
           <div className="mt-6 flex flex-col gap-2">
-            <button
-              onClick={() => router.push(backPath)}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-            >
-              旅行一覧に戻る
-            </button>
+            <TripsListButton />
             <GroupSwitchButton label="グループ一覧へ" className="w-full" />
           </div>
         </div>

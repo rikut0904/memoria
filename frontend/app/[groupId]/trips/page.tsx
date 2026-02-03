@@ -110,7 +110,7 @@ export default function TripsPage() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <div className="text-lg font-semibold text-gray-800">{trip.title}</div>
+                    <h2 className="text-lg font-semibold text-gray-800">{trip.title}</h2>
                     <p className="text-sm text-gray-600 mt-1">
                       {new Date(trip.start_at).toLocaleDateString('ja-JP')} 〜{' '}
                       {new Date(trip.end_at).toLocaleDateString('ja-JP')}

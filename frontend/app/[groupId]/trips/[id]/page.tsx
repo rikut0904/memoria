@@ -9,6 +9,7 @@ import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import GroupSwitchButton from '@/components/GroupSwitchButton'
 import DashboardButton from '@/components/DashboardButton'
 import AppHeader from '@/components/AppHeader'
+import TripsListButton from '@/components/TripsListButton'
 import TripHeader from './components/TripHeader'
 import OverviewTab from './components/OverviewTab'
 import OverviewModal from './components/OverviewModal'
@@ -466,12 +467,9 @@ export default function TripDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="card text-center">
           <p className="text-gray-700">{error || '旅行が見つかりません'}</p>
-          <button
-            onClick={() => router.push(`/${groupIdParam}/trips`)}
-            className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-          >
-            旅行一覧に戻る
-          </button>
+          <div className="mt-4">
+            <TripsListButton />
+          </div>
         </div>
       </div>
     )
@@ -488,12 +486,7 @@ export default function TripDetailPage() {
           <>
             <GroupSwitchButton label="グループ一覧へ" />
             <DashboardButton label="ダッシュボードへ" />
-            <button
-              onClick={() => router.push(`/${groupIdParam}/trips`)}
-              className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
-            >
-              旅行一覧に戻る
-            </button>
+            <TripsListButton />
           </>
         }
       />
