@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import { getErrorMessage } from '@/lib/getErrorMessage'
+import GroupSwitchButton from '@/components/GroupSwitchButton'
+import DashboardButton from '@/components/DashboardButton'
+import AppHeader from '@/components/AppHeader'
 
 interface User {
   id: number
@@ -92,20 +95,18 @@ export default function UsersManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-primary-600">Memoria - 管理</h1>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
-            >
-              ダッシュボードに戻る
-            </button>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen admin">
+      <AppHeader
+        title="Memoria - 管理"
+        displayName={currentUser?.display_name}
+        email={currentUser?.email}
+        right={
+          <>
+            <GroupSwitchButton label="グループ一覧へ" />
+            <DashboardButton label="ダッシュボードへ" />
+          </>
+        }
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">

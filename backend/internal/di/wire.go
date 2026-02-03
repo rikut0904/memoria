@@ -68,7 +68,6 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	photoRepo := persistence.NewPhotoRepository(db)
 	postRepo := persistence.NewPostRepository(db)
 	tagRepo := persistence.NewTagRepository(db)
-	anniversaryRepo := persistence.NewAnniversaryRepository(db)
 	tripRepo := persistence.NewTripRepository(db)
 	itineraryRepo := persistence.NewTripItineraryRepository(db)
 	wishlistRepo := persistence.NewTripWishlistRepository(db)
@@ -85,7 +84,6 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	albumUsecase := usecase.NewAlbumUsecase(albumRepo, photoRepo)
 	photoUsecase := usecase.NewPhotoUsecase(photoRepo, albumRepo, s3Service)
 	postUsecase := usecase.NewPostUsecase(postRepo, tagRepo, albumRepo, photoRepo)
-	anniversaryUsecase := usecase.NewAnniversaryUsecase(anniversaryRepo)
 	tripUsecase := usecase.NewTripUsecase(tripRepo, itineraryRepo, wishlistRepo, expenseRepo, tripRelationRepo, tripDetailRepo, albumRepo, postRepo)
 
 	// Handlers
@@ -97,13 +95,12 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	albumHandler := handler.NewAlbumHandler(albumUsecase)
 	photoHandler := handler.NewPhotoHandler(photoUsecase)
 	postHandler := handler.NewPostHandler(postUsecase)
-	anniversaryHandler := handler.NewAnniversaryHandler(anniversaryUsecase)
 	tripHandler := handler.NewTripHandler(tripUsecase)
 
 	// Middleware
 	authMiddleware := middleware.NewAuthMiddleware(firebaseAuth, userRepo, groupMemberRepo)
 
 	// Register routes
-	http.RegisterRoutes(e, userHandler, groupHandler, authHandler, inviteHandler, albumHandler, photoHandler, postHandler, anniversaryHandler, tripHandler, authMiddleware)
+	http.RegisterRoutes(e, userHandler, groupHandler, authHandler, inviteHandler, albumHandler, photoHandler, postHandler, tripHandler, authMiddleware)
 	return e, nil
 }

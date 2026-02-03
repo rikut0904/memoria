@@ -6,6 +6,15 @@ import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { setCurrentGroup } from '@/lib/group'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
+import GroupSwitchButton from '@/components/GroupSwitchButton'
+import DashboardButton from '@/components/DashboardButton'
+import AppHeader from '@/components/AppHeader'
+
+interface User {
+  id: number
+  email: string
+  display_name: string
+}
 
 interface Group {
   id: number
@@ -39,10 +48,10 @@ type CreateInviteRequest = {
 }
 
 export default function GroupManagementPage() {
-  const router = useRouter()
   const params = useParams()
-  const groupId = Number(params.id)
+  const groupId = Number(params.groupId)
 
+  const router = useRouter()
   const [group, setGroup] = useState<Group | null>(null)
   const [members, setMembers] = useState<Member[]>([])
   const [invites, setInvites] = useState<Invite[]>([])
@@ -51,8 +60,7 @@ export default function GroupManagementPage() {
   const [inviteRole, setInviteRole] = useState('member')
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
-  const [isManager, setIsManager] = useState(false)
-
+  const [user, setUser] = useState<User | null>(null)
   useEffect(() => {
     const fetchGroup = async () => {
       if (!groupId || Number.isNaN(groupId)) {
@@ -63,7 +71,7 @@ export default function GroupManagementPage() {
       setCurrentGroup(groupId)
 
       try {
-        const [meRes, groupsRes, membersRes] = await Promise.all([
+        const [userRes, groupsRes, membersRes] = await Promise.all([
           api.get('/me'),
           api.get('/groups'),
           api.get(`/groups/${groupId}/members`),
@@ -72,16 +80,7 @@ export default function GroupManagementPage() {
         const current = groups.find((g) => g.id === groupId) || null
         setGroup(current)
         setMembers(membersRes.data || [])
-        const me = meRes.data as { id: number }
-        const manager = (membersRes.data || []).some(
-          (m: Member) => m.user_id === me.id && m.role === 'manager'
-        )
-        setIsManager(manager)
-
-        if (manager) {
-          const invitesRes = await api.get('/invites')
-          setInvites(invitesRes.data || [])
-        }
+        setUser(userRes.data)
       } catch (err) {
         console.error('Failed to fetch group data:', err)
         setError(getErrorMessage(err, 'グループ情報の取得に失敗しました'))
@@ -145,28 +144,24 @@ export default function GroupManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div>
-              <h1 className="text-2xl font-bold text-primary-600">Memoria</h1>
-              {group && <p className="text-xs text-gray-500 mt-1">グループ: {group.name}</p>}
-            </div>
-            <button
-              onClick={() => router.push('/')}
-              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
-            >
-              グループ一覧へ
-            </button>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen">
+      <AppHeader
+        title="Memoria"
+        maxWidthClassName="max-w-6xl"
+        displayName={user?.display_name}
+        email={user?.email}
+        right={
+          <>
+            <GroupSwitchButton label="グループ一覧へ" />
+            <DashboardButton label="ダッシュボードへ" />
+          </>
+        }
+      />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         {error && <div className="text-sm text-red-600">{error}</div>}
-
-        <section className="bg-white rounded-lg shadow p-6">
+        {group?.name && <h1>{group.name}</h1>}
+        <section className="card">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">メンバー一覧</h2>
           {members.length === 0 ? (
             <p className="text-gray-500">メンバーがいません。</p>
@@ -189,12 +184,8 @@ export default function GroupManagementPage() {
           )}
         </section>
 
-        <section className="bg-white rounded-lg shadow p-6">
+        <section className="card">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">メンバー招待</h2>
-          {!isManager ? (
-            <p className="text-gray-500">グループ管理者のみ招待できます。</p>
-          ) : (
-            <>
               <form onSubmit={handleCreateInvite} className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="email"
@@ -222,7 +213,7 @@ export default function GroupManagementPage() {
               </form>
 
               <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">招待一覧</h3>
+                <div className="text-lg font-semibold text-gray-800 mb-3">招待一覧</div>
                 {invites.length === 0 ? (
                   <p className="text-gray-500">未使用の招待はありません。</p>
                 ) : (
@@ -246,8 +237,6 @@ export default function GroupManagementPage() {
                   </div>
                 )}
               </div>
-            </>
-          )}
         </section>
       </main>
     </div>

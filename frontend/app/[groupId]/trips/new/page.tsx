@@ -1,11 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
-import { getCurrentGroupId } from '@/lib/group'
+import { getCurrentGroupId, getCurrentGroupName } from '@/lib/group'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
+import GroupSwitchButton from '@/components/GroupSwitchButton'
+import DashboardButton from '@/components/DashboardButton'
+import AppHeader from '@/components/AppHeader'
 
 type CreateTripRequest = {
   title: string
@@ -19,6 +22,9 @@ type CreateTripRequest = {
 
 export default function NewTripPage() {
   const router = useRouter()
+  const params = useParams()
+  const groupIdParam = params.groupId as string
+  const [user, setUser] = useState<{ display_name: string; email: string } | null>(null)
   const [albums, setAlbums] = useState<{ id: number; title: string }[]>([])
   const [posts, setPosts] = useState<{ id: number; title: string; type: string }[]>([])
   const [selectedAlbumIds, setSelectedAlbumIds] = useState<number[]>([])
@@ -39,7 +45,8 @@ export default function NewTripPage() {
           router.push('/')
           return
         }
-        await api.get('/me')
+        const meRes = await api.get('/me')
+        setUser(meRes.data)
         const [albumRes, postRes] = await Promise.all([api.get('/albums'), api.get('/posts')])
         setAlbums(albumRes.data || [])
         setPosts(postRes.data || [])
@@ -98,7 +105,7 @@ export default function NewTripPage() {
       }
 
       const res = await api.post('/trips', payload)
-      router.push(`/trips/${res.data.id}`)
+      router.push(`/${groupIdParam}/trips/${res.data.id}`)
     } catch (err) {
       console.error('Failed to create trip:', err)
       setError(getErrorMessage(err, '旅行の作成に失敗しました'))
@@ -108,23 +115,29 @@ export default function NewTripPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-primary-600">新規旅行</h1>
+    <div className="min-h-screen">
+      <AppHeader
+        title="新規旅行"
+        maxWidthClassName="max-w-4xl"
+        displayName={user?.display_name}
+        email={user?.email}
+        right={
+          <>
+            <GroupSwitchButton label="グループ一覧へ" />
+            <DashboardButton label="ダッシュボードへ" />
             <button
-              onClick={() => router.push('/trips')}
-              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
+              onClick={() => router.push(`/${groupIdParam}/trips`)}
+              className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
             >
               旅行一覧に戻る
             </button>
-          </div>
-        </div>
-      </nav>
+          </>
+        }
+      />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-4">
+        {getCurrentGroupName() && <h1>{getCurrentGroupName()}</h1>}
+        <form onSubmit={handleSubmit} className="card space-y-4">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
@@ -238,8 +251,8 @@ export default function NewTripPage() {
           <div className="flex justify-end gap-3">
             <button
               type="button"
-              onClick={() => router.push('/trips')}
-              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
+              onClick={() => router.push(`/${groupIdParam}/trips`)}
+              className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
             >
               キャンセル
             </button>

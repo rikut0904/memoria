@@ -85,7 +85,7 @@ export default function InviteAcceptPage() {
       await api.post(`/invites/${token}/accept`)
       setCurrentGroup(inviteInfo.group_id, inviteInfo.group_name)
       alert('グループに参加しました！')
-      router.push(backPath || '/dashboard')
+      router.push(backPath || `/${inviteInfo.group_id}`)
     } catch (err) {
       console.error('Failed to accept invite:', err)
       setError(getErrorMessage(err, '招待の承認に失敗しました'))
@@ -133,7 +133,7 @@ export default function InviteAcceptPage() {
       })
       setCurrentGroup(inviteInfo!.group_id, inviteInfo!.group_name)
       alert('アカウントが作成されました！')
-      router.push(backPath || '/dashboard')
+      router.push(backPath || `/${inviteInfo!.group_id}`)
     } catch (err) {
       console.error('Failed to signup with invite:', err)
       setError(getErrorMessage(err, 'アカウント作成に失敗しました'))
@@ -144,7 +144,7 @@ export default function InviteAcceptPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">招待を確認中...</p>
       </div>
     )
@@ -152,8 +152,8 @@ export default function InviteAcceptPage() {
 
   if (error && !inviteInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="card max-w-md w-full">
           <div className="text-center">
             <div className="text-red-500 text-5xl mb-4">✕</div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">招待が無効です</h2>
@@ -178,10 +178,10 @@ export default function InviteAcceptPage() {
 
   if (inviteInfo?.user_exists) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="card max-w-md w-full">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-primary-600 mb-2">Memoria</h1>
+            <div className="text-3xl font-bold text-primary-600 mb-2">Memoria</div>
             <h2 className="text-xl font-semibold text-gray-800">グループ招待</h2>
             <p className="text-gray-600 mt-2">
               {inviteInfo.group_name}（{roleLabel}）
@@ -248,10 +248,10 @@ export default function InviteAcceptPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="card max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-600 mb-2">Memoria</h1>
+          <div className="text-3xl font-bold text-primary-600 mb-2">Memoria</div>
           <h2 className="text-xl font-semibold text-gray-800">招待を受け取りました</h2>
           <p className="text-gray-600 mt-2">
             {inviteInfo?.email} でアカウントを作成します

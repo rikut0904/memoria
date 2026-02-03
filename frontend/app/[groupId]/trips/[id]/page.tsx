@@ -4,8 +4,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
-import { getCurrentGroupId } from '@/lib/group'
+import { getCurrentGroupId, getCurrentGroupName } from '@/lib/group'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
+import GroupSwitchButton from '@/components/GroupSwitchButton'
+import DashboardButton from '@/components/DashboardButton'
+import AppHeader from '@/components/AppHeader'
 import TripHeader from './components/TripHeader'
 import OverviewTab from './components/OverviewTab'
 import OverviewModal from './components/OverviewModal'
@@ -32,7 +35,9 @@ export default function TripDetailPage() {
   const router = useRouter()
   const params = useParams()
   const tripId = params.id as string
+  const groupIdParam = params.groupId as string
   const [trip, setTrip] = useState<Trip | null>(null)
+  const [user, setUser] = useState<{ display_name: string; email: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState(false)
@@ -91,7 +96,8 @@ export default function TripDetailPage() {
           router.push('/')
           return
         }
-        await api.get('/me')
+        const meRes = await api.get('/me')
+        setUser(meRes.data)
         const [tripRes, scheduleRes, transportRes, lodgingRes, budgetRes] = await Promise.all([
           api.get<Trip>(`/trips/${tripId}`),
           api.get<ScheduleResponseItem[]>(`/trips/${tripId}/schedule`),
@@ -270,7 +276,7 @@ export default function TripDetailPage() {
     setDeleting(true)
     try {
       await api.delete(`/trips/${trip.id}`)
-      router.push('/trips')
+      router.push(`/${groupIdParam}/trips`)
     } catch (err) {
       console.error('Failed to delete trip:', err)
       setError(getErrorMessage(err, '旅行の削除に失敗しました'))
@@ -457,11 +463,11 @@ export default function TripDetailPage() {
 
   if (!trip) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white rounded-lg shadow p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="card text-center">
           <p className="text-gray-700">{error || '旅行が見つかりません'}</p>
           <button
-            onClick={() => router.push('/trips')}
+            onClick={() => router.push(`/${groupIdParam}/trips`)}
             className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
           >
             旅行一覧に戻る
@@ -472,33 +478,39 @@ export default function TripDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-primary-600">旅行詳細</h1>
+    <div className="min-h-screen">
+      <AppHeader
+        title="旅行詳細"
+        maxWidthClassName="max-w-5xl"
+        displayName={user?.display_name}
+        email={user?.email}
+        right={
+          <>
+            <GroupSwitchButton label="グループ一覧へ" />
+            <DashboardButton label="ダッシュボードへ" />
             <button
-              onClick={() => router.push('/trips')}
-              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
+              onClick={() => router.push(`/${groupIdParam}/trips`)}
+              className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
             >
               旅行一覧に戻る
             </button>
-          </div>
-        </div>
-      </nav>
+          </>
+        }
+      />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {getCurrentGroupName() && <h1>{getCurrentGroupName()}</h1>}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
             {error}
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="card">
           <TripHeader
             trip={trip}
-            onPost={() => router.push(`/posts/new?trip_id=${trip.id}&redirect=/trips/${trip.id}`)}
-            onAlbum={() => router.push(`/albums/new?trip_id=${trip.id}&redirect=/trips/${trip.id}`)}
+            onPost={() => router.push(`/${groupIdParam}/posts/new?trip_id=${trip.id}&redirect=/${groupIdParam}/trips/${trip.id}`)}
+            onAlbum={() => router.push(`/${groupIdParam}/albums/new?trip_id=${trip.id}&redirect=/${groupIdParam}/trips/${trip.id}`)}
           />
 
           <div className="mt-6 border-b border-gray-200">

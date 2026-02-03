@@ -32,13 +32,13 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-primary-600 mb-6">
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="card w-full max-w-md">
+        <div className="text-3xl font-bold text-center text-primary-600 mb-6">
           Memoria
-        </h1>
+        </div>
         <p className="text-center text-gray-600 mb-8">
-          二人の大切な思い出を保存しましょう
+          大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。
         </p>
 
         <form onSubmit={handleLogin} className="space-y-4">

@@ -60,7 +60,6 @@ func autoMigrate(db *gorm.DB) error {
 		&model.NotificationSetting{},
 		&model.Notification{},
 		&model.WebPushSubscription{},
-		&model.Anniversary{},
 		&model.Trip{},
 		&model.TripItinerary{},
 		&model.TripWishlist{},

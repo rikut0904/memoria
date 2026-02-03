@@ -19,7 +19,6 @@ func RegisterRoutes(
 	albumHandler *handler.AlbumHandler,
 	photoHandler *handler.PhotoHandler,
 	postHandler *handler.PostHandler,
-	anniversaryHandler *handler.AnniversaryHandler,
 	tripHandler *handler.TripHandler,
 	authMiddleware *customMiddleware.AuthMiddleware,
 ) {
@@ -98,12 +97,6 @@ func RegisterRoutes(
 
 	// Tags
 	group.GET("/tags", postHandler.GetAllTags)
-
-	// Anniversary routes
-	group.GET("/anniversaries", anniversaryHandler.GetAllAnniversaries)
-	group.POST("/anniversaries", anniversaryHandler.CreateAnniversary)
-	group.PATCH("/anniversaries/:id", anniversaryHandler.UpdateAnniversary)
-	group.DELETE("/anniversaries/:id", anniversaryHandler.DeleteAnniversary)
 
 	// Trip routes
 	group.GET("/trips", tripHandler.GetAllTrips)

@@ -111,7 +111,7 @@ type PostComment struct {
 type NotificationSetting struct {
 	BaseModel
 	UserID   uint   `gorm:"not null;index"`
-	Category string `gorm:"not null"` // new_post, new_comment, anniversary, trip
+	Category string `gorm:"not null"` // new_post, new_comment, trip
 	Enabled  bool   `gorm:"not null"`
 }
 
@@ -130,17 +130,6 @@ type WebPushSubscription struct {
 	Endpoint  string `gorm:"not null"`
 	Auth      string `gorm:"not null"`
 	P256dh    string `gorm:"not null"`
-}
-
-type Anniversary struct {
-	BaseModel
-	GroupID           uint      `gorm:"not null;index"`
-	Title             string    `gorm:"not null"`
-	Date              time.Time `gorm:"not null"`
-	RemindDaysBefore  int       `gorm:"not null"`
-	RemindAt          *time.Time
-	Note              string
-	CreatedBy         uint `gorm:"not null"`
 }
 
 type Trip struct {
