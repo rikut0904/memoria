@@ -12,10 +12,11 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
+    const backendOrigin = process.env.BACKEND_ORIGIN || 'http://backend:8080'
     return [
       {
         source: '/api/:path*',
-        destination: 'http://backend:8080/api/:path*',
+        destination: `${backendOrigin}/api/:path*`,
       },
     ];
   },
