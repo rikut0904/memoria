@@ -162,7 +162,7 @@ export default function GroupManagementPage() {
         {error && <div className="text-sm text-red-600">{error}</div>}
         {group?.name && <h1>{group.name}</h1>}
         <section className="card">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">メンバー一覧</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">一覧</h2>
           {members.length === 0 ? (
             <p className="text-gray-500">メンバーがいません。</p>
           ) : (
@@ -185,7 +185,7 @@ export default function GroupManagementPage() {
         </section>
 
         <section className="card">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">メンバー招待</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">招待</h2>
               <form onSubmit={handleCreateInvite} className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="email"
