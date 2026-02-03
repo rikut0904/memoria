@@ -50,7 +50,7 @@ func Load() Config {
 
 		FirebaseProjectID:   getEnv("FIREBASE_PROJECT_ID", ""),
 		FirebaseClientEmail: getEnv("FIREBASE_CLIENT_EMAIL", ""),
-		FirebasePrivateKey:  getEnv("FIREBASE_PRIVATE_KEY", ""),
+		FirebasePrivateKey:  normalizePrivateKey(getEnv("FIREBASE_PRIVATE_KEY", "")),
 		FirebaseAPIKey:      getEnv("FIREBASE_API_KEY", ""),
 
 		AdminEmails: getEnv("ADMIN_EMAILS", ""),
@@ -79,6 +79,15 @@ func Load() Config {
 	}
 
 	return cfg
+}
+
+func normalizePrivateKey(raw string) string {
+	if raw == "" {
+		return raw
+	}
+	trimmed := strings.Trim(raw, "\"")
+	trimmed = strings.Trim(trimmed, "'")
+	return strings.ReplaceAll(trimmed, "\\n", "\n")
 }
 
 func parseDatabaseURL(databaseURL string, cfg *Config) {
