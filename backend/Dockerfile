@@ -10,6 +10,7 @@ FROM alpine:3.20
 WORKDIR /app
 RUN adduser -D appuser
 COPY --from=build /app/bin/server /app/server
+COPY --from=build /app/templates /app/templates
 USER appuser
 EXPOSE 8080
 ENTRYPOINT ["/app/server"]
