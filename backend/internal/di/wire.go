@@ -113,6 +113,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 		tripHandler,
 		authMiddleware,
 		cfg.FrontendBaseURL,
+		cfg.AllowedOrigins,
 	)
 	return e, nil
 }

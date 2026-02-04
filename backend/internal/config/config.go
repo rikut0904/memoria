@@ -28,6 +28,7 @@ type Config struct {
 	FirebaseAPIKey      string
 
 	FrontendBaseURL string
+	AllowedOrigins  string
 	SESFromEmail    string
 	SESInviteTemplatePath string
 	AWSRegion   string
@@ -54,6 +55,7 @@ func Load() Config {
 		FirebaseAPIKey:      getEnv("FIREBASE_API_KEY", ""),
 
 		FrontendBaseURL: getEnv("FRONTEND_BASE_URL", ""),
+		AllowedOrigins:  getEnv("ALLOWED_ORIGINS", ""),
 		SESFromEmail:    getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),
 		SESInviteTemplatePath: getEnv("SES_INVITE_TEMPLATE_PATH", ""),
 		AWSRegion:   getEnv("AWS_REGION", "ap-northeast-1"),

@@ -23,6 +23,7 @@ func RegisterRoutes(
 	tripHandler *handler.TripHandler,
 	authMiddleware *customMiddleware.AuthMiddleware,
 	frontendBaseURL string,
+	allowedOriginsRaw string,
 ) {
 	// Middleware
 	e.Use(middleware.Logger())
@@ -34,8 +35,30 @@ func RegisterRoutes(
 	if frontendBaseURL != "" {
 		allowedOrigins = append(allowedOrigins, strings.TrimRight(frontendBaseURL, "/"))
 	}
+	if allowedOriginsRaw != "" {
+		for _, origin := range strings.Split(allowedOriginsRaw, ",") {
+			trimmed := strings.TrimSpace(origin)
+			if trimmed != "" {
+				allowedOrigins = append(allowedOrigins, strings.TrimRight(trimmed, "/"))
+			}
+		}
+	}
+	allowedOriginSet := map[string]struct{}{}
+	for _, origin := range allowedOrigins {
+		allowedOriginSet[strings.TrimRight(origin, "/")] = struct{}{}
+	}
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     allowedOrigins,
+		AllowOriginFunc: func(origin string) (bool, error) {
+			if origin == "" {
+				return false, nil
+			}
+			trimmed := strings.TrimRight(origin, "/")
+			if _, ok := allowedOriginSet["*"]; ok {
+				return true, nil
+			}
+			_, ok := allowedOriginSet[trimmed]
+			return ok, nil
+		},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "X-Group-ID"},
 		AllowCredentials: true,
