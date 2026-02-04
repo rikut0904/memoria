@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import axios from 'axios'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { normalizeBackPath } from '@/lib/backPath'
@@ -13,12 +14,14 @@ function LoginContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
   const backPath = normalizeBackPath(searchParams.get('back-path')) || '/'
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setInfo('')
     setLoading(true)
 
     try {
@@ -28,7 +31,13 @@ function LoginContent() {
       }
       router.push(backPath)
     } catch (err) {
-      setError(getErrorMessage(err, 'ログインに失敗しました。メールアドレスとパスワードを確認してください。'))
+      const code = axios.isAxiosError(err) ? err.response?.data?.code : ''
+      const message = getErrorMessage(err, 'ログインに失敗しました。メールアドレスとパスワードを確認してください。')
+      if (code === 'EMAIL_NOT_VERIFIED') {
+        setInfo(message)
+      } else {
+        setError(message)
+      }
       console.error(err)
     } finally {
       setLoading(false)
@@ -77,6 +86,11 @@ function LoginContent() {
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
               {error}
+            </div>
+          )}
+          {info && (
+            <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm border border-green-200">
+              {info}
             </div>
           )}
 

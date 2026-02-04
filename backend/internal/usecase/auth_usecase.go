@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -74,7 +75,9 @@ func (u *AuthUsecase) Login(email, password, backPath string) (*model.User, stri
 		return nil, "", err
 	}
 	if !verified {
-		_ = u.sendVerifyEmail(resp.IDToken, backPath)
+		if err := u.sendVerifyEmail(resp.IDToken, backPath); err != nil {
+			log.Printf("Failed to send verify email: %v", err)
+		}
 		return nil, "", &AuthError{Code: "EMAIL_NOT_VERIFIED", Message: "メール認証が完了していません。送信したメールをご確認ください。"}
 	}
 	user, err := u.ensureUser(resp.LocalID, resp.Email)
@@ -106,7 +109,9 @@ func (u *AuthUsecase) Signup(email, password, displayName, backPath string) (*mo
 		return nil, "", err
 	}
 
-	_ = u.sendVerifyEmail(resp.IDToken, backPath)
+	if err := u.sendVerifyEmail(resp.IDToken, backPath); err != nil {
+		log.Printf("Failed to send verify email: %v", err)
+	}
 	return nil, "", &AuthError{Code: "EMAIL_NOT_VERIFIED", Message: "認証メールを送信しました。メール内のリンクをクリックしてからログインしてください。"}
 }
 

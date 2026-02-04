@@ -49,7 +49,7 @@ cp .env.example .env
 ```bash
 cd backend
 cp .env.example .env
-# Firebase、S3、管理者メールなどを設定
+# Firebase、S3 などを設定
 ```
 
 3. **Frontend の `.env.local`**:

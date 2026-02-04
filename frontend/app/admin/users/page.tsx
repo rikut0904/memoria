@@ -6,7 +6,6 @@ import api from '@/lib/api'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import GroupSwitchButton from '@/components/GroupSwitchButton'
-import DashboardButton from '@/components/DashboardButton'
 import AppHeader from '@/components/AppHeader'
 
 interface User {
@@ -103,7 +102,6 @@ export default function UsersManagementPage() {
         right={
           <>
             <GroupSwitchButton label="グループ一覧へ" />
-            <DashboardButton label="ダッシュボードへ" />
           </>
         }
       />

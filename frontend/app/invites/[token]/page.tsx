@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
+import axios from 'axios'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { setCurrentGroup } from '@/lib/group'
@@ -34,6 +35,7 @@ export default function InviteAcceptPage() {
   const [me, setMe] = useState<MeInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -113,6 +115,7 @@ export default function InviteAcceptPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setInfo('')
 
     if (password.length < 8) {
       setError('パスワードは8文字以上で入力してください')
@@ -136,7 +139,13 @@ export default function InviteAcceptPage() {
       router.push(backPath || `/${inviteInfo!.group_id}`)
     } catch (err) {
       console.error('Failed to signup with invite:', err)
-      setError(getErrorMessage(err, 'アカウント作成に失敗しました'))
+      const code = axios.isAxiosError(err) ? err.response?.data?.code : ''
+      const message = getErrorMessage(err, 'アカウント作成に失敗しました')
+      if (code === 'EMAIL_NOT_VERIFIED') {
+        setInfo(message)
+      } else {
+        setError(message)
+      }
     } finally {
       setAccepting(false)
     }
@@ -309,6 +318,11 @@ export default function InviteAcceptPage() {
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
+            </div>
+          )}
+          {info && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+              {info}
             </div>
           )}
 

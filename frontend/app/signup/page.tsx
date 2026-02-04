@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 
@@ -12,11 +13,13 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setInfo('')
 
     if (password.length < 8) {
       setError('パスワードは8文字以上で入力してください')
@@ -33,7 +36,13 @@ export default function SignupPage() {
       router.push('/')
     } catch (err) {
       console.error('Signup failed:', err)
-      setError(getErrorMessage(err, 'サインアップに失敗しました'))
+      const code = axios.isAxiosError(err) ? err.response?.data?.code : ''
+      const message = getErrorMessage(err, 'サインアップに失敗しました')
+      if (code === 'EMAIL_NOT_VERIFIED') {
+        setInfo(message)
+      } else {
+        setError(message)
+      }
     } finally {
       setLoading(false)
     }
@@ -112,6 +121,11 @@ export default function SignupPage() {
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
               {error}
+            </div>
+          )}
+          {info && (
+            <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm border border-green-200">
+              {info}
             </div>
           )}
 

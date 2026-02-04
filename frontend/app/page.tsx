@@ -12,6 +12,7 @@ interface User {
   id: number
   email: string
   display_name: string
+  role: string
 }
 
 interface Group {
@@ -96,6 +97,14 @@ export default function Home() {
         email={user?.email}
         right={
           <>
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => router.push('/admin/users')}
+                className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                管理画面
+              </button>
+            )}
             <button
               onClick={async () => {
                 clearCurrentGroup()

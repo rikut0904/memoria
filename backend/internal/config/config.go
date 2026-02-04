@@ -12,6 +12,7 @@ import (
 type Config struct {
 	AppEnv  string
 	AppPort string
+	AutoMigrate bool
 
 	// Database config (parsed from DATABASE_URL or individual env vars)
 	DBHost     string
@@ -25,8 +26,6 @@ type Config struct {
 	FirebaseClientEmail string
 	FirebasePrivateKey  string
 	FirebaseAPIKey      string
-
-	AdminEmails string
 
 	FrontendBaseURL string
 	SESFromEmail    string
@@ -47,13 +46,12 @@ func Load() Config {
 	cfg := Config{
 		AppEnv:  getEnv("APP_ENV", "local"),
 		AppPort: getEnv("APP_PORT", "8080"),
+		AutoMigrate: getEnv("AUTO_MIGRATE", "true") != "false",
 
 		FirebaseProjectID:   getEnv("FIREBASE_PROJECT_ID", ""),
 		FirebaseClientEmail: getEnv("FIREBASE_CLIENT_EMAIL", ""),
 		FirebasePrivateKey:  normalizePrivateKey(getEnv("FIREBASE_PRIVATE_KEY", "")),
 		FirebaseAPIKey:      getEnv("FIREBASE_API_KEY", ""),
-
-		AdminEmails: getEnv("ADMIN_EMAILS", ""),
 
 		FrontendBaseURL: getEnv("FRONTEND_BASE_URL", ""),
 		SESFromEmail:    getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),

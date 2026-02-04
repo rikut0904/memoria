@@ -106,14 +106,6 @@ export default function DashboardPage() {
         right={
           <>
             <GroupSwitchButton label="グループ一覧へ" />
-            {user?.role === 'admin' && (
-              <button
-                onClick={() => router.push('/admin/users')}
-                className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                管理画面
-              </button>
-            )}
             <button
               onClick={handleLogout}
               className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
