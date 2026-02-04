@@ -35,6 +35,7 @@ type AuthResponse struct {
 	Email       string `json:"email"`
 	DisplayName string `json:"display_name"`
 	Role        string `json:"role"`
+	Token       string `json:"token,omitempty"`
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
@@ -62,6 +63,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		Email:       user.Email,
 		DisplayName: user.DisplayName,
 		Role:        user.Role,
+		Token:       sessionCookie,
 	})
 }
 

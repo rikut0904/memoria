@@ -28,12 +28,23 @@ func NewAuthMiddleware(firebaseAuth *auth.FirebaseAuth, userRepo repository.User
 
 func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		cookie, err := c.Cookie("memoria_session")
-		if err != nil || cookie.Value == "" {
-			return echo.NewHTTPError(http.StatusUnauthorized, "missing session cookie")
+		var idToken string
+		authHeader := c.Request().Header.Get("Authorization")
+		if authHeader != "" {
+			parts := strings.Split(authHeader, " ")
+			if len(parts) == 2 && parts[0] == "Bearer" {
+				idToken = parts[1]
+			}
+		}
+		if idToken == "" {
+			cookie, err := c.Cookie("memoria_session")
+			if err != nil || cookie.Value == "" {
+				return echo.NewHTTPError(http.StatusUnauthorized, "missing session")
+			}
+			idToken = cookie.Value
 		}
 
-		token, err := m.firebaseAuth.VerifyIDToken(c.Request().Context(), cookie.Value)
+		token, err := m.firebaseAuth.VerifyIDToken(c.Request().Context(), idToken)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, "invalid session")
 		}

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { clearCurrentGroup, setCurrentGroup } from '@/lib/group'
+import { clearAuthToken } from '@/lib/auth'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import AppHeader from '@/components/AppHeader'
 
@@ -98,6 +99,7 @@ export default function Home() {
             <button
               onClick={async () => {
                 clearCurrentGroup()
+                clearAuthToken()
                 try {
                   await api.post('/logout')
                 } finally {

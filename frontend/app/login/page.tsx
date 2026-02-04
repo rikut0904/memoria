@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { normalizeBackPath } from '@/lib/backPath'
+import { setAuthToken } from '@/lib/auth'
 
 function LoginContent() {
   const router = useRouter()
@@ -21,7 +22,10 @@ function LoginContent() {
     setLoading(true)
 
     try {
-      await api.post('/login', { email, password, back_path: backPath })
+      const res = await api.post('/login', { email, password, back_path: backPath })
+      if (res?.data?.token) {
+        setAuthToken(res.data.token)
+      }
       router.push(backPath)
     } catch (err) {
       setError(getErrorMessage(err, 'ログインに失敗しました。メールアドレスとパスワードを確認してください。'))

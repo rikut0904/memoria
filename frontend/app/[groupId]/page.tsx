@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
 import { clearCurrentGroup, getCurrentGroupId, getCurrentGroupName } from '@/lib/group'
+import { clearAuthToken } from '@/lib/auth'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import GroupSwitchButton from '@/components/GroupSwitchButton'
 import AppHeader from '@/components/AppHeader'
@@ -80,6 +81,7 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     try {
       clearCurrentGroup()
+      clearAuthToken()
       await api.post('/logout')
       router.push('/login')
     } catch (error) {
