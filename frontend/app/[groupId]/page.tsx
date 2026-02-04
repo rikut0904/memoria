@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
 import { clearCurrentGroup, getCurrentGroupId, getCurrentGroupName } from '@/lib/group'
-import { clearAuthToken } from '@/lib/auth'
+import { clearAuthToken, clearRefreshToken } from '@/lib/auth'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import GroupSwitchButton from '@/components/GroupSwitchButton'
 import AppHeader from '@/components/AppHeader'
@@ -82,6 +82,7 @@ export default function DashboardPage() {
     try {
       clearCurrentGroup()
       clearAuthToken()
+      clearRefreshToken()
       await api.post('/logout')
       router.push('/login')
     } catch (error) {

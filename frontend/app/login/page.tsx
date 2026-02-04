@@ -1,12 +1,12 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { normalizeBackPath } from '@/lib/backPath'
-import { setAuthToken } from '@/lib/auth'
+import { getAuthToken, setAuthToken, setRefreshToken } from '@/lib/auth'
 
 function LoginContent() {
   const router = useRouter()
@@ -18,6 +18,17 @@ function LoginContent() {
   const [loading, setLoading] = useState(false)
   const backPath = normalizeBackPath(searchParams.get('back-path')) || '/'
 
+  useEffect(() => {
+    const token = getAuthToken()
+    if (!token) return
+    api
+      .get('/me')
+      .then(() => {
+        router.replace(backPath)
+      })
+      .catch(() => {})
+  }, [backPath, router])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -28,6 +39,9 @@ function LoginContent() {
       const res = await api.post('/login', { email, password, back_path: backPath })
       if (res?.data?.token) {
         setAuthToken(res.data.token)
+      }
+      if (res?.data?.refresh_token) {
+        setRefreshToken(res.data.refresh_token)
       }
       router.push(backPath)
     } catch (err) {

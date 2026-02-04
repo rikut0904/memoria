@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
+import { getAuthToken } from '@/lib/auth'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -15,6 +16,17 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const token = getAuthToken()
+    if (!token) return
+    api
+      .get('/me')
+      .then(() => {
+        router.replace('/')
+      })
+      .catch(() => {})
+  }, [router])
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()

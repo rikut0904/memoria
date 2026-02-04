@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { clearCurrentGroup, setCurrentGroup } from '@/lib/group'
-import { clearAuthToken } from '@/lib/auth'
+import { clearAuthToken, clearRefreshToken, getAuthToken } from '@/lib/auth'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import AppHeader from '@/components/AppHeader'
 
@@ -25,6 +25,7 @@ interface Group {
 export default function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [authChecked, setAuthChecked] = useState(false)
   const [groups, setGroups] = useState<Group[]>([])
   const [newGroupName, setNewGroupName] = useState('')
   const [creating, setCreating] = useState(false)
@@ -33,15 +34,23 @@ export default function Home() {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
+        const token = getAuthToken()
+        if (!token) {
+          router.replace(buildLoginUrl(getCurrentPathWithQuery()))
+          return
+        }
         const userRes = await api.get('/me')
         setUser(userRes.data)
         const res = await api.get('/groups')
         setGroups(res.data || [])
       } catch (err) {
         console.error('Failed to fetch groups:', err)
-        router.push(buildLoginUrl(getCurrentPathWithQuery()))
+        clearAuthToken()
+        clearRefreshToken()
+        router.replace(buildLoginUrl(getCurrentPathWithQuery()))
       } finally {
         setLoading(false)
+        setAuthChecked(true)
       }
     }
 
@@ -74,6 +83,10 @@ export default function Home() {
     router.push(`/${group.id}`)
   }
 
+
+  if (!authChecked) {
+    return null
+  }
 
   if (loading) {
     return (
@@ -109,6 +122,7 @@ export default function Home() {
               onClick={async () => {
                 clearCurrentGroup()
                 clearAuthToken()
+                clearRefreshToken()
                 try {
                   await api.post('/logout')
                 } finally {

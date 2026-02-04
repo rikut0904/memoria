@@ -47,9 +47,10 @@ func NewAuthUsecase(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRep
 }
 
 type firebaseAuthResponse struct {
-	IDToken string `json:"idToken"`
-	LocalID string `json:"localId"`
-	Email   string `json:"email"`
+	IDToken      string `json:"idToken"`
+	LocalID      string `json:"localId"`
+	Email        string `json:"email"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 type firebaseOobResponse struct {
@@ -62,29 +63,35 @@ type firebaseLookupResponse struct {
 	} `json:"users"`
 }
 
-func (u *AuthUsecase) Login(email, password, backPath string) (*model.User, string, error) {
+type firebaseRefreshResponse struct {
+	IDToken      string `json:"id_token"`
+	RefreshToken string `json:"refresh_token"`
+	UserID       string `json:"user_id"`
+}
+
+func (u *AuthUsecase) Login(email, password, backPath string) (*model.User, string, string, error) {
 	if u.firebaseAPIKey == "" {
-		return nil, "", errors.New("firebase api key is required")
+		return nil, "", "", errors.New("firebase api key is required")
 	}
 	resp, err := u.signInWithPassword(email, password)
 	if err != nil {
-		return nil, "", err
+		return nil, "", "", err
 	}
 	verified, err := u.isEmailVerified(resp.IDToken)
 	if err != nil {
-		return nil, "", err
+		return nil, "", "", err
 	}
 	if !verified {
 		if err := u.sendVerifyEmail(resp.IDToken, backPath); err != nil {
 			log.Printf("Failed to send verify email: %v", err)
 		}
-		return nil, "", &AuthError{Code: "EMAIL_NOT_VERIFIED", Message: "メール認証が完了していません。送信したメールをご確認ください。"}
+		return nil, "", "", &AuthError{Code: "EMAIL_NOT_VERIFIED", Message: "メール認証が完了していません。送信したメールをご確認ください。"}
 	}
 	user, err := u.ensureUser(resp.LocalID, resp.Email)
 	if err != nil {
-		return nil, "", err
+		return nil, "", "", err
 	}
-	return user, resp.IDToken, nil
+	return user, resp.IDToken, resp.RefreshToken, nil
 }
 
 func (u *AuthUsecase) Signup(email, password, displayName, backPath string) (*model.User, string, error) {
@@ -113,6 +120,23 @@ func (u *AuthUsecase) Signup(email, password, displayName, backPath string) (*mo
 		log.Printf("Failed to send verify email: %v", err)
 	}
 	return nil, "", &AuthError{Code: "EMAIL_NOT_VERIFIED", Message: "認証メールを送信しました。メール内のリンクをクリックしてからログインしてください。"}
+}
+
+func (u *AuthUsecase) RefreshSession(refreshToken string) (string, string, error) {
+	if u.firebaseAPIKey == "" {
+		return "", "", errors.New("firebase api key is required")
+	}
+	if refreshToken == "" {
+		return "", "", errors.New("refresh token is required")
+	}
+	resp, err := u.callFirebaseRefresh(refreshToken)
+	if err != nil {
+		return "", "", err
+	}
+	if resp.IDToken == "" || resp.RefreshToken == "" {
+		return "", "", errors.New("invalid refresh response")
+	}
+	return resp.IDToken, resp.RefreshToken, nil
 }
 
 func (u *AuthUsecase) isEmailVerified(idToken string) (bool, error) {
@@ -257,6 +281,41 @@ func (u *AuthUsecase) callFirebaseOob(endpoint string, payload map[string]any) (
 	return &resp, nil
 }
 
+func (u *AuthUsecase) callFirebaseRefresh(refreshToken string) (*firebaseRefreshResponse, error) {
+	endpointURL := fmt.Sprintf("https://securetoken.googleapis.com/v1/token?key=%s", u.firebaseAPIKey)
+	form := url.Values{}
+	form.Set("grant_type", "refresh_token")
+	form.Set("refresh_token", refreshToken)
+	req, err := http.NewRequest(http.MethodPost, endpointURL, strings.NewReader(form.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode >= 400 {
+		var errBody map[string]any
+		_ = json.NewDecoder(res.Body).Decode(&errBody)
+		code := "UNKNOWN"
+		if errMap, ok := errBody["error"].(map[string]any); ok {
+			if msg, ok := errMap["message"].(string); ok && msg != "" {
+				code = msg
+			}
+		}
+		return nil, &AuthError{Code: code, Message: firebaseErrorMessage(code)}
+	}
+
+	var resp firebaseRefreshResponse
+	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
 func (u *AuthUsecase) callFirebaseLookup(endpoint string, payload map[string]any) (*firebaseLookupResponse, error) {
 	url := fmt.Sprintf("https://identitytoolkit.googleapis.com/v1/%s?key=%s", endpoint, u.firebaseAPIKey)
 	body, _ := json.Marshal(payload)

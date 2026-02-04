@@ -76,6 +76,7 @@ func RegisterRoutes(
 	api.POST("/login", authHandler.Login)
 	api.POST("/signup", authHandler.Signup)
 	api.POST("/logout", authHandler.Logout)
+	api.POST("/refresh", authHandler.Refresh)
 
 	// Public invite routes
 	api.GET("/invites/:token", inviteHandler.VerifyInvite)

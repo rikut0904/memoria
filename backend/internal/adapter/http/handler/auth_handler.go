@@ -36,6 +36,7 @@ type AuthResponse struct {
 	DisplayName string `json:"display_name"`
 	Role        string `json:"role"`
 	Token       string `json:"token,omitempty"`
+	RefreshToken string `json:"refresh_token,omitempty"`
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
@@ -45,7 +46,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	}
 
 	backPath := sanitizeBackPath(req.BackPath)
-	user, sessionCookie, err := h.authUsecase.Login(req.Email, req.Password, backPath)
+	user, sessionCookie, refreshToken, err := h.authUsecase.Login(req.Email, req.Password, backPath)
 	if err != nil {
 		if authErr, ok := err.(*usecase.AuthError); ok {
 			return c.JSON(http.StatusUnauthorized, map[string]string{
@@ -64,6 +65,39 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		DisplayName: user.DisplayName,
 		Role:        user.Role,
 		Token:       sessionCookie,
+		RefreshToken: refreshToken,
+	})
+}
+
+type RefreshRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+type RefreshResponse struct {
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+func (h *AuthHandler) Refresh(c echo.Context) error {
+	var req RefreshRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	idToken, newRefresh, err := h.authUsecase.RefreshSession(req.RefreshToken)
+	if err != nil {
+		if authErr, ok := err.(*usecase.AuthError); ok {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"code":    authErr.Code,
+				"message": authErr.Message,
+			})
+		}
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	setSessionCookie(c, idToken, h.secureCookie, int(h.sessionTTL.Seconds()))
+	return c.JSON(http.StatusOK, RefreshResponse{
+		Token:        idToken,
+		RefreshToken: newRefresh,
 	})
 }
 

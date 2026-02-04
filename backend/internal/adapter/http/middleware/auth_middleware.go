@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"memoria/internal/adapter/auth"
 	"memoria/internal/domain/model"
@@ -59,6 +60,18 @@ func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 			if err != nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, "user not found")
 			}
+		}
+
+		now := time.Now()
+		if user.LastAccessAt != nil {
+			if now.Sub(*user.LastAccessAt) > 30*24*time.Hour {
+				return echo.NewHTTPError(http.StatusUnauthorized, "session expired")
+			}
+		}
+
+		if user.LastAccessAt == nil || now.Sub(*user.LastAccessAt) > 24*time.Hour {
+			user.LastAccessAt = &now
+			_ = m.userRepo.Update(user)
 		}
 
 		c.Set("user_id", user.ID)
