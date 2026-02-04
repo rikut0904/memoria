@@ -7,6 +7,7 @@ import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { normalizeBackPath } from '@/lib/backPath'
 import { getAuthToken, setAuthToken, setRefreshToken } from '@/lib/auth'
+import VerticalAd from '@/components/VerticalAd'
 
 function LoginContent() {
   const router = useRouter()
@@ -59,8 +60,11 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="card w-full max-w-md">
+    <div className="min-h-screen auth-ads-layout">
+      <div className="auth-ads-side">
+        <VerticalAd />
+      </div>
+      <div className="card w-full max-w-md auth-ads-main">
         <div className="text-3xl font-bold text-center text-primary-600 mb-6">
           Memoria
         </div>
@@ -128,6 +132,9 @@ function LoginContent() {
             </button>
           </p>
         </div>
+      </div>
+      <div className="auth-ads-side">
+        <VerticalAd />
       </div>
     </div>
   )

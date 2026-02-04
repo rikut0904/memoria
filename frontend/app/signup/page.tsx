@@ -6,6 +6,7 @@ import axios from 'axios'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { getAuthToken } from '@/lib/auth'
+import VerticalAd from '@/components/VerticalAd'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -61,8 +62,11 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="card w-full max-w-md">
+    <div className="min-h-screen auth-ads-layout">
+      <div className="auth-ads-side">
+        <VerticalAd />
+      </div>
+      <div className="card w-full max-w-md auth-ads-main">
         <div className="text-3xl font-bold text-center text-primary-600 mb-6">
           Memoria
         </div>
@@ -161,6 +165,9 @@ export default function SignupPage() {
             </button>
           </p>
         </div>
+      </div>
+      <div className="auth-ads-side">
+        <VerticalAd />
       </div>
     </div>
   )
