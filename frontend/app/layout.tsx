@@ -24,10 +24,11 @@ export default function RootLayout({
             dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            
+
             gtag('config', 'G-WLKP58YCP3');
           `}
         </script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6748867170638544" crossOrigin="anonymous"></script>
       </head>
       <body>{children}</body>
     </html>
