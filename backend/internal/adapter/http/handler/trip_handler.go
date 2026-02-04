@@ -165,6 +165,11 @@ func (h *TripHandler) CreateTrip(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid user")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req CreateTripRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -189,7 +194,7 @@ func (h *TripHandler) CreateTrip(c echo.Context) error {
 		notifyAt = &parsed
 	}
 
-	trip, err := h.tripUsecase.CreateTrip(req.Title, startAt, endAt, req.Note, user.ID, notifyAt, req.AlbumIDs, req.PostIDs)
+	trip, err := h.tripUsecase.CreateTrip(req.Title, startAt, endAt, req.Note, user.ID, notifyAt, req.AlbumIDs, req.PostIDs, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -213,7 +218,12 @@ func (h *TripHandler) CreateTrip(c echo.Context) error {
 }
 
 func (h *TripHandler) GetAllTrips(c echo.Context) error {
-	trips, err := h.tripUsecase.GetAllTrips()
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	trips, err := h.tripUsecase.GetAllTrips(groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -247,12 +257,17 @@ func (h *TripHandler) GetTrip(c echo.Context) error {
 		return err
 	}
 
-	trip, err := h.tripUsecase.GetTrip(uint(id))
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	trip, err := h.tripUsecase.GetTrip(uint(id), groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "trip not found")
 	}
 
-	albums, posts, err := h.tripUsecase.GetTripRelations(trip.ID)
+	albums, posts, err := h.tripUsecase.GetTripRelations(trip.ID, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -266,7 +281,12 @@ func (h *TripHandler) GetSchedule(c echo.Context) error {
 		return err
 	}
 
-	items, err := h.tripUsecase.GetSchedule(uint(id))
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	items, err := h.tripUsecase.GetSchedule(uint(id), groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -291,6 +311,11 @@ func (h *TripHandler) UpdateSchedule(c echo.Context) error {
 		return err
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req []TripScheduleItemRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -306,7 +331,7 @@ func (h *TripHandler) UpdateSchedule(c echo.Context) error {
 		}
 	}
 
-	if err := h.tripUsecase.UpdateSchedule(uint(id), items); err != nil {
+	if err := h.tripUsecase.UpdateSchedule(uint(id), items, groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusNoContent)
@@ -318,7 +343,12 @@ func (h *TripHandler) GetTransports(c echo.Context) error {
 		return err
 	}
 
-	transports, err := h.tripUsecase.GetTransports(uint(id))
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	transports, err := h.tripUsecase.GetTransports(uint(id), groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -364,6 +394,11 @@ func (h *TripHandler) UpdateTransports(c echo.Context) error {
 		return err
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req []TripTransportRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -400,7 +435,7 @@ func (h *TripHandler) UpdateTransports(c echo.Context) error {
 		}
 	}
 
-	if err := h.tripUsecase.UpdateTransports(uint(id), transports); err != nil {
+	if err := h.tripUsecase.UpdateTransports(uint(id), transports, groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusNoContent)
@@ -412,7 +447,12 @@ func (h *TripHandler) GetLodgings(c echo.Context) error {
 		return err
 	}
 
-	lodgings, err := h.tripUsecase.GetLodgings(uint(id))
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	lodgings, err := h.tripUsecase.GetLodgings(uint(id), groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -442,6 +482,11 @@ func (h *TripHandler) UpdateLodgings(c echo.Context) error {
 		return err
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req []TripLodgingRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -462,7 +507,7 @@ func (h *TripHandler) UpdateLodgings(c echo.Context) error {
 		}
 	}
 
-	if err := h.tripUsecase.UpdateLodgings(uint(id), lodgings); err != nil {
+	if err := h.tripUsecase.UpdateLodgings(uint(id), lodgings, groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusNoContent)
@@ -474,7 +519,12 @@ func (h *TripHandler) GetBudget(c echo.Context) error {
 		return err
 	}
 
-	items, transportTotal, lodgingTotal, total, err := h.tripUsecase.GetBudget(uint(id))
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	items, transportTotal, lodgingTotal, total, err := h.tripUsecase.GetBudget(uint(id), groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -504,6 +554,11 @@ func (h *TripHandler) UpdateBudget(c echo.Context) error {
 		return err
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req []TripBudgetItemRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -518,7 +573,7 @@ func (h *TripHandler) UpdateBudget(c echo.Context) error {
 		}
 	}
 
-	if err := h.tripUsecase.UpdateBudget(uint(id), items); err != nil {
+	if err := h.tripUsecase.UpdateBudget(uint(id), items, groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusNoContent)
@@ -530,7 +585,12 @@ func (h *TripHandler) DeleteTrip(c echo.Context) error {
 		return err
 	}
 
-	if err := h.tripUsecase.DeleteTrip(uint(id)); err != nil {
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	if err := h.tripUsecase.DeleteTrip(uint(id), groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -539,6 +599,11 @@ func (h *TripHandler) DeleteTrip(c echo.Context) error {
 
 func (h *TripHandler) UpdateTrip(c echo.Context) error {
 	id, err := parseTripID(c)
+	if err != nil {
+		return err
+	}
+
+	groupID, err := getGroupIDFromContext(c)
 	if err != nil {
 		return err
 	}
@@ -569,12 +634,12 @@ func (h *TripHandler) UpdateTrip(c echo.Context) error {
 		notifyAt = &parsed
 	}
 
-	trip, err := h.tripUsecase.UpdateTrip(uint(id), req.Title, startAt, endAt, req.Note, notifyAt)
+	trip, err := h.tripUsecase.UpdateTrip(uint(id), req.Title, startAt, endAt, req.Note, notifyAt, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	albums, posts, err := h.tripUsecase.GetTripRelations(trip.ID)
+	albums, posts, err := h.tripUsecase.GetTripRelations(trip.ID, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

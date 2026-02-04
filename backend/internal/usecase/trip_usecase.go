@@ -15,6 +15,8 @@ type TripUsecase struct {
 	expenseRepo       repository.TripExpenseRepository
 	relationRepo      repository.TripRelationRepository
 	detailRepo        repository.TripDetailRepository
+	albumRepo         repository.AlbumRepository
+	postRepo          repository.PostRepository
 }
 
 func NewTripUsecase(
@@ -24,6 +26,8 @@ func NewTripUsecase(
 	expenseRepo repository.TripExpenseRepository,
 	relationRepo repository.TripRelationRepository,
 	detailRepo repository.TripDetailRepository,
+	albumRepo repository.AlbumRepository,
+	postRepo repository.PostRepository,
 ) *TripUsecase {
 	return &TripUsecase{
 		tripRepo:      tripRepo,
@@ -32,12 +36,26 @@ func NewTripUsecase(
 		expenseRepo:   expenseRepo,
 		relationRepo:  relationRepo,
 		detailRepo:    detailRepo,
+		albumRepo:     albumRepo,
+		postRepo:      postRepo,
 	}
 }
 
 // Trip operations
-func (u *TripUsecase) CreateTrip(title string, startAt, endAt time.Time, note string, createdBy uint, notifyAt *time.Time, albumIDs, postIDs []uint) (*model.Trip, error) {
+func (u *TripUsecase) CreateTrip(title string, startAt, endAt time.Time, note string, createdBy uint, notifyAt *time.Time, albumIDs, postIDs []uint, groupID uint) (*model.Trip, error) {
+	for _, albumID := range albumIDs {
+		if _, err := u.albumRepo.FindByID(albumID, groupID); err != nil {
+			return nil, err
+		}
+	}
+	for _, postID := range postIDs {
+		if _, err := u.postRepo.FindByID(postID, groupID); err != nil {
+			return nil, err
+		}
+	}
+
 	trip := &model.Trip{
+		GroupID:   groupID,
 		Title:     title,
 		StartAt:   startAt,
 		EndAt:     endAt,
@@ -60,11 +78,14 @@ func (u *TripUsecase) CreateTrip(title string, startAt, endAt time.Time, note st
 	return trip, nil
 }
 
-func (u *TripUsecase) GetTrip(id uint) (*model.Trip, error) {
-	return u.tripRepo.FindByID(id)
+func (u *TripUsecase) GetTrip(id uint, groupID uint) (*model.Trip, error) {
+	return u.tripRepo.FindByID(id, groupID)
 }
 
-func (u *TripUsecase) GetTripRelations(tripID uint) ([]*model.Album, []*model.Post, error) {
+func (u *TripUsecase) GetTripRelations(tripID uint, groupID uint) ([]*model.Album, []*model.Post, error) {
+	if _, err := u.tripRepo.FindByID(tripID, groupID); err != nil {
+		return nil, nil, err
+	}
 	albums, err := u.relationRepo.FindAlbumsByTripID(tripID)
 	if err != nil {
 		return nil, nil, err
@@ -76,34 +97,55 @@ func (u *TripUsecase) GetTripRelations(tripID uint) ([]*model.Album, []*model.Po
 	return albums, posts, nil
 }
 
-func (u *TripUsecase) GetSchedule(tripID uint) ([]*model.TripScheduleItem, error) {
+func (u *TripUsecase) GetSchedule(tripID uint, groupID uint) ([]*model.TripScheduleItem, error) {
+	if _, err := u.tripRepo.FindByID(tripID, groupID); err != nil {
+		return nil, err
+	}
 	return u.detailRepo.FindScheduleItems(tripID)
 }
 
-func (u *TripUsecase) UpdateSchedule(tripID uint, items []*model.TripScheduleItem) error {
+func (u *TripUsecase) UpdateSchedule(tripID uint, items []*model.TripScheduleItem, groupID uint) error {
+	if _, err := u.tripRepo.FindByID(tripID, groupID); err != nil {
+		return err
+	}
 	return u.detailRepo.ReplaceScheduleItems(tripID, items)
 }
 
-func (u *TripUsecase) GetTransports(tripID uint) ([]*model.TripTransport, error) {
+func (u *TripUsecase) GetTransports(tripID uint, groupID uint) ([]*model.TripTransport, error) {
+	if _, err := u.tripRepo.FindByID(tripID, groupID); err != nil {
+		return nil, err
+	}
 	return u.detailRepo.FindTransports(tripID)
 }
 
-func (u *TripUsecase) UpdateTransports(tripID uint, transports []*model.TripTransport) error {
+func (u *TripUsecase) UpdateTransports(tripID uint, transports []*model.TripTransport, groupID uint) error {
+	if _, err := u.tripRepo.FindByID(tripID, groupID); err != nil {
+		return err
+	}
 	for _, transport := range transports {
 		u.applyTransportCosts(transport)
 	}
 	return u.detailRepo.ReplaceTransports(tripID, transports)
 }
 
-func (u *TripUsecase) GetLodgings(tripID uint) ([]*model.TripLodging, error) {
+func (u *TripUsecase) GetLodgings(tripID uint, groupID uint) ([]*model.TripLodging, error) {
+	if _, err := u.tripRepo.FindByID(tripID, groupID); err != nil {
+		return nil, err
+	}
 	return u.detailRepo.FindLodgings(tripID)
 }
 
-func (u *TripUsecase) UpdateLodgings(tripID uint, lodgings []*model.TripLodging) error {
+func (u *TripUsecase) UpdateLodgings(tripID uint, lodgings []*model.TripLodging, groupID uint) error {
+	if _, err := u.tripRepo.FindByID(tripID, groupID); err != nil {
+		return err
+	}
 	return u.detailRepo.ReplaceLodgings(tripID, lodgings)
 }
 
-func (u *TripUsecase) GetBudget(tripID uint) ([]*model.TripBudgetItem, int64, int64, int64, error) {
+func (u *TripUsecase) GetBudget(tripID uint, groupID uint) ([]*model.TripBudgetItem, int64, int64, int64, error) {
+	if _, err := u.tripRepo.FindByID(tripID, groupID); err != nil {
+		return nil, 0, 0, 0, err
+	}
 	transportTotal, err := u.sumTransportCosts(tripID)
 	if err != nil {
 		return nil, 0, 0, 0, err
@@ -124,7 +166,10 @@ func (u *TripUsecase) GetBudget(tripID uint) ([]*model.TripBudgetItem, int64, in
 	return items, transportTotal, lodgingTotal, total, nil
 }
 
-func (u *TripUsecase) UpdateBudget(tripID uint, items []*model.TripBudgetItem) error {
+func (u *TripUsecase) UpdateBudget(tripID uint, items []*model.TripBudgetItem, groupID uint) error {
+	if _, err := u.tripRepo.FindByID(tripID, groupID); err != nil {
+		return err
+	}
 	return u.detailRepo.ReplaceBudgetItems(tripID, items)
 }
 
@@ -145,12 +190,12 @@ func (u *TripUsecase) applyTransportCosts(transport *model.TripTransport) {
 	}
 }
 
-func (u *TripUsecase) GetAllTrips() ([]*model.Trip, error) {
-	return u.tripRepo.FindAll()
+func (u *TripUsecase) GetAllTrips(groupID uint) ([]*model.Trip, error) {
+	return u.tripRepo.FindAll(groupID)
 }
 
-func (u *TripUsecase) UpdateTrip(id uint, title string, startAt, endAt time.Time, note string, notifyAt *time.Time) (*model.Trip, error) {
-	trip, err := u.tripRepo.FindByID(id)
+func (u *TripUsecase) UpdateTrip(id uint, title string, startAt, endAt time.Time, note string, notifyAt *time.Time, groupID uint) (*model.Trip, error) {
+	trip, err := u.tripRepo.FindByID(id, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +213,10 @@ func (u *TripUsecase) UpdateTrip(id uint, title string, startAt, endAt time.Time
 	return trip, nil
 }
 
-func (u *TripUsecase) DeleteTrip(id uint) error {
+func (u *TripUsecase) DeleteTrip(id uint, groupID uint) error {
+	if _, err := u.tripRepo.FindByID(id, groupID); err != nil {
+		return err
+	}
 	return u.tripRepo.Delete(id)
 }
 

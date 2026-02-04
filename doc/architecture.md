@@ -18,7 +18,7 @@
 
 ## Security
 - Firebase Authで認証
-- 管理者は環境変数 `ADMIN_EMAILS`
+- 管理者は `create-admin` コマンドで登録
 - 招待制
 - S3はプライベート、署名URLでアップロード
 

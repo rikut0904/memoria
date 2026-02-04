@@ -19,17 +19,17 @@ func (r *albumRepositoryImpl) Create(album *model.Album) error {
 	return r.db.Create(album).Error
 }
 
-func (r *albumRepositoryImpl) FindByID(id uint) (*model.Album, error) {
+func (r *albumRepositoryImpl) FindByID(id uint, groupID uint) (*model.Album, error) {
 	var album model.Album
-	if err := r.db.First(&album, id).Error; err != nil {
+	if err := r.db.Where("id = ? AND group_id = ?", id, groupID).First(&album).Error; err != nil {
 		return nil, err
 	}
 	return &album, nil
 }
 
-func (r *albumRepositoryImpl) FindAll() ([]*model.Album, error) {
+func (r *albumRepositoryImpl) FindAll(groupID uint) ([]*model.Album, error) {
 	var albums []*model.Album
-	if err := r.db.Order("created_at DESC").Find(&albums).Error; err != nil {
+	if err := r.db.Where("group_id = ?", groupID).Order("created_at DESC").Find(&albums).Error; err != nil {
 		return nil, err
 	}
 	return albums, nil

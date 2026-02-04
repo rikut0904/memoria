@@ -37,6 +37,11 @@ func (h *PhotoHandler) GeneratePresignedURL(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid user")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	albumID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid album ID")
@@ -47,7 +52,7 @@ func (h *PhotoHandler) GeneratePresignedURL(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	url, key, err := h.photoUsecase.GenerateUploadURL(uint(albumID), req.Filename, req.ContentType, user.ID)
+	url, key, err := h.photoUsecase.GenerateUploadURL(uint(albumID), req.Filename, req.ContentType, user.ID, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -73,6 +78,11 @@ func (h *PhotoHandler) CreatePhoto(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid user")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	albumID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid album ID")
@@ -91,6 +101,7 @@ func (h *PhotoHandler) CreatePhoto(c echo.Context) error {
 		req.Width,
 		req.Height,
 		user.ID,
+		groupID,
 	)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -115,7 +126,12 @@ func (h *PhotoHandler) DeletePhoto(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid photo ID")
 	}
 
-	if err := h.photoUsecase.DeletePhoto(uint(id)); err != nil {
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	if err := h.photoUsecase.DeletePhoto(uint(id), groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

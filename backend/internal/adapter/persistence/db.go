@@ -32,9 +32,13 @@ func NewDB(cfg config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Auto-migrate all models
-	if err := autoMigrate(db); err != nil {
-		return nil, err
+	// Auto-migrate all models (can be disabled via AUTO_MIGRATE=false)
+	if cfg.AutoMigrate {
+		if err := autoMigrate(db); err != nil {
+			return nil, err
+		}
+	} else {
+		log.Println("Auto-migration is disabled")
 	}
 
 	return db, nil
@@ -45,6 +49,8 @@ func autoMigrate(db *gorm.DB) error {
 
 	models := []interface{}{
 		&model.User{},
+		&model.Group{},
+		&model.GroupMember{},
 		&model.Invite{},
 		&model.Album{},
 		&model.Photo{},
@@ -58,7 +64,6 @@ func autoMigrate(db *gorm.DB) error {
 		&model.NotificationSetting{},
 		&model.Notification{},
 		&model.WebPushSubscription{},
-		&model.Anniversary{},
 		&model.Trip{},
 		&model.TripItinerary{},
 		&model.TripWishlist{},

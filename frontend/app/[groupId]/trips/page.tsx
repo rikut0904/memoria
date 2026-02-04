@@ -1,10 +1,20 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
-import { auth } from '@/lib/firebase'
 import { getErrorMessage } from '@/lib/getErrorMessage'
+import { getCurrentGroupId, getCurrentGroupName } from '@/lib/group'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
+import GroupSwitchButton from '@/components/GroupSwitchButton'
+import DashboardButton from '@/components/DashboardButton'
+import AppHeader from '@/components/AppHeader'
+
+interface User {
+  id: number
+  email: string
+  display_name: string
+}
 
 interface Trip {
   id: number
@@ -19,29 +29,36 @@ interface Trip {
 
 export default function TripsPage() {
   const router = useRouter()
+  const params = useParams()
+  const groupIdParam = params.groupId as string
+  const [user, setUser] = useState<User | null>(null)
   const [trips, setTrips] = useState<Trip[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const groupId = getCurrentGroupId()
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (!firebaseUser) {
-        router.push('/login')
-        return
-      }
-
+    const fetchTrips = async () => {
       try {
+        const groupId = getCurrentGroupId()
+        if (!groupId) {
+          router.push('/')
+          return
+        }
+        const userRes = await api.get('/me')
+        setUser(userRes.data)
         const res = await api.get('/trips')
         setTrips(res.data || [])
       } catch (err) {
         console.error('Failed to fetch trips:', err)
         setError(getErrorMessage(err, '旅行一覧の取得に失敗しました'))
+        router.push(buildLoginUrl(getCurrentPathWithQuery()))
       } finally {
         setLoading(false)
       }
-    })
+    }
 
-    return () => unsubscribe()
+    fetchTrips()
   }, [router])
 
   if (loading) {
@@ -53,30 +70,27 @@ export default function TripsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-primary-600">旅行</h1>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
-              >
-                ダッシュボードに戻る
-              </button>
-              <button
-                onClick={() => router.push('/trips/new')}
-                className="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-              >
-                新規旅行
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen">
+      <AppHeader
+        title="旅行"
+        displayName={user?.display_name}
+        email={user?.email}
+        right={
+          <>
+            <GroupSwitchButton label="グループ一覧へ" />
+            <DashboardButton label="ダッシュボードへ" />
+            <button
+              onClick={() => router.push(`/${groupIdParam}/trips/new`)}
+              className="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+            >
+              新規旅行
+            </button>
+          </>
+        }
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {getCurrentGroupName() && <h1>{getCurrentGroupName()}</h1>}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
             {error}
@@ -84,7 +98,7 @@ export default function TripsPage() {
         )}
 
         {trips.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+          <div className="card text-center text-gray-500">
             旅行が登録されていません
           </div>
         ) : (
@@ -92,7 +106,7 @@ export default function TripsPage() {
             {trips.map((trip) => (
               <div
                 key={trip.id}
-                className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+                className="card hover:shadow-lg transition-shadow"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -103,7 +117,7 @@ export default function TripsPage() {
                     </p>
                   </div>
                   <button
-                    onClick={() => router.push(`/trips/${trip.id}`)}
+                    onClick={() => router.push(`/${groupIdParam}/trips/${trip.id}`)}
                     className="w-24 px-4 py-2 text-sm text-center border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                   >
                     詳細
@@ -115,13 +129,13 @@ export default function TripsPage() {
                 <div className="mt-4 flex items-center justify-between text-sm">
                   <div className="flex items-center justify-end gap-2">
                     <button
-                      onClick={() => router.push(`/posts/new?trip_id=${trip.id}`)}
+                      onClick={() => router.push(`/${groupIdParam}/posts/new?trip_id=${trip.id}`)}
                       className="w-24 px-4 py-2 text-sm text-center bg-primary-600 text-white rounded-lg hover:bg-primary-700"
                     >
                       投稿
                     </button>
                     <button
-                      onClick={() => router.push(`/albums/new?trip_id=${trip.id}`)}
+                      onClick={() => router.push(`/${groupIdParam}/albums/new?trip_id=${trip.id}`)}
                       className="w-24 px-4 py-2 text-sm text-center border border-primary-300 text-primary-600 rounded-lg hover:bg-primary-50"
                     >
                       アルバム

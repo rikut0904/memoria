@@ -17,18 +17,33 @@ type User struct {
 	Role        string `gorm:"not null"` // admin, member
 }
 
+type Group struct {
+	BaseModel
+	Name      string `gorm:"not null"`
+	CreatedBy uint   `gorm:"not null"`
+}
+
+type GroupMember struct {
+	GroupID  uint      `gorm:"primaryKey"`
+	UserID   uint      `gorm:"primaryKey"`
+	Role     string    `gorm:"not null"` // manager, member
+	JoinedAt time.Time `gorm:"not null"`
+}
+
 type Invite struct {
 	BaseModel
+	GroupID    uint      `gorm:"not null;index"`
 	Email      string    `gorm:"not null;index"`
 	Token      string    `gorm:"uniqueIndex;not null"`
-	Status     string    `gorm:"not null"` // pending, accepted, revoked, expired
-	Role       string    `gorm:"not null;default:user"` // admin, user
+	Status     string    `gorm:"not null"` // pending, accepted, declined, expired
+	Role       string    `gorm:"not null;default:member"` // manager, member
 	ExpiresAt  time.Time `gorm:"not null"`
 	InvitedBy  uint      `gorm:"not null"`
 }
 
 type Album struct {
 	BaseModel
+	GroupID     uint   `gorm:"not null;index"`
 	Title       string `gorm:"not null"`
 	Description string
 	CoverPhotoID *uint
@@ -37,6 +52,7 @@ type Album struct {
 
 type Photo struct {
 	BaseModel
+	GroupID     uint   `gorm:"not null;index"`
 	AlbumID     uint   `gorm:"not null;index"`
 	S3Key       string `gorm:"uniqueIndex;not null"`
 	ContentType string
@@ -48,6 +64,7 @@ type Photo struct {
 
 type Post struct {
 	BaseModel
+	GroupID     uint      `gorm:"not null;index"`
 	Type        string    `gorm:"not null"` // blog, memo
 	Title       string
 	Body        string    `gorm:"not null"`
@@ -94,7 +111,7 @@ type PostComment struct {
 type NotificationSetting struct {
 	BaseModel
 	UserID   uint   `gorm:"not null;index"`
-	Category string `gorm:"not null"` // new_post, new_comment, anniversary, trip
+	Category string `gorm:"not null"` // new_post, new_comment, trip
 	Enabled  bool   `gorm:"not null"`
 }
 
@@ -115,18 +132,9 @@ type WebPushSubscription struct {
 	P256dh    string `gorm:"not null"`
 }
 
-type Anniversary struct {
-	BaseModel
-	Title             string    `gorm:"not null"`
-	Date              time.Time `gorm:"not null"`
-	RemindDaysBefore  int       `gorm:"not null"`
-	RemindAt          *time.Time
-	Note              string
-	CreatedBy         uint `gorm:"not null"`
-}
-
 type Trip struct {
 	BaseModel
+	GroupID     uint      `gorm:"not null;index"`
 	Title       string    `gorm:"not null"`
 	StartAt     time.Time `gorm:"not null"`
 	EndAt       time.Time `gorm:"not null"`

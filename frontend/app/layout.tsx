@@ -1,12 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
-
 export const metadata: Metadata = {
-  title: 'Memoria - 二人の思い出',
-  description: '二人の大切な思い出を保存するアプリ',
+  title: 'Memoria',
+  description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
 }
 
 export default function RootLayout({
@@ -21,8 +18,18 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=optional"
         />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-WLKP58YCP3"></script>
+        <script>
+          {`
+            dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            
+            gtag('config', 'G-WLKP58YCP3');
+          `}
+        </script>
       </head>
-      <body className={inter.className}>{children}</body>
+      <body>{children}</body>
     </html>
   )
 }

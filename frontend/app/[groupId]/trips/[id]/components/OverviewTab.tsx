@@ -25,7 +25,7 @@ export default function OverviewTab({ trip, onEdit, onDelete, deleting }: Overvi
       {(trip.albums && trip.albums.length > 0) || (trip.posts && trip.posts.length > 0) ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">紐づけたアルバム</h3>
+            <div className="text-sm font-semibold text-gray-700 mb-2">紐づけたアルバム</div>
             {trip.albums && trip.albums.length > 0 ? (
               <ul className="space-y-2 text-sm text-gray-700">
                 {trip.albums.map((album) => (
@@ -46,7 +46,7 @@ export default function OverviewTab({ trip, onEdit, onDelete, deleting }: Overvi
           </div>
 
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">紐づけた投稿</h3>
+            <div className="text-sm font-semibold text-gray-700 mb-2">紐づけた投稿</div>
             {trip.posts && trip.posts.length > 0 ? (
               <ul className="space-y-2 text-sm text-gray-700">
                 {trip.posts.map((post) => (

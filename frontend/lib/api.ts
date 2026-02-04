@@ -1,17 +1,23 @@
 import axios from 'axios'
-import { auth } from './firebase'
+import { getCurrentGroupId } from './group'
+import { getAuthToken } from './auth'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
+const baseURL = apiBase ? `${apiBase.replace(/\/$/, '')}/api` : '/api'
 
 const api = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
+  baseURL,
+  withCredentials: true,
 })
 
 api.interceptors.request.use(async (config) => {
-  const user = auth.currentUser
-  if (user) {
-    const token = await user.getIdToken()
-    config.headers.Authorization = `Bearer ${token}`
+  const groupId = getCurrentGroupId()
+  if (groupId) {
+    config.headers['X-Group-ID'] = String(groupId)
+  }
+  const token = getAuthToken()
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`
   }
   return config
 })

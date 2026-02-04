@@ -44,12 +44,17 @@ func (h *PostHandler) CreatePost(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid user")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req CreatePostRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	post, err := h.postUsecase.CreatePost(req.Type, req.Title, req.Body, user.ID, req.Tags)
+	post, err := h.postUsecase.CreatePost(req.Type, req.Title, req.Body, user.ID, req.Tags, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -71,7 +76,12 @@ func (h *PostHandler) GetPost(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid post ID")
 	}
 
-	post, err := h.postUsecase.GetPost(uint(id))
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	post, err := h.postUsecase.GetPost(uint(id), groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "post not found")
 	}
@@ -88,7 +98,12 @@ func (h *PostHandler) GetPost(c echo.Context) error {
 }
 
 func (h *PostHandler) GetAllPosts(c echo.Context) error {
-	posts, err := h.postUsecase.GetAllPosts()
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	posts, err := h.postUsecase.GetAllPosts(groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -122,12 +137,17 @@ func (h *PostHandler) UpdatePost(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid post ID")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req UpdatePostRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	post, err := h.postUsecase.UpdatePost(uint(id), req.Type, req.Title, req.Body, req.Tags)
+	post, err := h.postUsecase.UpdatePost(uint(id), req.Type, req.Title, req.Body, req.Tags, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -149,7 +169,12 @@ func (h *PostHandler) DeletePost(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid post ID")
 	}
 
-	if err := h.postUsecase.DeletePost(uint(id)); err != nil {
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	if err := h.postUsecase.DeletePost(uint(id), groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -168,7 +193,12 @@ func (h *PostHandler) AddLike(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid post ID")
 	}
 
-	if err := h.postUsecase.AddLike(uint(postID), user.ID); err != nil {
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	if err := h.postUsecase.AddLike(uint(postID), user.ID, groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -187,7 +217,12 @@ func (h *PostHandler) RemoveLike(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid post ID")
 	}
 
-	if err := h.postUsecase.RemoveLike(uint(postID), user.ID); err != nil {
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	if err := h.postUsecase.RemoveLike(uint(postID), user.ID, groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -218,12 +253,17 @@ func (h *PostHandler) CreateComment(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid post ID")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req CreateCommentRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	comment, err := h.postUsecase.CreateComment(uint(postID), user.ID, req.Body)
+	comment, err := h.postUsecase.CreateComment(uint(postID), user.ID, req.Body, groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -256,7 +296,12 @@ func (h *PostHandler) GetComments(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid post ID")
 	}
 
-	comments, err := h.postUsecase.GetComments(uint(postID))
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	comments, err := h.postUsecase.GetComments(uint(postID), groupID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -285,12 +330,17 @@ func (h *PostHandler) AddAlbum(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid post ID")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req AddAlbumRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := h.postUsecase.AddAlbum(uint(postID), req.AlbumID); err != nil {
+	if err := h.postUsecase.AddAlbum(uint(postID), req.AlbumID, groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -308,7 +358,12 @@ func (h *PostHandler) RemoveAlbum(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid album ID")
 	}
 
-	if err := h.postUsecase.RemoveAlbum(uint(postID), uint(albumID)); err != nil {
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	if err := h.postUsecase.RemoveAlbum(uint(postID), uint(albumID), groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -325,12 +380,17 @@ func (h *PostHandler) AddPhoto(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid post ID")
 	}
 
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
 	var req AddPhotoRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := h.postUsecase.AddPhoto(uint(postID), req.PhotoID); err != nil {
+	if err := h.postUsecase.AddPhoto(uint(postID), req.PhotoID, groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -348,7 +408,12 @@ func (h *PostHandler) RemovePhoto(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid photo ID")
 	}
 
-	if err := h.postUsecase.RemovePhoto(uint(postID), uint(photoID)); err != nil {
+	groupID, err := getGroupIDFromContext(c)
+	if err != nil {
+		return err
+	}
+
+	if err := h.postUsecase.RemovePhoto(uint(postID), uint(photoID), groupID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

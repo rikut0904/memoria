@@ -1,6 +1,6 @@
-# Memoria - 二人の思い出保存アプリ
+# Memoria - 思い出保存アプリ
 
-二人の大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。
+大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。
 
 ## 機能
 
@@ -49,7 +49,7 @@ cp .env.example .env
 ```bash
 cd backend
 cp .env.example .env
-# Firebase、S3、管理者メールなどを設定
+# Firebase、S3 などを設定
 ```
 
 3. **Frontend の `.env.local`**:

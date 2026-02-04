@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"strings"
 
 	"memoria/internal/adapter/http/handler"
 	customMiddleware "memoria/internal/adapter/http/middleware"
@@ -13,18 +14,32 @@ import (
 func RegisterRoutes(
 	e *echo.Echo,
 	userHandler *handler.UserHandler,
+	groupHandler *handler.GroupHandler,
+	authHandler *handler.AuthHandler,
 	inviteHandler *handler.InviteHandler,
 	albumHandler *handler.AlbumHandler,
 	photoHandler *handler.PhotoHandler,
 	postHandler *handler.PostHandler,
-	anniversaryHandler *handler.AnniversaryHandler,
 	tripHandler *handler.TripHandler,
 	authMiddleware *customMiddleware.AuthMiddleware,
+	frontendBaseURL string,
 ) {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
+	allowedOrigins := []string{
+		"http://localhost:3000",
+		"http://127.0.0.1:3000",
+	}
+	if frontendBaseURL != "" {
+		allowedOrigins = append(allowedOrigins, strings.TrimRight(frontendBaseURL, "/"))
+	}
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     allowedOrigins,
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "X-Group-ID"},
+		AllowCredentials: true,
+	}))
 
 	// Health check
 	e.GET("/health", func(c echo.Context) error {
@@ -34,79 +49,86 @@ func RegisterRoutes(
 	// API routes
 	api := e.Group("/api")
 
+	// Auth
+	api.POST("/login", authHandler.Login)
+	api.POST("/signup", authHandler.Signup)
+	api.POST("/logout", authHandler.Logout)
+
 	// Public invite routes
 	api.GET("/invites/:token", inviteHandler.VerifyInvite)
-	api.POST("/invites/:token/accept", inviteHandler.AcceptInvite)
+	api.POST("/invites/:token/signup", inviteHandler.SignupInvite)
 
 	// Protected routes
 	protected := api.Group("", authMiddleware.RequireAuth)
 	protected.GET("/me", userHandler.GetMe)
 	protected.PATCH("/me", userHandler.UpdateMe)
+	protected.POST("/invites/:token/accept", inviteHandler.AcceptInvite)
+	protected.POST("/invites/:token/decline", inviteHandler.DeclineInvite)
+	protected.GET("/groups", groupHandler.GetMyGroups)
+	protected.POST("/groups", groupHandler.CreateGroup)
+	protected.GET("/groups/:id/members", groupHandler.GetGroupMembers)
+
+	// Group-scoped routes (require group membership)
+	group := api.Group("", authMiddleware.RequireGroup)
+
+	// Group invites
+	group.POST("/invites", inviteHandler.CreateInvite)
+	group.GET("/invites", inviteHandler.GetGroupInvites)
+	group.DELETE("/invites/:id", inviteHandler.DeleteInvite)
 
 	// Album routes
-	protected.GET("/albums", albumHandler.GetAllAlbums)
-	protected.POST("/albums", albumHandler.CreateAlbum)
-	protected.GET("/albums/:id", albumHandler.GetAlbum)
-	protected.PATCH("/albums/:id", albumHandler.UpdateAlbum)
-	protected.DELETE("/albums/:id", albumHandler.DeleteAlbum)
+	group.GET("/albums", albumHandler.GetAllAlbums)
+	group.POST("/albums", albumHandler.CreateAlbum)
+	group.GET("/albums/:id", albumHandler.GetAlbum)
+	group.PATCH("/albums/:id", albumHandler.UpdateAlbum)
+	group.DELETE("/albums/:id", albumHandler.DeleteAlbum)
 
 	// Photo routes
-	protected.GET("/albums/:id/photos", albumHandler.GetAlbumPhotos)
-	protected.POST("/albums/:id/photos/presign", photoHandler.GeneratePresignedURL)
-	protected.POST("/albums/:id/photos", photoHandler.CreatePhoto)
-	protected.DELETE("/photos/:id", photoHandler.DeletePhoto)
+	group.GET("/albums/:id/photos", albumHandler.GetAlbumPhotos)
+	group.POST("/albums/:id/photos/presign", photoHandler.GeneratePresignedURL)
+	group.POST("/albums/:id/photos", photoHandler.CreatePhoto)
+	group.DELETE("/photos/:id", photoHandler.DeletePhoto)
 
 	// Post routes
-	protected.GET("/posts", postHandler.GetAllPosts)
-	protected.POST("/posts", postHandler.CreatePost)
-	protected.GET("/posts/:id", postHandler.GetPost)
-	protected.PATCH("/posts/:id", postHandler.UpdatePost)
-	protected.DELETE("/posts/:id", postHandler.DeletePost)
+	group.GET("/posts", postHandler.GetAllPosts)
+	group.POST("/posts", postHandler.CreatePost)
+	group.GET("/posts/:id", postHandler.GetPost)
+	group.PATCH("/posts/:id", postHandler.UpdatePost)
+	group.DELETE("/posts/:id", postHandler.DeletePost)
 
 	// Post relations
-	protected.POST("/posts/:id/albums", postHandler.AddAlbum)
-	protected.DELETE("/posts/:id/albums/:albumId", postHandler.RemoveAlbum)
-	protected.POST("/posts/:id/photos", postHandler.AddPhoto)
-	protected.DELETE("/posts/:id/photos/:photoId", postHandler.RemovePhoto)
+	group.POST("/posts/:id/albums", postHandler.AddAlbum)
+	group.DELETE("/posts/:id/albums/:albumId", postHandler.RemoveAlbum)
+	group.POST("/posts/:id/photos", postHandler.AddPhoto)
+	group.DELETE("/posts/:id/photos/:photoId", postHandler.RemovePhoto)
 
 	// Likes & Comments
-	protected.POST("/posts/:id/likes", postHandler.AddLike)
-	protected.DELETE("/posts/:id/likes", postHandler.RemoveLike)
-	protected.GET("/posts/:id/comments", postHandler.GetComments)
-	protected.POST("/posts/:id/comments", postHandler.CreateComment)
-	protected.DELETE("/comments/:id", postHandler.DeleteComment)
+	group.POST("/posts/:id/likes", postHandler.AddLike)
+	group.DELETE("/posts/:id/likes", postHandler.RemoveLike)
+	group.GET("/posts/:id/comments", postHandler.GetComments)
+	group.POST("/posts/:id/comments", postHandler.CreateComment)
+	group.DELETE("/comments/:id", postHandler.DeleteComment)
 
 	// Tags
-	protected.GET("/tags", postHandler.GetAllTags)
-
-	// Anniversary routes
-	protected.GET("/anniversaries", anniversaryHandler.GetAllAnniversaries)
-	protected.POST("/anniversaries", anniversaryHandler.CreateAnniversary)
-	protected.PATCH("/anniversaries/:id", anniversaryHandler.UpdateAnniversary)
-	protected.DELETE("/anniversaries/:id", anniversaryHandler.DeleteAnniversary)
+	group.GET("/tags", postHandler.GetAllTags)
 
 	// Trip routes
-	protected.GET("/trips", tripHandler.GetAllTrips)
-	protected.POST("/trips", tripHandler.CreateTrip)
-	protected.GET("/trips/:id", tripHandler.GetTrip)
-	protected.PATCH("/trips/:id", tripHandler.UpdateTrip)
-	protected.DELETE("/trips/:id", tripHandler.DeleteTrip)
-	protected.GET("/trips/:id/schedule", tripHandler.GetSchedule)
-	protected.PUT("/trips/:id/schedule", tripHandler.UpdateSchedule)
-	protected.GET("/trips/:id/transports", tripHandler.GetTransports)
-	protected.PUT("/trips/:id/transports", tripHandler.UpdateTransports)
-	protected.GET("/trips/:id/lodgings", tripHandler.GetLodgings)
-	protected.PUT("/trips/:id/lodgings", tripHandler.UpdateLodgings)
-	protected.GET("/trips/:id/budget", tripHandler.GetBudget)
-	protected.PUT("/trips/:id/budget", tripHandler.UpdateBudget)
+	group.GET("/trips", tripHandler.GetAllTrips)
+	group.POST("/trips", tripHandler.CreateTrip)
+	group.GET("/trips/:id", tripHandler.GetTrip)
+	group.PATCH("/trips/:id", tripHandler.UpdateTrip)
+	group.DELETE("/trips/:id", tripHandler.DeleteTrip)
+	group.GET("/trips/:id/schedule", tripHandler.GetSchedule)
+	group.PUT("/trips/:id/schedule", tripHandler.UpdateSchedule)
+	group.GET("/trips/:id/transports", tripHandler.GetTransports)
+	group.PUT("/trips/:id/transports", tripHandler.UpdateTransports)
+	group.GET("/trips/:id/lodgings", tripHandler.GetLodgings)
+	group.PUT("/trips/:id/lodgings", tripHandler.UpdateLodgings)
+	group.GET("/trips/:id/budget", tripHandler.GetBudget)
+	group.PUT("/trips/:id/budget", tripHandler.UpdateBudget)
 
 	// Admin routes
 	admin := api.Group("", authMiddleware.RequireAdmin)
-
-	// Invite management (admin only)
-	admin.POST("/invites", inviteHandler.CreateInvite)
-	admin.GET("/invites", inviteHandler.GetAllInvites)
-	admin.DELETE("/invites/:id", inviteHandler.DeleteInvite)
 
 	// User management (admin only)
 	admin.GET("/users", userHandler.GetAllUsers)
