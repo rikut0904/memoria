@@ -12,7 +12,8 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
-    const backendOrigin = process.env.BACKEND_ORIGIN || 'http://backend:8080'
+    const backendOrigin = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://backend:8080')
+      .replace(/\/$/, '')
     return [
       {
         source: '/api/:path*',

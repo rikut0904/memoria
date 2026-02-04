@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"strings"
 
 	"memoria/internal/adapter/http/handler"
 	customMiddleware "memoria/internal/adapter/http/middleware"
@@ -21,11 +22,24 @@ func RegisterRoutes(
 	postHandler *handler.PostHandler,
 	tripHandler *handler.TripHandler,
 	authMiddleware *customMiddleware.AuthMiddleware,
+	frontendBaseURL string,
 ) {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
+	allowedOrigins := []string{
+		"http://localhost:3000",
+		"http://127.0.0.1:3000",
+	}
+	if frontendBaseURL != "" {
+		allowedOrigins = append(allowedOrigins, strings.TrimRight(frontendBaseURL, "/"))
+	}
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     allowedOrigins,
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "X-Group-ID"},
+		AllowCredentials: true,
+	}))
 
 	// Health check
 	e.GET("/health", func(c echo.Context) error {

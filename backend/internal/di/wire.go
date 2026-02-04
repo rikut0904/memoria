@@ -101,6 +101,18 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	authMiddleware := middleware.NewAuthMiddleware(firebaseAuth, userRepo, groupMemberRepo)
 
 	// Register routes
-	http.RegisterRoutes(e, userHandler, groupHandler, authHandler, inviteHandler, albumHandler, photoHandler, postHandler, tripHandler, authMiddleware)
+	http.RegisterRoutes(
+		e,
+		userHandler,
+		groupHandler,
+		authHandler,
+		inviteHandler,
+		albumHandler,
+		photoHandler,
+		postHandler,
+		tripHandler,
+		authMiddleware,
+		cfg.FrontendBaseURL,
+	)
 	return e, nil
 }

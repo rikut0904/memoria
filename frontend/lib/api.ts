@@ -1,8 +1,11 @@
 import axios from 'axios'
 import { getCurrentGroupId } from './group'
 
+const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
+const baseURL = apiBase ? `${apiBase.replace(/\/$/, '')}/api` : '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL,
   withCredentials: true,
 })
 
