@@ -7,7 +7,11 @@
 ## Requirements
 - Web App Manifest
 - Service Worker
+- アプリアイコン
 
 ## Notes
 - DB依存のためオフライン完全動作は不可
 - 体験向上として導入
+
+## Status
+- 未実装
