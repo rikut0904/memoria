@@ -37,6 +37,21 @@ const adminSections = [
     ],
   },
   {
+    title: 'サポート',
+    items: [
+      {
+        title: 'お問い合わせ',
+        href: '/admin/contacts',
+        actionLabel: 'お問い合わせを表示',
+      },
+      {
+        title: '対応履歴',
+        href: '/admin/contacts?tab=history',
+        actionLabel: '履歴を表示',
+      },
+    ],
+  },
+  {
     title: '利用状況',
     items: [
       {
@@ -44,35 +59,37 @@ const adminSections = [
         href: '/admin/usage-report',
         actionLabel: '利用レポートを表示',
       },
-    ],
-  },
-  {
-    title: 'サポート',
-    items: [
       {
-        title: 'お問い合わせ',
-        href: '/admin/inquiries',
-        actionLabel: 'お問い合わせを表示',
+        title: '利用状況ダッシュボード',
+        href: '/admin/usage-report?tab=dashboard',
+        actionLabel: 'ダッシュボードを表示',
       },
     ],
   },
   {
-    title: 'システム設定',
+    title: 'システム管理',
     items: [
       {
-        title: 'システム設定',
+        title: 'メンテナンス管理',
+        href: '/admin/system-settings?tab=maintenance',
+        actionLabel: 'メンテナンス情報を設定',
+      },
+      {
+        title: 'Adminユーザー管理',
+        href: '/admin/users',
+        actionLabel: 'ユーザーを管理',
+      },
+      {
+        title: 'アクセス制御',
         href: '/admin/system-settings',
-        actionLabel: '設定を管理',
+        actionLabel: 'アクセスを管理',
       },
-    ],
-  },
-]
-
-const adminTools = [
-  {
-    title: 'ユーザー管理',
-    href: '/admin/users',
-    actionLabel: 'ユーザーを管理',
+      {
+        title: '管理ログ',
+        href: '/admin/logs',
+        actionLabel: 'ログを表示',
+      },
+    ]
   },
 ]
 
@@ -159,20 +176,6 @@ export default function AdminTopPage() {
             </div>
           </section>
         ))}
-
-        <section>
-          <h3 className="text-lg font-semibold text-gray-800">管理ツール</h3>
-          <div className="grid-card mt-4">
-            {adminTools.map((tool) => (
-              <AdminCard
-                key={tool.title}
-                title={tool.title}
-                actionLabel={tool.actionLabel}
-                onClick={() => router.push(tool.href)}
-              />
-            ))}
-          </div>
-        </section>
       </main>
     </div>
   )
