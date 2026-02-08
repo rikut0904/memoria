@@ -14,7 +14,7 @@ interface User {
   role: string
 }
 
-export default function AdminSystemSettingsPage() {
+export default function AdminInquiriesPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
@@ -64,7 +64,7 @@ export default function AdminSystemSettingsPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div>
           <button
-            onClick={() => router.push('/admin')}
+            onClick={() => router.push('/')}
             className="text-sm text-primary-600 hover:text-primary-700"
           >
             管理トップへ戻る
@@ -72,8 +72,8 @@ export default function AdminSystemSettingsPage() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-semibold text-gray-800">システム設定の管理</h2>
-          <p className="text-gray-600 mt-1">アプリ全体の設定を管理するページです。</p>
+          <h2 className="text-2xl font-semibold text-gray-800">お問い合わせの表示</h2>
+          <p className="text-gray-600 mt-1">問い合わせ内容を確認するページです。</p>
         </div>
 
         <div className="card text-gray-600">準備中です。</div>

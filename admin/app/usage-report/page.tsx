@@ -14,7 +14,7 @@ interface User {
   role: string
 }
 
-export default function AdminSalesReportPage() {
+export default function AdminUsageReportPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
@@ -64,7 +64,7 @@ export default function AdminSalesReportPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div>
           <button
-            onClick={() => router.push('/admin')}
+            onClick={() => router.push('/')}
             className="text-sm text-primary-600 hover:text-primary-700"
           >
             管理トップへ戻る
@@ -72,8 +72,8 @@ export default function AdminSalesReportPage() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-semibold text-gray-800">売上レポートの表示</h2>
-          <p className="text-gray-600 mt-1">売上状況を確認するページです。</p>
+          <h2 className="text-2xl font-semibold text-gray-800">利用レポートの表示</h2>
+          <p className="text-gray-600 mt-1">アクティブユーザーなどの利用状況を確認するページです。</p>
         </div>
 
         <div className="card text-gray-600">準備中です。</div>
