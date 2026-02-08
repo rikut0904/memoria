@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import './globals.css'
+import LogoutSync from './logout-sync'
 
 export const metadata: Metadata = {
   title: 'Memoria - ログイン',
@@ -31,7 +33,12 @@ export default function RootLayout({
         </script>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6748867170638544" crossOrigin="anonymous"></script>
       </head>
-      <body>{children}</body>
+      <body>
+        <Suspense fallback={null}>
+          <LogoutSync />
+        </Suspense>
+        {children}
+      </body>
     </html>
   )
 }

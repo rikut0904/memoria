@@ -1,22 +1,4 @@
 services:
-  db:
-    image: postgres:16
-    container_name: memoria_db
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      TZ: Asia/Tokyo
-    ports:
-      - "5433:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   backend:
     build:
       context: ./backend
@@ -24,20 +6,10 @@ services:
     container_name: memoria_backend
     env_file:
       - ./backend/.env
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_NAME: ${POSTGRES_DB}
-      TZ: Asia/Tokyo
     ports:
-      - "${BACKEND_PORT}:8080"
+      - "8080:8080"
     volumes:
       - ./backend/templates:/app/templates:ro
-    depends_on:
-      db:
-        condition: service_healthy
     restart: on-failure
 
   frontend:
@@ -45,16 +17,80 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080}
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
     container_name: memoria_frontend
     env_file:
       - ./frontend/.env
     environment:
-      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080}
+      PORT: 3000
     ports:
-      - "${FRONTEND_PORT}:3000"
+      - "3000:3000"
     depends_on:
       - backend
 
-volumes:
-  db_data:
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_APP_BASE_URL: http://localhost:3000
+        NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:3002
+        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:3004
+    container_name: memoria_auth
+    env_file:
+      - ./auth/.env
+    environment:
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+    container_name: memoria_admin
+    env_file:
+      - ./admin/.env
+    environment:
+      PORT: 3002
+    ports:
+      - "3002:3002"
+    depends_on:
+      - backend
+
+  help:
+    build:
+      context: ./help
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+    container_name: memoria_help
+    env_file:
+      - ./help/.env
+    environment:
+      PORT: 3003
+    ports:
+      - "3003:3003"
+    depends_on:
+      - backend
+
+  info:
+    build:
+      context: ./info
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+    container_name: memoria_info
+    env_file:
+      - ./info/.env
+    environment:
+      PORT: 3004
+    ports:
+      - "3004:3004"
+    depends_on:
+      - backend

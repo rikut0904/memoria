@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import './globals.css'
+import TokenBridge from './token-bridge'
+import LogoutSync from './logout-sync'
 
 export const metadata: Metadata = {
   title: 'Memoria - 管理',
@@ -30,7 +33,15 @@ export default function RootLayout({
           `}
         </script>
       </head>
-      <body>{children}</body>
+      <body>
+        <Suspense fallback={null}>
+          <TokenBridge />
+        </Suspense>
+        <Suspense fallback={null}>
+          <LogoutSync />
+        </Suspense>
+        {children}
+      </body>
     </html>
   )
 }

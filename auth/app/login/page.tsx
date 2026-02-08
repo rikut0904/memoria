@@ -6,8 +6,62 @@ import axios from 'axios'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { normalizeBackPath } from '@/lib/backPath'
-import { getAuthToken, setAuthToken, setRefreshToken } from '@/lib/auth'
+import { getAuthToken, getRefreshToken, setAuthToken, setRefreshToken } from '@/lib/auth'
 import VerticalAd from '@/components/VerticalAd'
+
+const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost:3000'
+const ADMIN_BASE_URL = process.env.NEXT_PUBLIC_ADMIN_BASE_URL || 'http://localhost:3002'
+
+const trimTrailingSlash = (value: string) => value.replace(/\/$/, '')
+const joinPath = (base: string, path: string) => {
+  if (!path) return `${base}/`
+  if (path.startsWith('/')) return `${base}${path}`
+  return `${base}/${path}`
+}
+
+const appendTokensToUrl = (targetUrl: string, token?: string, refreshToken?: string) => {
+  if (!token && !refreshToken) return targetUrl
+  try {
+    const url = new URL(targetUrl)
+    if (token) url.searchParams.set('auth_token', token)
+    if (refreshToken) url.searchParams.set('refresh_token', refreshToken)
+    return url.toString()
+  } catch {
+    return targetUrl
+  }
+}
+
+const buildRedirectUrl = (rawBackPath: string | null, normalizedPath: string | null) => {
+  const appBase = trimTrailingSlash(APP_BASE_URL)
+  const adminBase = trimTrailingSlash(ADMIN_BASE_URL)
+  if (!rawBackPath) return `${appBase}/`
+
+  const trimmed = rawBackPath.trim()
+  if (trimmed === '') return `${appBase}/`
+
+  const lower = trimmed.toLowerCase()
+  if (lower === 'app') return `${appBase}/`
+  if (lower === 'admin') return `${adminBase}/`
+
+  if (lower.startsWith('app/')) return joinPath(appBase, trimmed.slice(4))
+  if (lower.startsWith('admin/')) return joinPath(adminBase, trimmed.slice(6))
+
+  try {
+    const url = new URL(trimmed)
+    const allowedOrigins = new Set([
+      new URL(appBase).origin,
+      new URL(adminBase).origin,
+    ])
+    if (allowedOrigins.has(url.origin)) {
+      return url.toString()
+    }
+  } catch {
+    // ignore invalid URL
+  }
+
+  if (normalizedPath) return joinPath(appBase, normalizedPath)
+  return `${appBase}/`
+}
 
 function LoginContent() {
   const router = useRouter()
@@ -17,7 +71,10 @@ function LoginContent() {
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
-  const backPath = normalizeBackPath(searchParams.get('back-path')) || '/'
+  const rawBackPath = searchParams.get('back_path') ?? searchParams.get('back-path')
+  const normalizedBackPath = normalizeBackPath(rawBackPath)
+  const redirectUrl = buildRedirectUrl(rawBackPath, normalizedBackPath)
+  const backPathForApi = normalizedBackPath || '/'
 
   useEffect(() => {
     const token = getAuthToken()
@@ -25,10 +82,13 @@ function LoginContent() {
     api
       .get('/me')
       .then(() => {
-        router.replace(backPath)
+        const storedToken = getAuthToken() || undefined
+        const storedRefresh = getRefreshToken() || undefined
+        const urlWithTokens = appendTokensToUrl(redirectUrl, storedToken, storedRefresh)
+        window.location.replace(urlWithTokens)
       })
       .catch(() => {})
-  }, [backPath, router])
+  }, [redirectUrl, router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,14 +97,17 @@ function LoginContent() {
     setLoading(true)
 
     try {
-      const res = await api.post('/login', { email, password, back_path: backPath })
-      if (res?.data?.token) {
-        setAuthToken(res.data.token)
+      const res = await api.post('/login', { email, password, back_path: backPathForApi })
+      const token = res?.data?.token as string | undefined
+      if (token) {
+        setAuthToken(token)
       }
-      if (res?.data?.refresh_token) {
-        setRefreshToken(res.data.refresh_token)
+      const refreshToken = res?.data?.refresh_token as string | undefined
+      if (refreshToken) {
+        setRefreshToken(refreshToken)
       }
-      router.push(backPath)
+      const urlWithTokens = appendTokensToUrl(redirectUrl, token, refreshToken)
+      window.location.replace(urlWithTokens)
     } catch (err) {
       const code = axios.isAxiosError(err) ? err.response?.data?.code : ''
       const message = getErrorMessage(err, 'ログインに失敗しました。メールアドレスとパスワードを確認してください。')
