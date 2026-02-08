@@ -1,9 +1,0 @@
-# 利用しないサービスをコメントアウトしてください。
-
-services:
-  - backend
-  - frontend
-  - auth
-  - admin
-  # - help
-  # - info

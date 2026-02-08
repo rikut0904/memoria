@@ -17,10 +17,15 @@ export const normalizeBackPath = (raw: string | null): string | null => {
   }
 }
 
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL || 'http://localhost:3001'
+
 export const buildLoginUrl = (currentPath: string) => {
-  const normalized = normalizeBackPath(currentPath)
-  if (!normalized) return '/login'
-  return `/login?back-path=${encodeURIComponent(normalized)}`
+  if (!currentPath) return `${AUTH_BASE_URL}/login`
+  let returnTo = currentPath
+  if (typeof window !== 'undefined' && currentPath.startsWith('/')) {
+    returnTo = `${window.location.origin}${currentPath}`
+  }
+  return `${AUTH_BASE_URL}/login?return_to=${encodeURIComponent(returnTo)}`
 }
 
 export const getCurrentPathWithQuery = () => {

@@ -29,6 +29,8 @@ type Config struct {
 
 	FrontendBaseURL string
 	AllowedOrigins  string
+	CookieDomain    string
+	EnableLocalStorageAuth bool
 	SESFromEmail    string
 	SESInviteTemplatePath string
 	AWSRegion   string
@@ -56,6 +58,8 @@ func Load() Config {
 
 		FrontendBaseURL: getEnv("FRONTEND_BASE_URL", ""),
 		AllowedOrigins:  getEnv("ALLOWED_ORIGINS", ""),
+		CookieDomain:    getEnv("COOKIE_DOMAIN", ""),
+		EnableLocalStorageAuth: getEnv("APP_ENV", "local") != "production",
 		SESFromEmail:    getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),
 		SESInviteTemplatePath: getEnv("SES_INVITE_TEMPLATE_PATH", ""),
 		AWSRegion:   getEnv("AWS_REGION", "ap-northeast-1"),

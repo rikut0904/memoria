@@ -86,7 +86,7 @@ export default function DashboardPage() {
       clearRefreshToken()
       signalLogout()
       await api.post('/logout')
-      router.push('/login')
+      router.push(buildLoginUrl(getCurrentPathWithQuery()))
     } catch (error) {
       console.error('Logout failed:', error)
     }

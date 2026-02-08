@@ -11,6 +11,7 @@ import (
 	"memoria/internal/domain/repository"
 
 	"github.com/labstack/echo/v4"
+	fbauth "firebase.google.com/go/v4/auth"
 )
 
 type AuthMiddleware struct {
@@ -30,6 +31,7 @@ func NewAuthMiddleware(firebaseAuth *auth.FirebaseAuth, userRepo repository.User
 func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var idToken string
+		useSessionCookie := false
 		authHeader := c.Request().Header.Get("Authorization")
 		if authHeader != "" {
 			parts := strings.Split(authHeader, " ")
@@ -43,9 +45,16 @@ func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 				return echo.NewHTTPError(http.StatusUnauthorized, "missing session")
 			}
 			idToken = cookie.Value
+			useSessionCookie = true
 		}
 
-		token, err := m.firebaseAuth.VerifyIDToken(c.Request().Context(), idToken)
+		var token *fbauth.Token
+		var err error
+		if useSessionCookie {
+			token, err = m.firebaseAuth.VerifySessionCookie(c.Request().Context(), idToken)
+		} else {
+			token, err = m.firebaseAuth.VerifyIDToken(c.Request().Context(), idToken)
+		}
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, "invalid session")
 		}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { clearAuthToken, clearRefreshToken } from '@/lib/auth'
 import { signalLogout } from '@/lib/logoutSync'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 
 type AppHeaderProps = {
   title: ReactNode
@@ -32,7 +33,7 @@ export default function AppHeader({
     try {
       await api.post('/logout')
     } finally {
-      router.push('/login')
+      router.push(buildLoginUrl(getCurrentPathWithQuery()))
     }
   }
 

@@ -1,6 +1,5 @@
 NEXTJS_PROJECTS := frontend auth admin help info
 DEFAULT_SERVICES := backend frontend auth admin help info
-CONFIG_FILE := config.yml
 
 # ============================================================
 # Docker操作
@@ -8,13 +7,8 @@ CONFIG_FILE := config.yml
 
 .PHONY: up down logs build ps install
 
-up: ## config.yml に従って起動（未指定なら全サービス）
-	@SERVICES="$$(python3 scripts/resolve_services.py $(CONFIG_FILE))"; \
-	if [ -z "$$SERVICES" ]; then \
-		SERVICES="$(DEFAULT_SERVICES)"; \
-	fi; \
-	echo "=== up services: $$SERVICES ==="; \
-	docker compose up --build $$SERVICES
+up: ## 全サービス起動
+	docker compose up --build
 
 down: ## 全サービス停止
 	docker compose down

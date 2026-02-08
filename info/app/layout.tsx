@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import './globals.css'
+import TokenBridge from './token-bridge'
 
 export const metadata: Metadata = {
   title: 'Memoria - インフォメーション',
@@ -19,7 +21,12 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=optional"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <Suspense fallback={null}>
+          <TokenBridge />
+        </Suspense>
+        {children}
+      </body>
     </html>
   )
 }

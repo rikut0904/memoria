@@ -168,7 +168,7 @@ export default function InviteAcceptPage() {
             <h2 className="text-2xl font-bold text-gray-800 mb-2">招待が無効です</h2>
             <p className="text-gray-600 mb-6">{error}</p>
             <button
-              onClick={() => router.push('/login')}
+              onClick={() => router.push(buildLoginUrl(getCurrentPathWithQuery()))}
               className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
             >
               ログインページへ

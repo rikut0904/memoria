@@ -19,6 +19,7 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
         NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:3002
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
     container_name: memoria_frontend
     env_file:
       - ./frontend/.env
@@ -38,6 +39,8 @@ services:
         NEXT_PUBLIC_APP_BASE_URL: http://localhost:3000
         NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:3002
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:3004
+        NEXT_PUBLIC_HELP_BASE_URL: http://localhost:3003
+        NEXT_PUBLIC_APP_ENV: development
     container_name: memoria_auth
     env_file:
       - ./auth/.env
@@ -55,6 +58,7 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
         NEXT_PUBLIC_APP_BASE_URL: http://localhost:3000
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
     container_name: memoria_admin
     env_file:
       - ./admin/.env
@@ -71,6 +75,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
     container_name: memoria_help
     env_file:
       - ./help/.env
@@ -87,6 +92,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
     container_name: memoria_info
     env_file:
       - ./info/.env

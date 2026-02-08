@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { clearCurrentGroup, setCurrentGroup } from '@/lib/group'
-import { clearAuthToken, clearRefreshToken, getAuthToken, getRefreshToken } from '@/lib/auth'
+import { clearAuthToken, clearRefreshToken } from '@/lib/auth'
 import { signalLogout } from '@/lib/logoutSync'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import AppHeader from '@/components/AppHeader'
@@ -35,11 +35,6 @@ export default function Home() {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const token = getAuthToken()
-        if (!token) {
-          router.replace(buildLoginUrl(getCurrentPathWithQuery()))
-          return
-        }
         const userRes = await api.get('/me')
         setUser(userRes.data)
         const res = await api.get('/groups')
@@ -116,10 +111,6 @@ export default function Home() {
                 onClick={() => {
                   const adminBase = process.env.NEXT_PUBLIC_ADMIN_BASE_URL || 'http://localhost:3002'
                   const url = new URL('/', adminBase)
-                  const token = getAuthToken()
-                  const refresh = getRefreshToken()
-                  if (token) url.searchParams.set('auth_token', token)
-                  if (refresh) url.searchParams.set('refresh_token', refresh)
                   window.location.href = url.toString()
                 }}
                 className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -136,7 +127,7 @@ export default function Home() {
                 try {
                   await api.post('/logout')
                 } finally {
-                  router.push('/login')
+                  router.push(buildLoginUrl(getCurrentPathWithQuery()))
                 }
               }}
               className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"

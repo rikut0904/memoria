@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation'
 import { clearCurrentGroup } from '@/lib/group'
-import { getAuthToken, getRefreshToken } from '@/lib/auth'
 import HeaderButton from '@/components/HeaderButton'
 
 type GroupSwitchButtonProps = {
@@ -19,11 +18,7 @@ export default function GroupSwitchButton({
 
   const handleClick = () => {
     clearCurrentGroup()
-    const token = getAuthToken()
-    const refresh = getRefreshToken()
     const url = new URL('/', appBaseUrl)
-    if (token) url.searchParams.set('auth_token', token)
-    if (refresh) url.searchParams.set('refresh_token', refresh)
     window.location.href = url.toString()
   }
 

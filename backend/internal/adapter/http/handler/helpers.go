@@ -25,7 +25,7 @@ func getGroupIDFromContext(c echo.Context) (uint, error) {
 	return groupID, nil
 }
 
-func setSessionCookie(c echo.Context, value string, secure bool, maxAge int) {
+func setSessionCookie(c echo.Context, value string, secure bool, maxAge int, domain string) {
 	cookie := &http.Cookie{
 		Name:     "memoria_session",
 		Value:    value,
@@ -35,10 +35,13 @@ func setSessionCookie(c echo.Context, value string, secure bool, maxAge int) {
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   maxAge,
 	}
+	if domain != "" {
+		cookie.Domain = domain
+	}
 	c.SetCookie(cookie)
 }
 
-func clearSessionCookie(c echo.Context, secure bool) {
+func clearSessionCookie(c echo.Context, secure bool, domain string) {
 	cookie := &http.Cookie{
 		Name:     "memoria_session",
 		Value:    "",
@@ -47,6 +50,9 @@ func clearSessionCookie(c echo.Context, secure bool) {
 		Secure:   secure,
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   -1,
+	}
+	if domain != "" {
+		cookie.Domain = domain
 	}
 	c.SetCookie(cookie)
 }

@@ -1,15 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
-import { usePathname } from 'next/navigation'
 import { clearAuthToken, clearRefreshToken } from '@/lib/auth'
 import { readLogoutSignal } from '@/lib/logoutSync'
+import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 
 const SEEN_KEY = 'memoria_logout_seen'
 
 export default function LogoutSync() {
-  const pathname = usePathname()
-
   useEffect(() => {
     const check = () => {
       const ts = readLogoutSignal()
@@ -21,15 +19,13 @@ export default function LogoutSync() {
       clearAuthToken()
       clearRefreshToken()
 
-      if (pathname !== '/login') {
-        window.location.replace('/login')
-      }
+      window.location.replace(buildLoginUrl(getCurrentPathWithQuery()))
     }
 
     check()
     const id = window.setInterval(check, 2000)
     return () => window.clearInterval(id)
-  }, [pathname])
+  }, [])
 
   return null
 }
