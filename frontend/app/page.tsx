@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { clearCurrentGroup, setCurrentGroup } from '@/lib/group'
-import { clearAuthToken, clearRefreshToken, getAuthToken } from '@/lib/auth'
+import { clearAuthToken, clearRefreshToken, getAuthToken, getRefreshToken } from '@/lib/auth'
 import { signalLogout } from '@/lib/logoutSync'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import AppHeader from '@/components/AppHeader'
@@ -113,7 +113,15 @@ export default function Home() {
           <>
             {user?.role === 'admin' && (
               <button
-                onClick={() => router.push('/admin')}
+                onClick={() => {
+                  const adminBase = process.env.NEXT_PUBLIC_ADMIN_BASE_URL || 'http://localhost:3002'
+                  const url = new URL('/', adminBase)
+                  const token = getAuthToken()
+                  const refresh = getRefreshToken()
+                  if (token) url.searchParams.set('auth_token', token)
+                  if (refresh) url.searchParams.set('refresh_token', refresh)
+                  window.location.href = url.toString()
+                }}
                 className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
                 管理画面

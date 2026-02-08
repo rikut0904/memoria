@@ -18,6 +18,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:3002
     container_name: memoria_frontend
     env_file:
       - ./frontend/.env
@@ -53,6 +54,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_APP_BASE_URL: http://localhost:3000
     container_name: memoria_admin
     env_file:
       - ./admin/.env
