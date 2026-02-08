@@ -146,16 +146,16 @@ export default function AdminTopPage() {
           <p className="text-gray-600 mt-1">日次の管理業務へすぐ移動できます。</p>
         </section>
 
-        <section className="grid-card">
-          <div className="card border border-gray-200">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="card border border-gray-200 h-28 w-full">
             <div className="text-sm text-gray-500">今月の売上</div>
             <div className="text-2xl font-semibold text-gray-800 mt-2">--</div>
           </div>
-          <div className="card border border-gray-200">
+          <div className="card border border-gray-200 h-28 w-full">
             <div className="text-sm text-gray-500">未対応お問い合わせ</div>
             <div className="text-2xl font-semibold text-gray-800 mt-2">--</div>
           </div>
-          <div className="card border border-gray-200">
+          <div className="card border border-gray-200 h-28 w-full">
             <div className="text-sm text-gray-500">アクティブユーザー</div>
             <div className="text-2xl font-semibold text-gray-800 mt-2">--</div>
           </div>
@@ -164,7 +164,7 @@ export default function AdminTopPage() {
         {adminSections.map((section) => (
           <section key={section.title}>
             <h3 className="text-lg font-semibold text-gray-800">{section.title}</h3>
-            <div className="grid-card mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
               {section.items.map((item) => (
                 <AdminCard
                   key={item.title}
