@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import api from '@/lib/api'
 import { clearCurrentGroup, getCurrentGroupId, getCurrentGroupName } from '@/lib/group'
 import { clearAuthToken, clearRefreshToken } from '@/lib/auth'
+import { signalLogout } from '@/lib/logoutSync'
 import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
 import GroupSwitchButton from '@/components/GroupSwitchButton'
 import AppHeader from '@/components/AppHeader'
@@ -83,8 +84,9 @@ export default function DashboardPage() {
       clearCurrentGroup()
       clearAuthToken()
       clearRefreshToken()
+      signalLogout()
       await api.post('/logout')
-      router.push('/login')
+      router.push(buildLoginUrl(getCurrentPathWithQuery()))
     } catch (error) {
       console.error('Logout failed:', error)
     }

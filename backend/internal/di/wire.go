@@ -78,8 +78,9 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	// Usecases
 	userUsecase := usecase.NewUserUsecase(userRepo, firebaseAuth)
 	groupUsecase := usecase.NewGroupUsecase(groupRepo, groupMemberRepo)
-	sessionTTL := 30 * 24 * time.Hour
-	authUsecase := usecase.NewAuthUsecase(firebaseAuth, userRepo, cfg.FirebaseAPIKey, sessionTTL, cfg.FrontendBaseURL)
+	// Firebase Session Cookie の上限は 14 日
+	sessionTTL := 14 * 24 * time.Hour
+	authUsecase := usecase.NewAuthUsecase(firebaseAuth, userRepo, cfg.FirebaseAPIKey, sessionTTL, cfg.FrontendBaseURL, cfg.FirebaseProjectID)
 	inviteUsecase := usecase.NewInviteUsecase(inviteRepo, userRepo, groupRepo, groupMemberRepo, mailer)
 	albumUsecase := usecase.NewAlbumUsecase(albumRepo, photoRepo)
 	photoUsecase := usecase.NewPhotoUsecase(photoRepo, albumRepo, s3Service)
@@ -90,8 +91,8 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	userHandler := handler.NewUserHandler(userUsecase)
 	groupHandler := handler.NewGroupHandler(groupUsecase, userUsecase)
 	secureCookie := cfg.AppEnv == "production"
-	authHandler := handler.NewAuthHandler(authUsecase, secureCookie, sessionTTL)
-	inviteHandler := handler.NewInviteHandler(inviteUsecase, groupUsecase, userUsecase, authUsecase, secureCookie, sessionTTL)
+	authHandler := handler.NewAuthHandler(authUsecase, secureCookie, sessionTTL, cfg.CookieDomain, cfg.EnableLocalStorageAuth)
+	inviteHandler := handler.NewInviteHandler(inviteUsecase, groupUsecase, userUsecase, authUsecase, secureCookie, sessionTTL, cfg.CookieDomain)
 	albumHandler := handler.NewAlbumHandler(albumUsecase)
 	photoHandler := handler.NewPhotoHandler(photoUsecase)
 	postHandler := handler.NewPostHandler(postUsecase)

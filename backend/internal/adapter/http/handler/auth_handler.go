@@ -14,13 +14,17 @@ type AuthHandler struct {
 	authUsecase *usecase.AuthUsecase
 	secureCookie bool
 	sessionTTL   time.Duration
+	cookieDomain string
+	enableLocalStorageAuth bool
 }
 
-func NewAuthHandler(authUsecase *usecase.AuthUsecase, secureCookie bool, sessionTTL time.Duration) *AuthHandler {
+func NewAuthHandler(authUsecase *usecase.AuthUsecase, secureCookie bool, sessionTTL time.Duration, cookieDomain string, enableLocalStorageAuth bool) *AuthHandler {
 	return &AuthHandler{
 		authUsecase: authUsecase,
 		secureCookie: secureCookie,
 		sessionTTL: sessionTTL,
+		cookieDomain: cookieDomain,
+		enableLocalStorageAuth: enableLocalStorageAuth,
 	}
 }
 
@@ -37,6 +41,7 @@ type AuthResponse struct {
 	Role        string `json:"role"`
 	Token       string `json:"token,omitempty"`
 	RefreshToken string `json:"refresh_token,omitempty"`
+	IDToken     string `json:"id_token,omitempty"`
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
@@ -46,7 +51,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	}
 
 	backPath := sanitizeBackPath(req.BackPath)
-	user, sessionCookie, refreshToken, err := h.authUsecase.Login(req.Email, req.Password, backPath)
+	user, sessionCookie, refreshToken, idToken, err := h.authUsecase.Login(req.Email, req.Password, backPath)
 	if err != nil {
 		if authErr, ok := err.(*usecase.AuthError); ok {
 			return c.JSON(http.StatusUnauthorized, map[string]string{
@@ -57,16 +62,20 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
 
-	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()))
+	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
 
-	return c.JSON(http.StatusOK, AuthResponse{
+	resp := AuthResponse{
 		ID:          user.ID,
 		Email:       user.Email,
 		DisplayName: user.DisplayName,
 		Role:        user.Role,
 		Token:       sessionCookie,
 		RefreshToken: refreshToken,
-	})
+	}
+	if h.enableLocalStorageAuth {
+		resp.IDToken = idToken
+	}
+	return c.JSON(http.StatusOK, resp)
 }
 
 type RefreshRequest struct {
@@ -76,6 +85,7 @@ type RefreshRequest struct {
 type RefreshResponse struct {
 	Token        string `json:"token"`
 	RefreshToken string `json:"refresh_token"`
+	IDToken      string `json:"id_token,omitempty"`
 }
 
 func (h *AuthHandler) Refresh(c echo.Context) error {
@@ -83,7 +93,7 @@ func (h *AuthHandler) Refresh(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	idToken, newRefresh, err := h.authUsecase.RefreshSession(req.RefreshToken)
+	sessionCookie, newRefresh, idToken, err := h.authUsecase.RefreshSession(req.RefreshToken)
 	if err != nil {
 		if authErr, ok := err.(*usecase.AuthError); ok {
 			return c.JSON(http.StatusUnauthorized, map[string]string{
@@ -94,11 +104,15 @@ func (h *AuthHandler) Refresh(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
 
-	setSessionCookie(c, idToken, h.secureCookie, int(h.sessionTTL.Seconds()))
-	return c.JSON(http.StatusOK, RefreshResponse{
-		Token:        idToken,
+	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
+	resp := RefreshResponse{
+		Token:        sessionCookie,
 		RefreshToken: newRefresh,
-	})
+	}
+	if h.enableLocalStorageAuth {
+		resp.IDToken = idToken
+	}
+	return c.JSON(http.StatusOK, resp)
 }
 
 type SignupRequest struct {
@@ -126,7 +140,7 @@ func (h *AuthHandler) Signup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()))
+	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
 
 	return c.JSON(http.StatusCreated, AuthResponse{
 		ID:          user.ID,
@@ -137,7 +151,7 @@ func (h *AuthHandler) Signup(c echo.Context) error {
 }
 
 func (h *AuthHandler) Logout(c echo.Context) error {
-	clearSessionCookie(c, h.secureCookie)
+	clearSessionCookie(c, h.secureCookie, h.cookieDomain)
 	return c.NoContent(http.StatusNoContent)
 }
 

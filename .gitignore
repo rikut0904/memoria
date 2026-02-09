@@ -1,5 +1,11 @@
 .env
-serviceAccountKey.json
-awsAccessKeys.csv
 /frontend/node_modules
 /frontend/package-lock.json
+/auth/node_modules
+/auth/package-lock.json
+/admin/node_modules
+/admin/package-lock.json
+/help/node_modules
+/help/package-lock.json
+/info/node_modules
+/info/package-lock.json

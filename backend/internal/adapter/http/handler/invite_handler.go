@@ -18,9 +18,10 @@ type InviteHandler struct {
 	authUsecase   *usecase.AuthUsecase
 	secureCookie  bool
 	sessionTTL    time.Duration
+	cookieDomain  string
 }
 
-func NewInviteHandler(inviteUsecase *usecase.InviteUsecase, groupUsecase *usecase.GroupUsecase, userUsecase *usecase.UserUsecase, authUsecase *usecase.AuthUsecase, secureCookie bool, sessionTTL time.Duration) *InviteHandler {
+func NewInviteHandler(inviteUsecase *usecase.InviteUsecase, groupUsecase *usecase.GroupUsecase, userUsecase *usecase.UserUsecase, authUsecase *usecase.AuthUsecase, secureCookie bool, sessionTTL time.Duration, cookieDomain string) *InviteHandler {
 	return &InviteHandler{
 		inviteUsecase: inviteUsecase,
 		groupUsecase:  groupUsecase,
@@ -28,6 +29,7 @@ func NewInviteHandler(inviteUsecase *usecase.InviteUsecase, groupUsecase *usecas
 		authUsecase:   authUsecase,
 		secureCookie:  secureCookie,
 		sessionTTL:    sessionTTL,
+		cookieDomain:  cookieDomain,
 	}
 }
 
@@ -187,7 +189,7 @@ func (h *InviteHandler) SignupInvite(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()))
+	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
 
 	return c.JSON(http.StatusOK, AcceptInviteResponse{
 		UserID:      user.ID,
