@@ -14,10 +14,14 @@ export default function GroupSwitchButton({
   className = '',
 }: GroupSwitchButtonProps) {
   const router = useRouter()
-  const appBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost:3000'
+  const appBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL
 
   const handleClick = () => {
     clearCurrentGroup()
+    if (!appBaseUrl) {
+      console.warn('NEXT_PUBLIC_APP_BASE_URL is not set')
+      return
+    }
     const url = new URL('/', appBaseUrl)
     window.location.href = url.toString()
   }

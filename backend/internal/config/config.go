@@ -29,6 +29,7 @@ type Config struct {
 
 	FrontendBaseURL string
 	AllowedOrigins  string
+	AllowedOriginSuffixes string
 	CookieDomain    string
 	EnableLocalStorageAuth bool
 	SESFromEmail    string
@@ -58,6 +59,7 @@ func Load() Config {
 
 		FrontendBaseURL: getEnv("FRONTEND_BASE_URL", ""),
 		AllowedOrigins:  getEnv("ALLOWED_ORIGINS", ""),
+		AllowedOriginSuffixes: getEnv("ALLOWED_ORIGIN_SUFFIXES", ""),
 		CookieDomain:    getEnv("COOKIE_DOMAIN", ""),
 		EnableLocalStorageAuth: getEnv("APP_ENV", "local") != "production",
 		SESFromEmail:    getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),

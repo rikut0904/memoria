@@ -109,7 +109,11 @@ export default function Home() {
             {user?.role === 'admin' && (
               <button
                 onClick={() => {
-                  const adminBase = process.env.NEXT_PUBLIC_ADMIN_BASE_URL || 'http://localhost:3002'
+                  const adminBase = process.env.NEXT_PUBLIC_ADMIN_BASE_URL
+                  if (!adminBase) {
+                    console.warn('NEXT_PUBLIC_ADMIN_BASE_URL is not set')
+                    return
+                  }
                   const url = new URL('/', adminBase)
                   window.location.href = url.toString()
                 }}
