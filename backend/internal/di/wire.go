@@ -115,6 +115,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 		authMiddleware,
 		cfg.FrontendBaseURL,
 		cfg.AllowedOrigins,
+		cfg.AllowedOriginSuffixes,
 	)
 	return e, nil
 }

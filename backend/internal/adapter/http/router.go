@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"memoria/internal/adapter/http/handler"
@@ -24,6 +25,7 @@ func RegisterRoutes(
 	authMiddleware *customMiddleware.AuthMiddleware,
 	frontendBaseURL string,
 	allowedOriginsRaw string,
+	allowedOriginSuffixesRaw string,
 ) {
 	// Middleware
 	e.Use(middleware.Logger())
@@ -43,6 +45,19 @@ func RegisterRoutes(
 			}
 		}
 	}
+	allowedOriginSuffixes := []string{}
+	if allowedOriginSuffixesRaw != "" {
+		for _, suffix := range strings.Split(allowedOriginSuffixesRaw, ",") {
+			trimmed := strings.TrimSpace(suffix)
+			if trimmed == "" {
+				continue
+			}
+			if !strings.HasPrefix(trimmed, ".") {
+				trimmed = "." + trimmed
+			}
+			allowedOriginSuffixes = append(allowedOriginSuffixes, trimmed)
+		}
+	}
 	allowedOriginSet := map[string]struct{}{}
 	for _, origin := range allowedOrigins {
 		allowedOriginSet[strings.TrimRight(origin, "/")] = struct{}{}
@@ -57,7 +72,27 @@ func RegisterRoutes(
 				return true, nil
 			}
 			_, ok := allowedOriginSet[trimmed]
-			return ok, nil
+			if ok {
+				return true, nil
+			}
+
+			parsed, err := url.Parse(trimmed)
+			if err != nil || parsed.Host == "" {
+				return false, nil
+			}
+			host := parsed.Hostname()
+			if host == "" {
+				return false, nil
+			}
+			for _, suffix := range allowedOriginSuffixes {
+				if suffix == "" {
+					continue
+				}
+				if host == strings.TrimPrefix(suffix, ".") || strings.HasSuffix(host, suffix) {
+					return true, nil
+				}
+			}
+			return false, nil
 		},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "X-Group-ID"},
