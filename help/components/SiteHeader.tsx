@@ -1,14 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import api from '@/lib/api'
+import { getAuthToken, getRefreshToken } from '@/lib/auth'
 
 const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost:3000'
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BASE_URL || 'http://localhost:3001'
 const INFO_BASE_URL = process.env.NEXT_PUBLIC_INFO_BASE_URL || 'http://localhost:3004'
 const HELP_BASE_URL = process.env.NEXT_PUBLIC_HELP_BASE_URL || 'http://localhost:3003'
 const CONTACT_BASE_URL = process.env.NEXT_PUBLIC_CONTACT_BASE_URL || 'http://localhost:3005'
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const token = getAuthToken()
+    const refreshToken = getRefreshToken()
+    if (!token && !refreshToken) {
+      setIsAuthenticated(false)
+      return
+    }
+    api
+      .get('/me')
+      .then(() => setIsAuthenticated(true))
+      .catch(() => setIsAuthenticated(false))
+  }, [])
+
+  const loginUrl = `${AUTH_BASE_URL}/login?return_to=${encodeURIComponent(`${APP_BASE_URL}/`)}`
+  const startUrl = isAuthenticated ? `${APP_BASE_URL}/` : loginUrl
 
   return (
     <nav className="sticky top-0 z-50 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
@@ -42,7 +62,7 @@ export default function SiteHeader() {
             ヘルプ
           </a>
           <a
-            href={APP_BASE_URL}
+            href={startUrl}
             className="text-sm px-4 py-2 bg-primary-600 text-white hover:bg-primary-700 font-semibold rounded-lg transition-colors"
           >
             始める
@@ -96,7 +116,7 @@ export default function SiteHeader() {
             ヘルプ
           </a>
           <a
-            href={APP_BASE_URL}
+            href={startUrl}
             className="text-sm px-3 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold transition-colors"
           >
             始める
