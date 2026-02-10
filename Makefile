@@ -1,5 +1,5 @@
-NEXTJS_PROJECTS := frontend auth admin help info
-DEFAULT_SERVICES := backend frontend auth admin help info
+NEXTJS_PROJECTS := frontend auth admin help info contact
+DEFAULT_SERVICES := backend frontend auth admin help info contact
 
 # ============================================================
 # Docker操作
@@ -32,7 +32,7 @@ ps: ## コンテナ状態確認
 # 個別起動
 # ============================================================
 
-.PHONY: up-frontend up-auth up-admin up-help up-info up-backend
+.PHONY: up-frontend up-auth up-admin up-help up-info up-contact up-backend
 
 up-frontend:
 	docker compose up --build frontend
@@ -49,6 +49,9 @@ up-help:
 up-info:
 	docker compose up --build info
 
+up-contact:
+	docker compose up --build contact
+
 up-backend:
 	docker compose up --build backend
 
@@ -56,9 +59,9 @@ up-backend:
 # Lint
 # ============================================================
 
-.PHONY: lint lint-frontend lint-auth lint-admin lint-help lint-info lint-backend
+.PHONY: lint lint-frontend lint-auth lint-admin lint-help lint-info lint-contact lint-backend
 
-lint: lint-frontend lint-auth lint-admin lint-help lint-info lint-backend ## 全プロジェクト lint
+lint: lint-frontend lint-auth lint-admin lint-help lint-info lint-contact lint-backend ## 全プロジェクト lint
 
 lint-frontend:
 	cd frontend && npm run lint
@@ -75,6 +78,9 @@ lint-help:
 lint-info:
 	cd info && npm run lint
 
+lint-contact:
+	cd contact && npm run lint
+
 lint-backend:
 	cd backend && go vet ./...
 
@@ -82,9 +88,9 @@ lint-backend:
 # Format
 # ============================================================
 
-.PHONY: fmt fmt-frontend fmt-auth fmt-admin fmt-help fmt-info fmt-backend
+.PHONY: fmt fmt-frontend fmt-auth fmt-admin fmt-help fmt-info fmt-contact fmt-backend
 
-fmt: fmt-frontend fmt-auth fmt-admin fmt-help fmt-info fmt-backend ## 全プロジェクト format
+fmt: fmt-frontend fmt-auth fmt-admin fmt-help fmt-info fmt-contact fmt-backend ## 全プロジェクト format
 
 fmt-frontend:
 	cd frontend && npx prettier --write .
@@ -100,6 +106,9 @@ fmt-help:
 
 fmt-info:
 	cd info && npx prettier --write .
+
+fmt-contact:
+	cd contact && npx prettier --write .
 
 fmt-backend:
 	cd backend && gofmt -w .

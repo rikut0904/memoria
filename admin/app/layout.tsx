@@ -4,22 +4,26 @@ import './globals.css'
 import TokenBridge from './token-bridge'
 import LogoutSync from './logout-sync'
 
+const siteTitle = 'Memoria - 管理'
+const siteDescription = '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。'
+const siteImages = ['/img/app.png']
+
 export const metadata: Metadata = {
-  title: 'Memoria - 管理',
-  description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
+  title: siteTitle,
+  description: siteDescription,
   icons: {
     icon: '/img/favicon.png',
   },
   openGraph: {
-    title: 'Memoria - 管理',
-    description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
-    images: ['/img/app.png'],
+    title: siteTitle,
+    description: siteDescription,
+    images: siteImages,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Memoria - 管理',
-    description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
-    images: ['/img/app.png'],
+    title: siteTitle,
+    description: siteDescription,
+    images: siteImages,
   },
 }
 

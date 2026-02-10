@@ -3,22 +3,26 @@ import { Suspense } from 'react'
 import './globals.css'
 import LogoutSync from './logout-sync'
 
+const siteTitle = 'Memoria - ログイン'
+const siteDescription = '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。'
+const siteImages = ['/img/app.png']
+
 export const metadata: Metadata = {
-  title: 'Memoria - ログイン',
-  description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
+  title: siteTitle,
+  description: siteDescription,
   icons: {
     icon: '/img/favicon.png',
   },
   openGraph: {
-    title: 'Memoria - ログイン',
-    description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
-    images: ['/img/app.png'],
+    title: siteTitle,
+    description: siteDescription,
+    images: siteImages,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Memoria - ログイン',
-    description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
-    images: ['/img/app.png'],
+    title: siteTitle,
+    description: siteDescription,
+    images: siteImages,
   },
 }
 

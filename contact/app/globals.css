@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* カラーパレット */
+:root {
+  --background: #FAF5FF;
+  --foreground: #171717;
+  --primary-color: #6B46C1;
+  --primary-light: #F5EBFF;
+  --card-background: #FFFFFF;
+  --card-border: #D1D5DB;
+  --text-heading: #6B46C1;
+  --text-body: #4B5563;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121212;
+    --foreground: #b0b0b0;
+    --primary-color: #A78BFA;
+    --primary-light: #1a1625;
+    --card-background: #1e1e1e;
+    --card-border: #2d2d2d;
+    --text-heading: #C4B5FD;
+    --text-body: #9ca3af;
+  }
+}
+
+/* 基本ボディ設定 */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ヘッダー共通デザイン */
+header {
+  background-color: var(--primary-light);
+  color: var(--text-heading);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  header {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ページ全体の大見出し h1 */
+h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid var(--primary-color);
+  padding-left: 1rem;
+  color: var(--text-heading);
+}
+
+/* セクション見出し h2 */
+h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  margin: 1.2rem 0;
+  border-left: 8px solid var(--primary-color);
+  padding-left: 1rem;
+  color: var(--text-heading);
+}
+
+/* 段落とリストの共通マージン設定 */
+p,
+ol,
+ul {
+  color: var(--text-body);
+  margin-bottom: 0.75rem;
+}
+
+/* カードスタイル */
+.card {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ランディングページ用リセット */
+.landing h1,
+.landing h2 {
+  border: none;
+  padding-left: 0;
+}
+
+/* コンテナ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}

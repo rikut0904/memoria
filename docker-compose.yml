@@ -93,6 +93,7 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
+        NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:3005
     container_name: memoria_info
     env_file:
       - ./info/.env
@@ -100,5 +101,23 @@ services:
       PORT: 3004
     ports:
       - "3004:3004"
+    depends_on:
+      - backend
+
+  contact:
+    build:
+      context: ./contact
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
+        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:3004
+    container_name: memoria_contact
+    env_file:
+      - ./contact/.env
+    environment:
+      PORT: 3005
+    ports:
+      - "3005:3005"
     depends_on:
       - backend
