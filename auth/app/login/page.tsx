@@ -6,6 +6,8 @@ import axios from 'axios'
 import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import VerticalAd from '@/components/VerticalAd'
+import SiteHeader from '@/components/SiteHeader'
+import SiteFooter from '@/components/SiteFooter'
 
 const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost:3000'
 const ADMIN_BASE_URL = process.env.NEXT_PUBLIC_ADMIN_BASE_URL || 'http://localhost:3002'
@@ -109,16 +111,13 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen auth-ads-layout">
+    <div className="min-h-screen flex flex-col">
+      <SiteHeader />
+      <div className="flex-1 auth-ads-layout">
       <div className="auth-ads-side">
         <VerticalAd />
       </div>
       <div className="card w-full max-w-md auth-ads-main">
-        <div className="text-center mb-6">
-          <a href="/">
-            <img src="/img/logo.png" alt="Memoria" className="h-16 mx-auto" />
-          </a>
-        </div>
         <p className="text-center text-gray-600 mb-8">
           大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。
         </p>
@@ -187,6 +186,8 @@ function LoginContent() {
       <div className="auth-ads-side">
         <VerticalAd />
       </div>
+      </div>
+      <SiteFooter />
     </div>
   )
 }

@@ -49,7 +49,7 @@ export default function InfoPage() {
   }, [])
 
   return (
-    <div className="landing min-h-screen bg-white dark:bg-[#121212]">
+    <div className="landing min-h-screen bg-[var(--background)]">
       <InfoHeader />
 
       {/* ヒーロー セクション */}
@@ -103,7 +103,7 @@ export default function InfoPage() {
       </section>
 
       {/* 機能セクション */}
-      <section className="py-20 lg:py-32 bg-gray-50 dark:bg-[#1a1a1a]">
+      <section className="py-20 lg:py-32 bg-[var(--background)]">
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -136,7 +136,7 @@ export default function InfoPage() {
       </section>
 
       {/* 旅行計画特化セクション */}
-      <section className="py-20 lg:py-32 bg-white dark:bg-[#121212]">
+      <section className="py-20 lg:py-32 bg-[var(--background)]">
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">

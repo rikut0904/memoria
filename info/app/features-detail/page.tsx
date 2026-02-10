@@ -107,7 +107,7 @@ const featuresDetail = [
 
 export default function FeaturesDetailPage() {
   return (
-    <div className="landing min-h-screen bg-white dark:bg-[#121212]">
+    <div className="landing min-h-screen bg-[var(--background)]">
       <InfoHeader />
 
       {/* メインコンテンツ */}

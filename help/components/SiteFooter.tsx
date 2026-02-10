@@ -1,18 +1,17 @@
+const INFO_BASE_URL = process.env.NEXT_PUBLIC_INFO_BASE_URL || 'http://localhost:3004'
 const HELP_BASE_URL = process.env.NEXT_PUBLIC_HELP_BASE_URL || 'http://localhost:3003'
 const CONTACT_BASE_URL = process.env.NEXT_PUBLIC_CONTACT_BASE_URL || 'http://localhost:3005'
 
-import Link from 'next/link'
-
-export default function InfoFooter() {
+export default function SiteFooter() {
   return (
     <footer className="bg-gray-900 text-white py-16">
-      <div className="container">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           <div>
             <div className="mb-4">
-              <Link href="/">
+              <a href={INFO_BASE_URL}>
                 <img src="/img/logo.png" alt="Memoria" className="h-12" />
-              </Link>
+              </a>
             </div>
             <p className="text-gray-400 mb-4">
               大切な思い出を、いつでも、どこでも。
@@ -22,14 +21,14 @@ export default function InfoFooter() {
             <h4 className="text-white font-bold mb-4">サービス</h4>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
-                <Link href="/features-detail" className="hover:text-white transition-colors">
+                <a href={`${INFO_BASE_URL}/features-detail`} className="hover:text-white transition-colors">
                   機能詳細
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/tech-stack" className="hover:text-white transition-colors">
+                <a href={`${INFO_BASE_URL}/tech-stack`} className="hover:text-white transition-colors">
                   技術スタック
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

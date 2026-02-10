@@ -55,7 +55,7 @@ export default function TechStackPage() {
   }, [])
 
   return (
-    <div className="landing min-h-screen bg-white dark:bg-[#121212]">
+    <div className="landing min-h-screen bg-[var(--background)]">
       <InfoHeader />
 
       {/* ヘッダー セクション */}
@@ -107,7 +107,7 @@ export default function TechStackPage() {
       </section>
 
       {/* アーキテクチャ セクション */}
-      <section className="py-20 lg:py-32 bg-white dark:bg-[#121212]">
+      <section className="py-20 lg:py-32 bg-[var(--background)]">
         <div className="container">
           <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">
             アーキテクチャ
@@ -147,7 +147,7 @@ export default function TechStackPage() {
       </section>
 
       {/* 技術的な特徴 セクション */}
-      <section className="py-20 lg:py-32 bg-white dark:bg-[#121212]">
+      <section className="py-20 lg:py-32 bg-[var(--background)]">
         <div className="container">
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-16 text-center">
             技術的な特徴

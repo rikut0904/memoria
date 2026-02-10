@@ -41,12 +41,12 @@ const adminSections = [
     items: [
       {
         title: 'お問い合わせ',
-        href: '/contacts',
+        href: '/inquiries',
         actionLabel: 'お問い合わせを表示',
       },
       {
         title: '対応履歴',
-        href: '/contacts?tab=history',
+        href: '/inquiries?tab=history',
         actionLabel: '履歴を表示',
       },
     ],
