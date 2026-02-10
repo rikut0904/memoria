@@ -6,6 +6,8 @@ import InfoHeader from '@/components/InfoHeader'
 import InfoFooter from '@/components/InfoFooter'
 import InfoCTA from '@/components/InfoCTA'
 
+const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost:3000'
+
 const features = [
   {
     emoji: '\u{1F465}',
@@ -70,9 +72,12 @@ export default function InfoPage() {
                 家族や友人とグループを作成し、写真、投稿、旅行計画を一元管理できます。
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
+                <a
+                  href={APP_BASE_URL}
+                  className="px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors text-center"
+                >
                   今すぐ始める
-                </button>
+                </a>
                 <Link
                   href="/features-detail"
                   className="px-8 py-3 border-2 border-gray-300 dark:border-gray-600 hover:border-primary-600 hover:text-primary-600 dark:hover:border-primary-400 dark:hover:text-primary-400 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-colors text-center"

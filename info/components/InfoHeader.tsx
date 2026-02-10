@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 
+const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost:3000'
+
 export default function InfoHeader() {
   return (
     <nav className="sticky top-0 z-50 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
@@ -22,6 +24,12 @@ export default function InfoHeader() {
           >
             技術スタック
           </Link>
+          <a
+            href={APP_BASE_URL}
+            className="text-sm px-4 py-2 bg-primary-600 text-white hover:bg-primary-700 font-semibold rounded-lg transition-colors"
+          >
+            始める
+          </a>
         </div>
       </div>
     </nav>
