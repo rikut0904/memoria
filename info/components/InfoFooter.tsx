@@ -60,7 +60,7 @@ export default function InfoFooter() {
         </div>
 
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500">&copy; 2026 memoria. All rights reserved.</p>
+          <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} memoria. All rights reserved.</p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">
               利用規約
