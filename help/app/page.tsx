@@ -4,7 +4,9 @@ export default function HelpPage() {
       <header>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16">
-            <div className="text-2xl font-bold text-primary-600">Memoria - ヘルプ</div>
+            <a href="/" className="py-2 block h-16">
+              <img src="/img/logo.png" alt="Memoria" className="h-full" />
+            </a>
           </div>
         </div>
       </header>

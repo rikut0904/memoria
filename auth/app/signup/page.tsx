@@ -67,8 +67,10 @@ export default function SignupPage() {
         <VerticalAd />
       </div>
       <div className="card w-full max-w-md auth-ads-main">
-        <div className="text-3xl font-bold text-center text-primary-600 mb-6">
-          Memoria
+        <div className="text-center mb-6">
+          <a href="/">
+            <img src="/img/logo.png" alt="Memoria" className="h-16 mx-auto" />
+          </a>
         </div>
         <p className="text-center text-gray-600 mb-8">
           新しいアカウントを作成

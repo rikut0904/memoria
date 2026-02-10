@@ -6,6 +6,20 @@ import TokenBridge from './token-bridge'
 export const metadata: Metadata = {
   title: 'Memoria - ヘルプ',
   description: 'Memoriaのヘルプページです。',
+  icons: {
+    icon: '/img/favicon.png',
+  },
+  openGraph: {
+    title: 'Memoria - ヘルプ',
+    description: 'Memoriaのヘルプページです。',
+    images: ['/img/app.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Memoria - ヘルプ',
+    description: 'Memoriaのヘルプページです。',
+    images: ['/img/app.png'],
+  },
 }
 
 export default function RootLayout({
