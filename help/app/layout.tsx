@@ -3,9 +3,27 @@ import { Suspense } from 'react'
 import './globals.css'
 import TokenBridge from './token-bridge'
 
+const siteTitle = 'Memoria - ヘルプ'
+const siteDescription = 'Memoriaのヘルプページです。'
+const siteImages = ['/img/app.png']
+
 export const metadata: Metadata = {
-  title: 'Memoria - ヘルプ',
-  description: 'Memoriaのヘルプページです。',
+  title: siteTitle,
+  description: siteDescription,
+  icons: {
+    icon: '/img/favicon.png',
+  },
+  openGraph: {
+    title: siteTitle,
+    description: siteDescription,
+    images: siteImages,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteTitle,
+    description: siteDescription,
+    images: siteImages,
+  },
 }
 
 export default function RootLayout({

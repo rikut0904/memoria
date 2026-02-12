@@ -7,6 +7,20 @@ import LogoutSync from './logout-sync'
 export const metadata: Metadata = {
   title: 'Memoria - 管理',
   description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
+  icons: {
+    icon: '/img/favicon.png',
+  },
+  openGraph: {
+    title: 'Memoria - 管理',
+    description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
+    images: ['/img/app.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Memoria - 管理',
+    description: '大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。',
+    images: ['/img/app.png'],
+  },
 }
 
 export default function RootLayout({

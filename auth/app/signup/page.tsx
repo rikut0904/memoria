@@ -7,6 +7,8 @@ import api from '@/lib/api'
 import { getErrorMessage } from '@/lib/getErrorMessage'
 import { getAuthToken } from '@/lib/auth'
 import VerticalAd from '@/components/VerticalAd'
+import SiteHeader from '@/components/SiteHeader'
+import SiteFooter from '@/components/SiteFooter'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -62,14 +64,13 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen auth-ads-layout">
+    <div className="min-h-screen flex flex-col">
+      <SiteHeader />
+      <div className="flex-1 auth-ads-layout">
       <div className="auth-ads-side">
         <VerticalAd />
       </div>
       <div className="card w-full max-w-md auth-ads-main">
-        <div className="text-3xl font-bold text-center text-primary-600 mb-6">
-          Memoria
-        </div>
         <p className="text-center text-gray-600 mb-8">
           新しいアカウントを作成
         </p>
@@ -169,6 +170,8 @@ export default function SignupPage() {
       <div className="auth-ads-side">
         <VerticalAd />
       </div>
+      </div>
+      <SiteFooter />
     </div>
   )
 }

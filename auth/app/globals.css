@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 /* カラーパレット */
 :root {
@@ -136,6 +135,25 @@ ul {
   border-radius: 0.75rem;
   padding: 1.25rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* コンテナ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

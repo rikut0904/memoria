@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 /* カラーパレット */
 :root {
@@ -87,5 +86,40 @@ ul {
 @media (prefers-color-scheme: dark) {
   .card {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ランディングページ用: h1/h2のデフォルトborderをリセット */
+.landing h1,
+.landing h2,
+.landing h3,
+.landing h4 {
+  border: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.landing p,
+.landing ul,
+.landing ol {
+  margin-bottom: 0;
+}
+
+/* コンテナ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
   }
 }
