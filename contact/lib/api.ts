@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getCurrentGroupId } from "./group";
 import {
   getAuthToken,
   getRefreshToken,
@@ -25,10 +24,6 @@ const refreshClient = axios.create({
 let refreshPromise: Promise<string | null> | null = null;
 
 api.interceptors.request.use(async (config) => {
-  const groupId = getCurrentGroupId();
-  if (groupId) {
-    config.headers["X-Group-ID"] = String(groupId);
-  }
   const token = getAuthToken();
   if (token) {
     config.headers["Authorization"] = `Bearer ${token}`;

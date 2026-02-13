@@ -11,8 +11,8 @@ type BaseModel struct {
 
 type User struct {
 	BaseModel
-	FirebaseUID  string     `gorm:"uniqueIndex;not null"`
-	Email        string     `gorm:"uniqueIndex;not null"`
+	FirebaseUID  string `gorm:"uniqueIndex;not null"`
+	Email        string `gorm:"uniqueIndex;not null"`
 	DisplayName  string
 	Role         string     `gorm:"not null"` // admin, member
 	LastAccessAt *time.Time `gorm:"index"`
@@ -33,22 +33,22 @@ type GroupMember struct {
 
 type Invite struct {
 	BaseModel
-	GroupID    uint      `gorm:"not null;index"`
-	Email      string    `gorm:"not null;index"`
-	Token      string    `gorm:"uniqueIndex;not null"`
-	Status     string    `gorm:"not null"` // pending, accepted, declined, expired
-	Role       string    `gorm:"not null;default:member"` // manager, member
-	ExpiresAt  time.Time `gorm:"not null"`
-	InvitedBy  uint      `gorm:"not null"`
+	GroupID   uint      `gorm:"not null;index"`
+	Email     string    `gorm:"not null;index"`
+	Token     string    `gorm:"uniqueIndex;not null"`
+	Status    string    `gorm:"not null"`                // pending, accepted, declined, expired
+	Role      string    `gorm:"not null;default:member"` // manager, member
+	ExpiresAt time.Time `gorm:"not null"`
+	InvitedBy uint      `gorm:"not null"`
 }
 
 type Album struct {
 	BaseModel
-	GroupID     uint   `gorm:"not null;index"`
-	Title       string `gorm:"not null"`
-	Description string
+	GroupID      uint   `gorm:"not null;index"`
+	Title        string `gorm:"not null"`
+	Description  string
 	CoverPhotoID *uint
-	CreatedBy   uint `gorm:"not null"`
+	CreatedBy    uint `gorm:"not null"`
 }
 
 type Photo struct {
@@ -65,8 +65,8 @@ type Photo struct {
 
 type Post struct {
 	BaseModel
-	GroupID     uint      `gorm:"not null;index"`
-	Type        string    `gorm:"not null"` // blog, memo
+	GroupID     uint   `gorm:"not null;index"`
+	Type        string `gorm:"not null"` // blog, memo
 	Title       string
 	Body        string    `gorm:"not null"`
 	AuthorID    uint      `gorm:"not null"`
@@ -74,8 +74,8 @@ type Post struct {
 }
 
 type AlbumPost struct {
-	AlbumID uint `gorm:"primaryKey"`
-	PostID  uint `gorm:"primaryKey"`
+	AlbumID   uint      `gorm:"primaryKey"`
+	PostID    uint      `gorm:"primaryKey"`
 	CreatedAt time.Time `gorm:"not null"`
 }
 
@@ -85,28 +85,28 @@ type Tag struct {
 }
 
 type PostTag struct {
-	PostID uint `gorm:"primaryKey"`
-	TagID  uint `gorm:"primaryKey"`
+	PostID    uint      `gorm:"primaryKey"`
+	TagID     uint      `gorm:"primaryKey"`
 	CreatedAt time.Time `gorm:"not null"`
 }
 
 type PostPhoto struct {
-	PostID  uint `gorm:"primaryKey"`
-	PhotoID uint `gorm:"primaryKey"`
+	PostID    uint      `gorm:"primaryKey"`
+	PhotoID   uint      `gorm:"primaryKey"`
 	CreatedAt time.Time `gorm:"not null"`
 }
 
 type PostLike struct {
-	PostID uint `gorm:"primaryKey"`
-	UserID uint `gorm:"primaryKey"`
+	PostID    uint      `gorm:"primaryKey"`
+	UserID    uint      `gorm:"primaryKey"`
 	CreatedAt time.Time `gorm:"not null"`
 }
 
 type PostComment struct {
 	BaseModel
-	PostID   uint   `gorm:"not null;index"`
-	UserID   uint   `gorm:"not null"`
-	Body     string `gorm:"not null"`
+	PostID uint   `gorm:"not null;index"`
+	UserID uint   `gorm:"not null"`
+	Body   string `gorm:"not null"`
 }
 
 type NotificationSetting struct {
@@ -127,21 +127,21 @@ type Notification struct {
 
 type WebPushSubscription struct {
 	BaseModel
-	UserID    uint   `gorm:"not null;index"`
-	Endpoint  string `gorm:"not null"`
-	Auth      string `gorm:"not null"`
-	P256dh    string `gorm:"not null"`
+	UserID   uint   `gorm:"not null;index"`
+	Endpoint string `gorm:"not null"`
+	Auth     string `gorm:"not null"`
+	P256dh   string `gorm:"not null"`
 }
 
 type Trip struct {
 	BaseModel
-	GroupID     uint      `gorm:"not null;index"`
-	Title       string    `gorm:"not null"`
-	StartAt     time.Time `gorm:"not null"`
-	EndAt       time.Time `gorm:"not null"`
-	Note        string
-	CreatedBy   uint `gorm:"not null"`
-	NotifyAt    *time.Time
+	GroupID   uint      `gorm:"not null;index"`
+	Title     string    `gorm:"not null"`
+	StartAt   time.Time `gorm:"not null"`
+	EndAt     time.Time `gorm:"not null"`
+	Note      string
+	CreatedBy uint `gorm:"not null"`
+	NotifyAt  *time.Time
 }
 
 type TripItinerary struct {
@@ -196,31 +196,31 @@ type TripScheduleItem struct {
 
 type TripTransport struct {
 	BaseModel
-	TripID                 uint    `gorm:"not null;index"`
-	Mode                   string  `gorm:"not null"` // car, rental, train, shinkansen, ferry, flight, bus
-	Date                   string  `gorm:"not null"` // YYYY-MM-DD
-	FromLocation           string
-	ToLocation             string
-	Note                   string
-	DepartureTime          string // HH:MM
-	ArrivalTime            string // HH:MM
-	RouteName              string
-	TrainName              string
-	FerryName              string
-	FlightNumber           string
-	Airline                string
-	Terminal               string
-	CompanyName            string
-	PickupLocation         string
-	DropoffLocation        string
-	RentalURL              string
-	DistanceKm             float64
-	FuelEfficiencyKmPerL   float64
-	GasolinePriceYenPerL   float64
-	GasolineCostYen        int64
-	HighwayCostYen         int64
-	RentalFeeYen           int64
-	FareYen                int64
+	TripID               uint   `gorm:"not null;index"`
+	Mode                 string `gorm:"not null"` // car, rental, train, shinkansen, ferry, flight, bus
+	Date                 string `gorm:"not null"` // YYYY-MM-DD
+	FromLocation         string
+	ToLocation           string
+	Note                 string
+	DepartureTime        string // HH:MM
+	ArrivalTime          string // HH:MM
+	RouteName            string
+	TrainName            string
+	FerryName            string
+	FlightNumber         string
+	Airline              string
+	Terminal             string
+	CompanyName          string
+	PickupLocation       string
+	DropoffLocation      string
+	RentalURL            string
+	DistanceKm           float64
+	FuelEfficiencyKmPerL float64
+	GasolinePriceYenPerL float64
+	GasolineCostYen      int64
+	HighwayCostYen       int64
+	RentalFeeYen         int64
+	FareYen              int64
 }
 
 type TripLodging struct {

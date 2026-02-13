@@ -7,7 +7,7 @@ services:
     env_file:
       - ./backend/.env
     ports:
-      - "8080:8080"
+      - "8081:8081"
     volumes:
       - ./backend/templates:/app/templates:ro
     restart: on-failure
@@ -17,7 +17,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
         NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:3002
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
     container_name: memoria_frontend
@@ -35,7 +35,7 @@ services:
       context: ./auth
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
         NEXT_PUBLIC_APP_BASE_URL: http://localhost:3000
         NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:3002
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:3004
@@ -56,7 +56,7 @@ services:
       context: ./admin
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
         NEXT_PUBLIC_APP_BASE_URL: http://localhost:3000
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
     container_name: memoria_admin
@@ -74,7 +74,7 @@ services:
       context: ./help
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
     container_name: memoria_help
     env_file:
@@ -91,7 +91,7 @@ services:
       context: ./info
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
         NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:3005
     container_name: memoria_info
@@ -109,7 +109,7 @@ services:
       context: ./contact
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:3004
     container_name: memoria_contact

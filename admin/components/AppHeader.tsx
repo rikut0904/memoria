@@ -1,49 +1,54 @@
-'use client'
+"use client";
 
-import { ReactNode } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import api from '@/lib/api'
-import { clearAuthToken, clearRefreshToken } from '@/lib/auth'
-import { signalLogout } from '@/lib/logoutSync'
-import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
+import { ReactNode } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
+import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
+import { signalLogout } from "@/lib/logoutSync";
+import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 
 type AppHeaderProps = {
-  title: ReactNode
-  right?: ReactNode
-  maxWidthClassName?: string
-  displayName?: string
-  email?: string
-  showLogout?: boolean
-}
+  right?: ReactNode;
+  maxWidthClassName?: string;
+  displayName?: string;
+  email?: string;
+  showLogout?: boolean;
+};
 
 export default function AppHeader({
-  title,
   right,
-  maxWidthClassName = 'max-w-7xl',
+  maxWidthClassName = "max-w-7xl",
   displayName,
   email,
   showLogout = true,
 }: AppHeaderProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleLogout = async () => {
-    clearAuthToken()
-    clearRefreshToken()
-    signalLogout()
+    clearAuthToken();
+    clearRefreshToken();
+    signalLogout();
     try {
-      await api.post('/logout')
+      await api.post("/logout");
     } finally {
-      router.push(buildLoginUrl(getCurrentPathWithQuery()))
+      router.push(buildLoginUrl(getCurrentPathWithQuery()));
     }
-  }
+  };
 
   return (
     <header>
       <div className={`${maxWidthClassName} mx-auto px-4 sm:px-6 lg:px-8`}>
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="py-2 block h-16">
-            <img src="/img/logo.png" alt="Memoria" className="h-full" />
+            <Image
+              src="/img/logo.png"
+              alt="Memoria"
+              width={200}
+              height={64}
+              className="h-full w-auto"
+            />
           </Link>
           <div className="flex items-center gap-3">
             {(displayName || email) && (
@@ -62,5 +67,5 @@ export default function AppHeader({
         </div>
       </div>
     </header>
-  )
+  );
 }

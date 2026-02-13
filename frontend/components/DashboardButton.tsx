@@ -1,28 +1,30 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import HeaderButton from '@/components/HeaderButton'
-import { getCurrentGroupId } from '@/lib/group'
+import { useRouter } from "next/navigation";
+import HeaderButton from "@/components/HeaderButton";
+import { getCurrentGroupId } from "@/lib/group";
 
 type DashboardButtonProps = {
-  label?: string
-  className?: string
-}
+  label?: string;
+  className?: string;
+};
 
 export default function DashboardButton({
-  label = 'ダッシュボードへ',
-  className = '',
+  label = "ダッシュボードへ",
+  className = "",
 }: DashboardButtonProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleClick = () => {
-    const groupId = getCurrentGroupId()
+    const groupId = getCurrentGroupId();
     if (!groupId) {
-      router.push('/')
-      return
+      router.push("/");
+      return;
     }
-    router.push(`/${groupId}`)
-  }
+    router.push(`/${groupId}`);
+  };
 
-  return <HeaderButton label={label} onClick={handleClick} className={className} />
+  return (
+    <HeaderButton label={label} onClick={handleClick} className={className} />
+  );
 }

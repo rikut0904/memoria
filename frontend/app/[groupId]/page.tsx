@@ -1,109 +1,117 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import api from '@/lib/api'
-import { clearCurrentGroup, getCurrentGroupId, getCurrentGroupName } from '@/lib/group'
-import { clearAuthToken, clearRefreshToken } from '@/lib/auth'
-import { signalLogout } from '@/lib/logoutSync'
-import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
-import GroupSwitchButton from '@/components/GroupSwitchButton'
-import AppHeader from '@/components/AppHeader'
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import api from "@/lib/api";
+import {
+  clearCurrentGroup,
+  getCurrentGroupId,
+  getCurrentGroupName,
+} from "@/lib/group";
+import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
+import { signalLogout } from "@/lib/logoutSync";
+import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
+import GroupSwitchButton from "@/components/GroupSwitchButton";
+import AppHeader from "@/components/AppHeader";
 
 interface User {
-  id: number
-  email: string
-  display_name: string
-  role: string
+  id: number;
+  email: string;
+  display_name: string;
+  role: string;
 }
 
 interface Post {
-  id: number
-  type: string
-  title: string
-  body: string
-  author_id: number
-  published_at: string
+  id: number;
+  type: string;
+  title: string;
+  body: string;
+  author_id: number;
+  published_at: string;
 }
 
 interface Album {
-  id: number
-  title: string
-  description: string
-  created_by: number
-  created_at: string
+  id: number;
+  title: string;
+  description: string;
+  created_by: number;
+  created_at: string;
 }
 
 export default function DashboardPage() {
-  const router = useRouter()
-  const params = useParams()
-  const groupIdParam = params.groupId as string
-  const [user, setUser] = useState<User | null>(null)
-  const [posts, setPosts] = useState<Post[]>([])
-  const [albums, setAlbums] = useState<Album[]>([])
-  const [loading, setLoading] = useState(true)
-  const [groupName, setGroupName] = useState<string | null>(null)
-  const [isManager, setIsManager] = useState(false)
-  const groupId = getCurrentGroupId()
+  const router = useRouter();
+  const params = useParams();
+  const groupIdParam = params.groupId as string;
+  const [user, setUser] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [groupName, setGroupName] = useState<string | null>(null);
+  const [isManager, setIsManager] = useState(false);
+  const groupId = getCurrentGroupId();
 
   useEffect(() => {
     const fetchData = async () => {
-      const groupId = getCurrentGroupId()
+      const groupId = getCurrentGroupId();
       if (!groupId) {
-        router.push('/')
-        return
+        router.push("/");
+        return;
       }
 
       try {
-        const userRes = await api.get('/me')
-        setUser(userRes.data)
-        setGroupName(getCurrentGroupName())
+        const userRes = await api.get("/me");
+        setUser(userRes.data);
+        setGroupName(getCurrentGroupName());
 
         const [postsRes, albumsRes, membersRes] = await Promise.all([
-          api.get('/posts'),
-          api.get('/albums'),
-          groupId ? api.get(`/groups/${groupId}/members`) : Promise.resolve({ data: [] }),
-        ])
-        setPosts(postsRes.data || [])
-        setAlbums(albumsRes.data || [])
-        const meMember = (membersRes.data || []).find((m: { user_id: number; role: string }) => m.user_id === userRes.data.id)
-        setIsManager(meMember?.role === 'manager')
+          api.get("/posts"),
+          api.get("/albums"),
+          groupId
+            ? api.get(`/groups/${groupId}/members`)
+            : Promise.resolve({ data: [] }),
+        ]);
+        setPosts(postsRes.data || []);
+        setAlbums(albumsRes.data || []);
+        const meMember = (membersRes.data || []).find(
+          (m: { user_id: number; role: string }) =>
+            m.user_id === userRes.data.id,
+        );
+        setIsManager(meMember?.role === "manager");
       } catch (error) {
-        console.error('Failed to fetch data:', error)
-        router.push(buildLoginUrl(getCurrentPathWithQuery()))
+        console.error("Failed to fetch data:", error);
+        router.push(buildLoginUrl(getCurrentPathWithQuery()));
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [router])
+    fetchData();
+  }, [router]);
 
   const handleLogout = async () => {
     try {
-      clearCurrentGroup()
-      clearAuthToken()
-      clearRefreshToken()
-      signalLogout()
-      await api.post('/logout')
-      router.push(buildLoginUrl(getCurrentPathWithQuery()))
+      clearCurrentGroup();
+      clearAuthToken();
+      clearRefreshToken();
+      signalLogout();
+      await api.post("/logout");
+      router.push(buildLoginUrl(getCurrentPathWithQuery()));
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error("Logout failed:", error);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">読み込み中...</p>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen">
       <AppHeader
-        title="Memoria"
         displayName={user?.display_name}
         email={user?.email}
         right={
@@ -140,12 +148,18 @@ export default function DashboardPage() {
                   <div
                     key={post.id}
                     className="border-l-4 border-primary-500 pl-4 py-2 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => router.push(`/${groupIdParam}/posts/${post.id}`)}
+                    onClick={() =>
+                      router.push(`/${groupIdParam}/posts/${post.id}`)
+                    }
                   >
-                    <div className="font-semibold text-gray-800">{post.title || '(タイトルなし)'}</div>
-                    <p className="text-sm text-gray-600 line-clamp-2">{post.body}</p>
+                    <div className="font-semibold text-gray-800">
+                      {post.title || "(タイトルなし)"}
+                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {post.body}
+                    </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {new Date(post.published_at).toLocaleDateString('ja-JP')}
+                      {new Date(post.published_at).toLocaleDateString("ja-JP")}
                     </p>
                   </div>
                 ))}
@@ -164,20 +178,28 @@ export default function DashboardPage() {
               </button>
             </div>
             {albums.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">アルバムがありません</p>
+              <p className="text-gray-500 text-center py-4">
+                アルバムがありません
+              </p>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {albums.slice(0, 6).map((album) => (
                   <div
                     key={album.id}
                     className="border rounded-lg p-3 hover:shadow-md cursor-pointer transition-shadow"
-                    onClick={() => router.push(`/${groupIdParam}/albums/${album.id}`)}
+                    onClick={() =>
+                      router.push(`/${groupIdParam}/albums/${album.id}`)
+                    }
                   >
                     <div className="bg-gray-200 h-32 rounded mb-2 flex items-center justify-center text-gray-400">
                       📷
                     </div>
-                    <div className="font-semibold text-sm text-gray-800">{album.title}</div>
-                    <p className="text-xs text-gray-500 truncate">{album.description}</p>
+                    <div className="font-semibold text-sm text-gray-800">
+                      {album.title}
+                    </div>
+                    <p className="text-xs text-gray-500 truncate">
+                      {album.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -217,7 +239,7 @@ export default function DashboardPage() {
             <button
               onClick={() => {
                 if (groupId) {
-                  router.push(`/${groupIdParam}/manage`)
+                  router.push(`/${groupIdParam}/manage`);
                 }
               }}
               disabled={!groupId}
@@ -225,11 +247,13 @@ export default function DashboardPage() {
             >
               <div className="text-4xl mb-2">👥</div>
               <div className="font-semibold text-gray-800">招待・管理</div>
-              <p className="text-sm text-gray-600 mt-1">メンバー招待と権限管理</p>
+              <p className="text-sm text-gray-600 mt-1">
+                メンバー招待と権限管理
+              </p>
             </button>
           )}
         </div>
       </main>
     </div>
-  )
+  );
 }

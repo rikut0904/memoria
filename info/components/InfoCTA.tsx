@@ -1,6 +1,7 @@
-'use client'
+"use client";
 
-const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost:3000'
+const APP_BASE_URL =
+  process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:3000";
 
 export default function InfoCTA() {
   return (
@@ -21,5 +22,5 @@ export default function InfoCTA() {
         </a>
       </div>
     </section>
-  )
+  );
 }

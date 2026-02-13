@@ -19,12 +19,12 @@ import (
 )
 
 type AuthUsecase struct {
-	firebaseAuth   *auth.FirebaseAuth
-	userRepo       repository.UserRepository
-	firebaseAPIKey string
-	sessionTTL     time.Duration
+	firebaseAuth    *auth.FirebaseAuth
+	userRepo        repository.UserRepository
+	firebaseAPIKey  string
+	sessionTTL      time.Duration
 	frontendBaseURL string
-	projectID      string
+	projectID       string
 }
 
 type AuthError struct {
@@ -41,12 +41,12 @@ func (e *AuthError) Error() string {
 
 func NewAuthUsecase(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, firebaseAPIKey string, sessionTTL time.Duration, frontendBaseURL string, projectID string) *AuthUsecase {
 	return &AuthUsecase{
-		firebaseAuth:   firebaseAuth,
-		userRepo:       userRepo,
-		firebaseAPIKey: firebaseAPIKey,
-		sessionTTL:     sessionTTL,
+		firebaseAuth:    firebaseAuth,
+		userRepo:        userRepo,
+		firebaseAPIKey:  firebaseAPIKey,
+		sessionTTL:      sessionTTL,
 		frontendBaseURL: strings.TrimRight(frontendBaseURL, "/"),
-		projectID:      projectID,
+		projectID:       projectID,
 	}
 }
 

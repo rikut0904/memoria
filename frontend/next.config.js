@@ -12,15 +12,16 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
-    const backendOrigin = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://backend:8080')
-      .replace(/\/$/, '')
+    const backendOrigin = (
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://backend:8080"
+    ).replace(/\/$/, "");
     return [
       {
-        source: '/api/:path*',
+        source: "/api/:path*",
         destination: `${backendOrigin}/api/:path*`,
       },
     ];
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

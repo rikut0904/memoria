@@ -1,5 +1,5 @@
-import { Suspense } from 'react'
-import NewAlbumClient from './view'
+import { Suspense } from "react";
+import NewAlbumClient from "./view";
 
 export default function NewAlbumPage() {
   return (
@@ -12,5 +12,5 @@ export default function NewAlbumPage() {
     >
       <NewAlbumClient />
     </Suspense>
-  )
+  );
 }

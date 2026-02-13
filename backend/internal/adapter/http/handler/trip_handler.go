@@ -54,14 +54,14 @@ type TripPostResponse struct {
 }
 
 type TripResponse struct {
-	ID        uint    `json:"id"`
-	Title     string  `json:"title"`
-	StartAt   string  `json:"start_at"`
-	EndAt     string  `json:"end_at"`
-	Note      string  `json:"note"`
-	CreatedBy uint    `json:"created_by"`
-	NotifyAt  *string `json:"notify_at,omitempty"`
-	CreatedAt string  `json:"created_at"`
+	ID        uint                `json:"id"`
+	Title     string              `json:"title"`
+	StartAt   string              `json:"start_at"`
+	EndAt     string              `json:"end_at"`
+	Note      string              `json:"note"`
+	CreatedBy uint                `json:"created_by"`
+	NotifyAt  *string             `json:"notify_at,omitempty"`
+	CreatedAt string              `json:"created_at"`
 	Albums    []TripAlbumResponse `json:"albums,omitempty"`
 	Posts     []TripPostResponse  `json:"posts,omitempty"`
 }
@@ -77,7 +77,7 @@ type TripScheduleItemRequest struct {
 }
 
 type TripScheduleItemResponse struct {
-	ID      uint   `json:"id"`
+	ID uint `json:"id"`
 	TripScheduleItemPayload
 }
 
@@ -113,7 +113,7 @@ type TripTransportRequest struct {
 }
 
 type TripTransportResponse struct {
-	ID                   uint    `json:"id"`
+	ID uint `json:"id"`
 	TripTransportPayload
 }
 
@@ -133,7 +133,7 @@ type TripLodgingRequest struct {
 }
 
 type TripLodgingResponse struct {
-	ID                uint   `json:"id"`
+	ID uint `json:"id"`
 	TripLodgingPayload
 }
 
@@ -147,14 +147,14 @@ type TripBudgetItemRequest struct {
 }
 
 type TripBudgetItemResponse struct {
-	ID      uint   `json:"id"`
+	ID uint `json:"id"`
 	TripBudgetItemPayload
 }
 
 type TripBudgetResponse struct {
-	TransportTotal int64                   `json:"transport_total"`
-	LodgingTotal   int64                   `json:"lodging_total"`
-	Total          int64                   `json:"total"`
+	TransportTotal int64                    `json:"transport_total"`
+	LodgingTotal   int64                    `json:"lodging_total"`
+	Total          int64                    `json:"total"`
 	Items          []TripBudgetItemResponse `json:"items"`
 }
 
@@ -613,17 +613,15 @@ func (h *TripHandler) UpdateTrip(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
- 	startAt, err := time.Parse(time.RFC3339, req.StartAt)
- 	if err != nil {
- 		return echo.NewHTTPError(http.StatusBadRequest, "invalid start_at format")
- 	}
+	startAt, err := time.Parse(time.RFC3339, req.StartAt)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid start_at format")
+	}
 
-
- 	endAt, err := time.Parse(time.RFC3339, req.EndAt)
- 	if err != nil {
- 		return echo.NewHTTPError(http.StatusBadRequest, "invalid end_at format")
- 	}
-
+	endAt, err := time.Parse(time.RFC3339, req.EndAt)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid end_at format")
+	}
 
 	var notifyAt *time.Time
 	if req.NotifyAt != nil {

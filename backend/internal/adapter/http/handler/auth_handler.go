@@ -11,19 +11,19 @@ import (
 )
 
 type AuthHandler struct {
-	authUsecase *usecase.AuthUsecase
-	secureCookie bool
-	sessionTTL   time.Duration
-	cookieDomain string
+	authUsecase            *usecase.AuthUsecase
+	secureCookie           bool
+	sessionTTL             time.Duration
+	cookieDomain           string
 	enableLocalStorageAuth bool
 }
 
 func NewAuthHandler(authUsecase *usecase.AuthUsecase, secureCookie bool, sessionTTL time.Duration, cookieDomain string, enableLocalStorageAuth bool) *AuthHandler {
 	return &AuthHandler{
-		authUsecase: authUsecase,
-		secureCookie: secureCookie,
-		sessionTTL: sessionTTL,
-		cookieDomain: cookieDomain,
+		authUsecase:            authUsecase,
+		secureCookie:           secureCookie,
+		sessionTTL:             sessionTTL,
+		cookieDomain:           cookieDomain,
 		enableLocalStorageAuth: enableLocalStorageAuth,
 	}
 }
@@ -35,13 +35,13 @@ type LoginRequest struct {
 }
 
 type AuthResponse struct {
-	ID          uint   `json:"id"`
-	Email       string `json:"email"`
-	DisplayName string `json:"display_name"`
-	Role        string `json:"role"`
-	Token       string `json:"token,omitempty"`
+	ID           uint   `json:"id"`
+	Email        string `json:"email"`
+	DisplayName  string `json:"display_name"`
+	Role         string `json:"role"`
+	Token        string `json:"token,omitempty"`
 	RefreshToken string `json:"refresh_token,omitempty"`
-	IDToken     string `json:"id_token,omitempty"`
+	IDToken      string `json:"id_token,omitempty"`
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
@@ -65,11 +65,11 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
 
 	resp := AuthResponse{
-		ID:          user.ID,
-		Email:       user.Email,
-		DisplayName: user.DisplayName,
-		Role:        user.Role,
-		Token:       sessionCookie,
+		ID:           user.ID,
+		Email:        user.Email,
+		DisplayName:  user.DisplayName,
+		Role:         user.Role,
+		Token:        sessionCookie,
 		RefreshToken: refreshToken,
 	}
 	if h.enableLocalStorageAuth {

@@ -1,58 +1,58 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import InfoHeader from '@/components/InfoHeader'
-import InfoFooter from '@/components/InfoFooter'
-import InfoCTA from '@/components/InfoCTA'
+import { useEffect, useState } from "react";
+import InfoHeader from "@/components/InfoHeader";
+import InfoFooter from "@/components/InfoFooter";
+import InfoCTA from "@/components/InfoCTA";
 
 const techStack = [
   {
-    category: 'Frontend',
-    description: 'ユーザーインターフェースとクライアント側のロジック',
+    category: "Frontend",
+    description: "ユーザーインターフェースとクライアント側のロジック",
     items: [
-      { name: 'Next.js', description: 'React フレームワーク' },
-      { name: 'TypeScript', description: '型安全な JavaScript' },
-      { name: 'Tailwind CSS', description: 'ユーティリティベースの CSS' },
-      { name: 'Firebase Auth', description: '認証管理' },
+      { name: "Next.js", description: "React フレームワーク" },
+      { name: "TypeScript", description: "型安全な JavaScript" },
+      { name: "Tailwind CSS", description: "ユーティリティベースの CSS" },
+      { name: "Firebase Auth", description: "認証管理" },
     ],
   },
   {
-    category: 'Backend',
-    description: 'サーバー側のロジックとデータベース',
+    category: "Backend",
+    description: "サーバー側のロジックとデータベース",
     items: [
-      { name: 'Go', description: 'バックエンド言語' },
-      { name: 'Echo', description: 'Web フレームワーク' },
-      { name: 'GORM', description: 'ORM ライブラリ' },
-      { name: 'PostgreSQL', description: 'リレーショナルデータベース' },
-      { name: 'S3', description: 'ファイルストレージ' },
+      { name: "Go", description: "バックエンド言語" },
+      { name: "Echo", description: "Web フレームワーク" },
+      { name: "GORM", description: "ORM ライブラリ" },
+      { name: "PostgreSQL", description: "リレーショナルデータベース" },
+      { name: "S3", description: "ファイルストレージ" },
     ],
   },
-]
+];
 
 const architecture = [
   {
-    layer: 'プレゼンテーション層',
-    description: 'ユーザーが直接操作するUI',
-    technologies: ['React', 'Tailwind CSS', 'TypeScript'],
+    layer: "プレゼンテーション層",
+    description: "ユーザーが直接操作するUI",
+    technologies: ["React", "Tailwind CSS", "TypeScript"],
   },
   {
-    layer: 'ビジネスロジック層',
-    description: 'アプリケーションの核となるロジック',
-    technologies: ['Go', 'Echo', 'GORM'],
+    layer: "ビジネスロジック層",
+    description: "アプリケーションの核となるロジック",
+    technologies: ["Go", "Echo", "GORM"],
   },
   {
-    layer: 'データ層',
-    description: 'データの永続化と管理',
-    technologies: ['PostgreSQL', 'S3'],
+    layer: "データ層",
+    description: "データの永続化と管理",
+    technologies: ["PostgreSQL", "S3"],
   },
-]
+];
 
 export default function TechStackPage() {
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setIsVisible(true)
-  }, [])
+    setIsVisible(true);
+  }, []);
 
   return (
     <div className="landing min-h-screen bg-[var(--background)]">
@@ -79,7 +79,9 @@ export default function TechStackPage() {
               <div
                 key={index}
                 className={`transition-all duration-1000 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                  isVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
                 }`}
                 style={{ transitionDelay: `${index * 200}ms` }}
               >
@@ -87,15 +89,21 @@ export default function TechStackPage() {
                   <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                     {stack.category}
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-8">{stack.description}</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-8">
+                    {stack.description}
+                  </p>
                   <div className="space-y-4">
                     {stack.items.map((item, i) => (
                       <div
                         key={i}
                         className="p-4 bg-gray-50 dark:bg-[#121212] rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
                       >
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{item.name}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                          {item.name}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {item.description}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -121,21 +129,27 @@ export default function TechStackPage() {
               <div
                 key={index}
                 className={`transition-all duration-1000 ${
-                  isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                  isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
                 }`}
                 style={{ transitionDelay: `${index * 150}ms` }}
               >
                 <div className="p-8 bg-gray-50 dark:bg-[#1e1e1e] rounded-xl border border-gray-200 dark:border-gray-700 h-full hover:border-primary-300 dark:hover:border-primary-600 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-3 h-3 bg-primary-600 dark:bg-primary-400 rounded-full" />
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{arch.layer}</h3>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                      {arch.layer}
+                    </h3>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">{arch.description}</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    {arch.description}
+                  </p>
                   <div className="space-y-2">
                     {arch.technologies.map((tech, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 bg-primary-600 dark:bg-primary-400 rounded-full" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{tech}</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {tech}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -160,15 +174,21 @@ export default function TechStackPage() {
               </h3>
               <ul className="space-y-3 text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-3">
-                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">&#10003;</span>
+                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">
+                    &#10003;
+                  </span>
                   <span>Firebase Authentication による安全な認証</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">&#10003;</span>
+                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">
+                    &#10003;
+                  </span>
                   <span>データベースの暗号化とアクセス制御</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">&#10003;</span>
+                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">
+                    &#10003;
+                  </span>
                   <span>HTTPS による通信の暗号化</span>
                 </li>
               </ul>
@@ -180,15 +200,21 @@ export default function TechStackPage() {
               </h3>
               <ul className="space-y-3 text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-3">
-                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">&#10003;</span>
+                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">
+                    &#10003;
+                  </span>
                   <span>Next.js による高速なページレンダリング</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">&#10003;</span>
+                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">
+                    &#10003;
+                  </span>
                   <span>CDN による静的アセット配信の最適化</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">&#10003;</span>
+                  <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">
+                    &#10003;
+                  </span>
                   <span>画像最適化と遅延読み込み</span>
                 </li>
               </ul>
@@ -200,5 +226,5 @@ export default function TechStackPage() {
       <InfoCTA />
       <InfoFooter />
     </div>
-  )
+  );
 }

@@ -1,17 +1,17 @@
-import type { Metadata } from 'next'
-import { Suspense } from 'react'
-import './globals.css'
-import TokenBridge from './token-bridge'
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import "./globals.css";
+import TokenBridge from "./token-bridge";
 
-const siteTitle = 'Memoria - インフォメーション'
-const siteDescription = 'Memoriaのインフォメーションページです。'
-const siteImages = ['/img/app.png']
+const siteTitle = "Memoria - インフォメーション";
+const siteDescription = "Memoriaのインフォメーションページです。";
+const siteImages = ["/img/app.png"];
 
 export const metadata: Metadata = {
   title: siteTitle,
   description: siteDescription,
   icons: {
-    icon: '/img/favicon.png',
+    icon: "/img/favicon.png",
   },
   openGraph: {
     title: siteTitle,
@@ -19,17 +19,17 @@ export const metadata: Metadata = {
     images: siteImages,
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     title: siteTitle,
     description: siteDescription,
     images: siteImages,
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="ja">
@@ -46,5 +46,5 @@ export default function RootLayout({
         {children}
       </body>
     </html>
-  )
+  );
 }

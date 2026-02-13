@@ -9,6 +9,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@next/third-parties": "^16.1.6",
     "@tailwindcss/postcss": "^4.1.18",
     "axios": "^1.7.9",
     "firebase": "^11.1.0",

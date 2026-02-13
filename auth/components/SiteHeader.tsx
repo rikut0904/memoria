@@ -1,19 +1,29 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
+import Image from "next/image";
 
-const INFO_BASE_URL = process.env.NEXT_PUBLIC_INFO_BASE_URL || 'http://localhost:3004'
-const HELP_BASE_URL = process.env.NEXT_PUBLIC_HELP_BASE_URL || 'http://localhost:3003'
-const CONTACT_BASE_URL = process.env.NEXT_PUBLIC_CONTACT_BASE_URL || 'http://localhost:3005'
+const INFO_BASE_URL =
+  process.env.NEXT_PUBLIC_INFO_BASE_URL || "http://localhost:3004";
+const HELP_BASE_URL =
+  process.env.NEXT_PUBLIC_HELP_BASE_URL || "http://localhost:3003";
+const CONTACT_BASE_URL =
+  process.env.NEXT_PUBLIC_CONTACT_BASE_URL || "http://localhost:3005";
 
 export default function SiteHeader() {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <nav className="sticky top-0 z-50 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
       <div className="container flex items-center justify-between py-4">
         <a href={INFO_BASE_URL} className="py-2 block h-16">
-          <img src="/img/logo.png" alt="Memoria" className="h-full" />
+          <Image
+            src="/img/logo.png"
+            alt="Memoria"
+            width={200}
+            height={64}
+            className="h-full w-auto"
+          />
         </a>
         <div className="hidden sm:flex items-center gap-2 sm:gap-4">
           <a
@@ -49,7 +59,13 @@ export default function SiteHeader() {
           onClick={() => setMenuOpen((prev) => !prev)}
         >
           <span className="sr-only">メニューを開く</span>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
               d="M4 6h16M4 12h16M4 18h16"
               stroke="currentColor"
@@ -61,7 +77,7 @@ export default function SiteHeader() {
       </div>
       <div
         id="auth-mobile-menu"
-        className={`sm:hidden border-t border-gray-100 dark:border-gray-800 ${menuOpen ? 'block' : 'hidden'}`}
+        className={`sm:hidden border-t border-gray-100 dark:border-gray-800 ${menuOpen ? "block" : "hidden"}`}
       >
         <div className="container flex flex-col gap-2 py-3">
           <a
@@ -91,5 +107,5 @@ export default function SiteHeader() {
         </div>
       </div>
     </nav>
-  )
+  );
 }

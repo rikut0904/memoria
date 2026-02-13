@@ -1,28 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 /* カラーパレット */
 :root {
-  --background: #FAF5FF;
+  --background: #faf5ff;
   --foreground: #171717;
-  --primary-color: #6B46C1;
-  --primary-light: #F5EBFF;
-  --card-background: #FFFFFF;
-  --card-border: #D1D5DB;
-  --text-heading: #6B46C1;
-  --text-body: #4B5563;
+  --primary-color: #6b46c1;
+  --primary-light: #f5ebff;
+  --card-background: #ffffff;
+  --card-border: #d1d5db;
+  --text-heading: #6b46c1;
+  --text-body: #4b5563;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #121212;
     --foreground: #b0b0b0;
-    --primary-color: #A78BFA;
+    --primary-color: #a78bfa;
     --primary-light: #1a1625;
     --card-background: #1e1e1e;
     --card-border: #2d2d2d;
-    --text-heading: #C4B5FD;
+    --text-heading: #c4b5fd;
     --text-body: #9ca3af;
   }
 }

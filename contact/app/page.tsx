@@ -1,49 +1,49 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import SiteHeader from '@/components/SiteHeader'
-import SiteFooter from '@/components/SiteFooter'
+import { useState } from "react";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
-const INFO_BASE_URL = process.env.NEXT_PUBLIC_INFO_BASE_URL || 'http://localhost:3004'
-const CONTACT_EMAIL = 'contact@ml.omoide-memoria.com'
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+const CONTACT_EMAIL = "contact@ml.omoide-memoria.com";
 
 const CATEGORY_OPTIONS = [
-  { value: 'account', label: 'アカウント・ログインに関する質問' },
-  { value: 'group', label: 'グループ・招待に関する質問' },
-  { value: 'post', label: '投稿・アルバム・写真に関する質問' },
-  { value: 'travel', label: '旅行計画に関する質問' },
-  { value: 'bug', label: '不具合・エラーの報告' },
-  { value: 'feature', label: '機能のリクエスト・改善要望' },
-  { value: 'general', label: 'その他のお問い合わせ' },
-]
+  { value: "account", label: "アカウント・ログインに関する質問" },
+  { value: "group", label: "グループ・招待に関する質問" },
+  { value: "post", label: "投稿・アルバム・写真に関する質問" },
+  { value: "travel", label: "旅行計画に関する質問" },
+  { value: "bug", label: "不具合・エラーの報告" },
+  { value: "feature", label: "機能のリクエスト・改善要望" },
+  { value: "general", label: "その他のお問い合わせ" },
+];
 
 export default function ContactPage() {
-  const [category, setCategory] = useState('account')
-  const [subject, setSubject] = useState('')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [feedback, setFeedback] = useState<string | null>(null)
-  const [showConfirm, setShowConfirm] = useState(false)
+  const [category, setCategory] = useState("account");
+  const [subject, setSubject] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setFeedback(null)
+    e.preventDefault();
+    setError(null);
+    setFeedback(null);
 
     if (!subject.trim() || !message.trim()) {
-      setError('件名と内容を入力してください')
-      return
+      setError("件名と内容を入力してください");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subject: subject.trim(),
           message: message.trim(),
@@ -51,18 +51,18 @@ export default function ContactPage() {
           contact_name: name.trim(),
           contact_email: email.trim(),
         }),
-      })
-      if (!res.ok) throw new Error('送信に失敗しました')
-      setFeedback('お問い合わせを送信しました。返信はメールにてお送りします。')
-      setShowConfirm(true)
-      setSubject('')
-      setMessage('')
+      });
+      if (!res.ok) throw new Error("送信に失敗しました");
+      setFeedback("お問い合わせを送信しました。返信はメールにてお送りします。");
+      setShowConfirm(true);
+      setSubject("");
+      setMessage("");
     } catch {
-      setError('送信に失敗しました。時間をおいて再度お試しください。')
+      setError("送信に失敗しました。時間をおいて再度お試しください。");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="landing min-h-screen bg-[var(--background)]">
@@ -82,7 +82,10 @@ export default function ContactPage() {
           <div className="p-8 bg-white dark:bg-[#1e1e1e] rounded-xl border border-gray-200 dark:border-gray-700">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
                   カテゴリ
                 </label>
                 <select
@@ -100,7 +103,10 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label
+                  htmlFor="subject"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
                   件名
                 </label>
                 <input
@@ -115,7 +121,10 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
                   内容
                 </label>
                 <textarea
@@ -134,7 +143,10 @@ export default function ContactPage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >
                     お名前
                   </label>
                   <input
@@ -148,7 +160,10 @@ export default function ContactPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >
                     連絡先メールアドレス
                   </label>
                   <input
@@ -164,10 +179,14 @@ export default function ContactPage() {
               </div>
 
               {error && (
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {error}
+                </p>
               )}
               {feedback && !showConfirm && (
-                <p className="text-sm text-green-600 dark:text-green-400">{feedback}</p>
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  {feedback}
+                </p>
               )}
 
               <div className="flex justify-end">
@@ -176,7 +195,7 @@ export default function ContactPage() {
                   disabled={loading}
                   className="px-8 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? '送信中...' : '送信する'}
+                  {loading ? "送信中..." : "送信する"}
                 </button>
               </div>
             </form>
@@ -184,7 +203,10 @@ export default function ContactPage() {
 
           {/* 送信完了ダイアログ */}
           {showConfirm && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowConfirm(false)}>
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+              onClick={() => setShowConfirm(false)}
+            >
               <div
                 className="bg-white dark:bg-[#1e1e1e] rounded-xl p-8 max-w-md mx-4 shadow-xl"
                 onClick={(e) => e.stopPropagation()}
@@ -196,15 +218,16 @@ export default function ContactPage() {
                   送信内容を確認し、順次対応します。
                 </p>
                 <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2 mb-6">
+                  <p>1週間以内に{email || "ご連絡先"}にて返信します。</p>
                   <p>
-                    1週間以内に{email || 'ご連絡先'}にて返信します。
-                  </p>
-                  <p>
-                    返信がない場合はお手数ですが{' '}
-                    <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary-600 dark:text-primary-400 hover:underline">
+                    返信がない場合はお手数ですが{" "}
+                    <a
+                      href={`mailto:${CONTACT_EMAIL}`}
+                      className="text-primary-600 dark:text-primary-400 hover:underline"
+                    >
                       {CONTACT_EMAIL}
-                    </a>
-                    {' '}にご連絡ください。
+                    </a>{" "}
+                    にご連絡ください。
                   </p>
                 </div>
                 <div className="flex justify-end">
@@ -219,23 +242,10 @@ export default function ContactPage() {
               </div>
             </div>
           )}
-
-          <div className="mt-12 p-6 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl">
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">メールでのお問い合わせ</h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
-              フォーム以外でも、メールにて直接お問い合わせいただけます。
-            </p>
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="text-primary-600 dark:text-primary-400 hover:underline text-sm"
-            >
-              {CONTACT_EMAIL}
-            </a>
-          </div>
         </div>
       </main>
 
       <SiteFooter />
     </div>
-  )
+  );
 }
