@@ -15,7 +15,7 @@ type S3Service struct {
 	bucket string
 }
 
-func NewS3Service(region, bucket, endpoint, accessKey, secretKey string) (*S3Service, error) {
+func NewS3Service(region, bucket, endpoint, accessKey, secretKey, awsEndpoint string) (*S3Service, error) {
 	cfg := &aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
@@ -23,6 +23,10 @@ func NewS3Service(region, bucket, endpoint, accessKey, secretKey string) (*S3Ser
 
 	if endpoint != "" {
 		cfg.Endpoint = aws.String(endpoint)
+		cfg.S3ForcePathStyle = aws.Bool(true)
+	}
+	if awsEndpoint != "" {
+		cfg.Endpoint = aws.String(awsEndpoint)
 		cfg.S3ForcePathStyle = aws.Bool(true)
 	}
 

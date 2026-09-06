@@ -19,7 +19,7 @@ type SESMailer struct {
 	textTemplate string
 }
 
-func NewSESMailer(region, accessKey, secretKey, fromEmail, baseURL, inviteTemplatePath string) (*SESMailer, error) {
+func NewSESMailer(region, accessKey, secretKey, fromEmail, baseURL, inviteTemplatePath, awsEndpoint string) (*SESMailer, error) {
 	if fromEmail == "" {
 		return nil, fmt.Errorf("SES_FROM_EMAIL is required")
 	}
@@ -30,6 +30,9 @@ func NewSESMailer(region, accessKey, secretKey, fromEmail, baseURL, inviteTempla
 	cfg := &aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
+	}
+	if awsEndpoint != "" {
+		cfg.Endpoint = aws.String(awsEndpoint)
 	}
 
 	sess, err := session.NewSession(cfg)

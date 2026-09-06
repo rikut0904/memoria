@@ -22,10 +22,11 @@ type Config struct {
 	DBName     string
 	DBSSLMode  string
 
-	FirebaseProjectID   string
-	FirebaseClientEmail string
-	FirebasePrivateKey  string
-	FirebaseAPIKey      string
+	FirebaseProjectID        string
+	FirebaseClientEmail      string
+	FirebasePrivateKey       string
+	FirebaseAPIKey           string
+	FirebaseAuthEmulatorHost string
 
 	FrontendBaseURL        string
 	AllowedOrigins         string
@@ -39,6 +40,7 @@ type Config struct {
 	S3Endpoint             string
 	S3AccessKey            string
 	S3SecretKey            string
+	AWSEndpoint            string
 }
 
 func Load() Config {
@@ -52,10 +54,11 @@ func Load() Config {
 		AppPort:     getEnv("APP_PORT", "8080"),
 		AutoMigrate: getEnv("AUTO_MIGRATE", "true") != "false",
 
-		FirebaseProjectID:   getEnv("FIREBASE_PROJECT_ID", ""),
-		FirebaseClientEmail: getEnv("FIREBASE_CLIENT_EMAIL", ""),
-		FirebasePrivateKey:  normalizePrivateKey(getEnv("FIREBASE_PRIVATE_KEY", "")),
-		FirebaseAPIKey:      getEnv("FIREBASE_API_KEY", ""),
+		FirebaseProjectID:        getEnv("FIREBASE_PROJECT_ID", ""),
+		FirebaseClientEmail:      getEnv("FIREBASE_CLIENT_EMAIL", ""),
+		FirebasePrivateKey:       normalizePrivateKey(getEnv("FIREBASE_PRIVATE_KEY", "")),
+		FirebaseAPIKey:           getEnv("FIREBASE_API_KEY", ""),
+		FirebaseAuthEmulatorHost: getEnv("FIREBASE_AUTH_EMULATOR_HOST", ""),
 
 		FrontendBaseURL:        getEnv("FRONTEND_BASE_URL", ""),
 		AllowedOrigins:         getEnv("ALLOWED_ORIGINS", ""),
@@ -69,6 +72,7 @@ func Load() Config {
 		S3Endpoint:             getEnv("S3_ENDPOINT", ""),
 		S3AccessKey:            getEnv("S3_ACCESS_KEY", ""),
 		S3SecretKey:            getEnv("S3_SECRET_KEY", ""),
+		AWSEndpoint:            getEnv("AWS_ENDPOINT", ""),
 	}
 
 	// Parse DATABASE_URL if available (Railway, Heroku style)

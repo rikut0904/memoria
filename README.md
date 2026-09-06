@@ -32,6 +32,14 @@
 
 ## デプロイ
 
+### 環境
+
+環境は `local`、`stg`、`prod` の3種類です。PRごとの `preview` 環境は使用しません。
+
+- `local`: Docker Compose内のPostgreSQL、Firebase Emulator、LocalStackだけで動作
+- `stg`: 検証用Firebase/AWS/PostgreSQL
+- `prod`: 本番用Firebase/AWS/PostgreSQL
+
 ### Railway へのデプロイ
 
 Backend を Railway にデプロイする手順は [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) を参照してください。
@@ -40,67 +48,37 @@ Railway は `DATABASE_URL` 環境変数に自動対応しています。
 
 ## セットアップ
 
-### 必要な環境変数
+### 環境変数
 
-1. **ルートディレクトリの `.env`** (Docker Compose用):
-```bash
-cp .env.example .env
-# PostgreSQLとポート設定のみ
-```
+ローカル開発は `docker-compose.yml` に定義したPostgreSQL、Firebase Emulator、LocalStackを利用するため、`.env.local.example` は不要です。`make up` で起動できます。
 
-2. **Backend の `.env`**:
-```bash
-cd backend
-cp .env.example .env
-# Firebase、S3 などを設定
-```
-
-3. **Frontend の `.env.local`**:
-```bash
-cd frontend
-cp .env.example .env.local
-# FirebaseのフロントエンドSDK設定を入力
-```
+各ディレクトリの `.env.example` はstg/prodのデプロイ先へ登録する変数一覧です。実際の秘密値はファイルへコミットせず、Railway・Vercel等の環境変数へ登録してください。
 
 ### 開発環境の起動
 
-**Docker Composeで起動:**
+**起動:**
 ```bash
-docker-compose up -d
+make up
 ```
 
-**または個別に起動:**
+ローカルの入口は `http://localhost:23000`、認証は `http://localhost:23001` です。Firebase Emulator UIは `http://localhost:29000`、LocalStackは `http://localhost:24566`、PostgreSQLは `localhost:25432` で確認できます。
 
-Backend:
-```bash
-cd backend
-# 環境変数を読み込んで起動
-export $(cat .env | xargs)
-go run cmd/server/main.go
-```
+停止は `make down` を使います。Firebase Emulator、PostgreSQL、LocalStackのデータはDocker volumeへ保存され、停止・再起動では削除されません。Firebase Emulatorは停止時に自動エクスポートします。
 
-Frontend:
-```bash
-cd frontend
-npm install
-npm run dev
-# .env.localは自動的に読み込まれます
-```
+ローカルデータを初期化する場合だけ `make clean/all`（volume削除を含む）を使います。
 
 ### アクセス
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8080
-- Database: localhost:5432
+- Frontend: http://localhost:23000
+- Backend API: http://localhost:28080
+- Database: localhost:25432
 
 ## 初回セットアップ
 
-1. Firebase プロジェクトを作成
-2. Firebase Authentication でメール/パスワード認証を有効化
-3. サービスアカウントキーを取得
-4. S3バケットを作成（または互換ストレージ）
-5. 環境変数を設定
-6. 管理者ユーザーを招待
+1. ローカルは `make up` で依存サービスを起動
+2. Firebase Emulator UIでメール/パスワードユーザーを確認・作成
+3. `backend/cmd/create-admin` で管理者ユーザーを作成
+4. stg/prodのみ、各環境のFirebase/AWS/PostgreSQLと環境変数を設定
 
 ## ドキュメント
 

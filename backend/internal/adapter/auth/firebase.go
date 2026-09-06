@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"os"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
@@ -19,6 +20,17 @@ type FirebaseAuth struct {
 
 func NewFirebaseAuth(projectID, clientEmail, privateKey string) (*FirebaseAuth, error) {
 	ctx := context.Background()
+	if os.Getenv("FIREBASE_AUTH_EMULATOR_HOST") != "" {
+		app, err := firebase.NewApp(ctx, &firebase.Config{ProjectID: projectID}, option.WithoutAuthentication())
+		if err != nil {
+			return nil, err
+		}
+		client, err := app.Auth(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return &FirebaseAuth{client: client}, nil
+	}
 
 	// Create service account credentials
 	credentials := map[string]string{

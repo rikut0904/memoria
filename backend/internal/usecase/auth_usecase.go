@@ -19,12 +19,13 @@ import (
 )
 
 type AuthUsecase struct {
-	firebaseAuth    *auth.FirebaseAuth
-	userRepo        repository.UserRepository
-	firebaseAPIKey  string
-	sessionTTL      time.Duration
-	frontendBaseURL string
-	projectID       string
+	firebaseAuth     *auth.FirebaseAuth
+	userRepo         repository.UserRepository
+	firebaseAPIKey   string
+	sessionTTL       time.Duration
+	frontendBaseURL  string
+	projectID        string
+	authEmulatorHost string
 }
 
 type AuthError struct {
@@ -39,14 +40,15 @@ func (e *AuthError) Error() string {
 	return e.Code
 }
 
-func NewAuthUsecase(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, firebaseAPIKey string, sessionTTL time.Duration, frontendBaseURL string, projectID string) *AuthUsecase {
+func NewAuthUsecase(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, firebaseAPIKey string, sessionTTL time.Duration, frontendBaseURL string, projectID string, authEmulatorHost string) *AuthUsecase {
 	return &AuthUsecase{
-		firebaseAuth:    firebaseAuth,
-		userRepo:        userRepo,
-		firebaseAPIKey:  firebaseAPIKey,
-		sessionTTL:      sessionTTL,
-		frontendBaseURL: strings.TrimRight(frontendBaseURL, "/"),
-		projectID:       projectID,
+		firebaseAuth:     firebaseAuth,
+		userRepo:         userRepo,
+		firebaseAPIKey:   firebaseAPIKey,
+		sessionTTL:       sessionTTL,
+		frontendBaseURL:  strings.TrimRight(frontendBaseURL, "/"),
+		projectID:        projectID,
+		authEmulatorHost: strings.TrimRight(authEmulatorHost, "/"),
 	}
 }
 
@@ -161,6 +163,9 @@ func (u *AuthUsecase) RefreshSession(refreshToken string) (string, string, strin
 }
 
 func (u *AuthUsecase) createSessionCookie(idToken string) (string, error) {
+	if u.authEmulatorHost != "" {
+		return idToken, nil
+	}
 	if u.firebaseAPIKey == "" {
 		return "", errors.New("firebase api key is required")
 	}
@@ -290,7 +295,11 @@ func (u *AuthUsecase) signUpWithPassword(email, password string) (*firebaseAuthR
 }
 
 func (u *AuthUsecase) callFirebaseAuth(endpoint string, payload map[string]any) (*firebaseAuthResponse, error) {
-	url := fmt.Sprintf("https://identitytoolkit.googleapis.com/v1/%s?key=%s", endpoint, u.firebaseAPIKey)
+	base := "https://identitytoolkit.googleapis.com"
+	if u.authEmulatorHost != "" {
+		base = "http://" + u.authEmulatorHost
+	}
+	url := fmt.Sprintf("%s/identitytoolkit.googleapis.com/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
 	body, _ := json.Marshal(payload)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
@@ -319,7 +328,11 @@ func (u *AuthUsecase) callFirebaseAuth(endpoint string, payload map[string]any) 
 }
 
 func (u *AuthUsecase) callFirebaseOob(endpoint string, payload map[string]any) (*firebaseOobResponse, error) {
-	url := fmt.Sprintf("https://identitytoolkit.googleapis.com/v1/%s?key=%s", endpoint, u.firebaseAPIKey)
+	base := "https://identitytoolkit.googleapis.com"
+	if u.authEmulatorHost != "" {
+		base = "http://" + u.authEmulatorHost
+	}
+	url := fmt.Sprintf("%s/identitytoolkit.googleapis.com/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
 	body, _ := json.Marshal(payload)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
@@ -345,7 +358,13 @@ func (u *AuthUsecase) callFirebaseOob(endpoint string, payload map[string]any) (
 }
 
 func (u *AuthUsecase) callFirebaseRefresh(refreshToken string) (*firebaseRefreshResponse, error) {
-	endpointURL := fmt.Sprintf("https://securetoken.googleapis.com/v1/token?key=%s", u.firebaseAPIKey)
+	base := "https://securetoken.googleapis.com"
+	path := "/v1/token"
+	if u.authEmulatorHost != "" {
+		base = "http://" + u.authEmulatorHost
+		path = "/securetoken.googleapis.com/v1/token"
+	}
+	endpointURL := fmt.Sprintf("%s%s?key=%s", base, path, u.firebaseAPIKey)
 	form := url.Values{}
 	form.Set("grant_type", "refresh_token")
 	form.Set("refresh_token", refreshToken)
@@ -372,7 +391,11 @@ func (u *AuthUsecase) callFirebaseRefresh(refreshToken string) (*firebaseRefresh
 	return &resp, nil
 }
 func (u *AuthUsecase) callFirebaseLookup(endpoint string, payload map[string]any) (*firebaseLookupResponse, error) {
-	url := fmt.Sprintf("https://identitytoolkit.googleapis.com/v1/%s?key=%s", endpoint, u.firebaseAPIKey)
+	base := "https://identitytoolkit.googleapis.com"
+	if u.authEmulatorHost != "" {
+		base = "http://" + u.authEmulatorHost
+	}
+	url := fmt.Sprintf("%s/identitytoolkit.googleapis.com/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
 	body, _ := json.Marshal(payload)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {

@@ -1,16 +1,88 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: memoria_postgres
+    environment:
+      POSTGRES_USER: memoria
+      POSTGRES_PASSWORD: memoriapass
+      POSTGRES_DB: memoria_db
+    ports:
+      - "25432:5432"
+    volumes:
+      - memoria_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U memoria -d memoria_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  firebase:
+    build:
+      context: ./docker/firebase
+    container_name: memoria_firebase
+    command: emulators:start --project demo-memoria --import=/opt/firebase/data --export-on-exit
+    # Firebase CLIはSIGINTで終了したときに--export-on-exitを実行する
+    stop_signal: SIGINT
+    stop_grace_period: 60s
+    ports:
+      - "29000:4000"
+      - "28081:8080"
+      - "29099:9099"
+    volumes:
+      # export先そのものをvolumeのルートにしない（EBUSY回避）
+      - memoria_firebase_data:/opt/firebase
+
+  localstack:
+    image: localstack/localstack:3.8.1
+    container_name: memoria_localstack
+    environment:
+      SERVICES: s3,ses
+      AWS_DEFAULT_REGION: ap-northeast-1
+      DEBUG: "0"
+    ports:
+      - "24566:4566"
+    volumes:
+      - memoria_localstack_data:/var/lib/localstack
+      - ./docker/localstack/init.sh:/etc/localstack/init/ready.d/init.sh:ro
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: memoria_backend
-    env_file:
-      - ./backend/.env
+    environment:
+      APP_ENV: local
+      APP_PORT: 28080
+      AUTO_MIGRATE: "true"
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: memoria
+      DB_PASSWORD: memoriapass
+      DB_NAME: memoria_db
+      DB_SSLMODE: disable
+      FIREBASE_PROJECT_ID: demo-memoria
+      FIREBASE_API_KEY: local
+      FIREBASE_AUTH_EMULATOR_HOST: firebase:9099
+      AWS_ENDPOINT: http://localstack:4566
+      AWS_REGION: ap-northeast-1
+      S3_BUCKET: memoria-local
+      S3_ACCESS_KEY: test
+      S3_SECRET_KEY: test
+      SES_FROM_EMAIL: no-reply@memoria.local
+      FRONTEND_BASE_URL: http://localhost:23000
+      ALLOWED_ORIGINS: http://localhost:23000,http://localhost:23001,http://localhost:23002,http://localhost:23003,http://localhost:23004,http://localhost:23005
     ports:
       - "28080:28080"
     volumes:
       - ./backend/templates:/app/templates:ro
     restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+      firebase:
+        condition: service_started
+      localstack:
+        condition: service_started
 
   frontend:
     build:
@@ -21,14 +93,13 @@ services:
         NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:23002
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
     container_name: memoria_frontend
-    env_file:
-      - ./frontend/.env
     environment:
       PORT: 23000
     ports:
       - "23000:23000"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
 
   auth:
     build:
@@ -40,16 +111,15 @@ services:
         NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:23002
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
         NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
-        NEXT_PUBLIC_APP_ENV: development
+        NEXT_PUBLIC_APP_ENV: local
     container_name: memoria_auth
-    env_file:
-      - ./auth/.env
     environment:
       PORT: 23001
     ports:
       - "23001:23001"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
 
   admin:
     build:
@@ -60,14 +130,13 @@ services:
         NEXT_PUBLIC_APP_BASE_URL: http://localhost:23000
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
     container_name: memoria_admin
-    env_file:
-      - ./admin/.env
     environment:
       PORT: 23002
     ports:
       - "23002:23002"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
 
   help:
     build:
@@ -77,14 +146,13 @@ services:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
     container_name: memoria_help
-    env_file:
-      - ./help/.env
     environment:
       PORT: 23003
     ports:
       - "23003:23003"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
 
   info:
     build:
@@ -95,14 +163,13 @@ services:
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
         NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
     container_name: memoria_info
-    env_file:
-      - ./info/.env
     environment:
       PORT: 23004
     ports:
       - "23004:23004"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
 
   contact:
     build:
@@ -113,11 +180,15 @@ services:
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
     container_name: memoria_contact
-    env_file:
-      - ./contact/.env
     environment:
       PORT: 23005
     ports:
       - "23005:23005"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
+
+volumes:
+  memoria_postgres_data:
+  memoria_firebase_data:
+  memoria_localstack_data:
