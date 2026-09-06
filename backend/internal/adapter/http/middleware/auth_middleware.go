@@ -10,20 +10,20 @@ import (
 	"memoria/internal/domain/model"
 	"memoria/internal/domain/repository"
 
-	"github.com/labstack/echo/v4"
 	fbauth "firebase.google.com/go/v4/auth"
+	"github.com/labstack/echo/v4"
 )
 
 type AuthMiddleware struct {
-	firebaseAuth *auth.FirebaseAuth
-	userRepo     repository.UserRepository
+	firebaseAuth    *auth.FirebaseAuth
+	userRepo        repository.UserRepository
 	groupMemberRepo repository.GroupMemberRepository
 }
 
 func NewAuthMiddleware(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, groupMemberRepo repository.GroupMemberRepository) *AuthMiddleware {
 	return &AuthMiddleware{
-		firebaseAuth: firebaseAuth,
-		userRepo:     userRepo,
+		firebaseAuth:    firebaseAuth,
+		userRepo:        userRepo,
 		groupMemberRepo: groupMemberRepo,
 	}
 }

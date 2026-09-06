@@ -1,14 +1,20 @@
-import { LodgingItem } from '../types'
+import { LodgingItem } from "../types";
 
 type LodgingTabProps = {
-  lodgings: LodgingItem[]
-  onAdd: () => void
-  onSave: () => void
-  onRemove: (localId: string) => void
-  onUpdate: (localId: string, field: keyof LodgingItem, value: string) => void
-}
+  lodgings: LodgingItem[];
+  onAdd: () => void;
+  onSave: () => void;
+  onRemove: (localId: string) => void;
+  onUpdate: (localId: string, field: keyof LodgingItem, value: string) => void;
+};
 
-export default function LodgingTab({ lodgings, onAdd, onSave, onRemove, onUpdate }: LodgingTabProps) {
+export default function LodgingTab({
+  lodgings,
+  onAdd,
+  onSave,
+  onRemove,
+  onUpdate,
+}: LodgingTabProps) {
   return (
     <div className="mt-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -28,18 +34,25 @@ export default function LodgingTab({ lodgings, onAdd, onSave, onRemove, onUpdate
 
       <div className="space-y-4">
         {lodgings.map((lodging) => (
-          <div key={lodging.localId} className="border border-gray-200 rounded-lg p-4 space-y-3">
+          <div
+            key={lodging.localId}
+            className="border border-gray-200 rounded-lg p-4 space-y-3"
+          >
             <div className="flex flex-wrap items-center gap-3">
               <input
                 type="date"
                 value={lodging.date}
-                onChange={(e) => onUpdate(lodging.localId, 'date', e.target.value)}
+                onChange={(e) =>
+                  onUpdate(lodging.localId, "date", e.target.value)
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg"
               />
               <input
                 type="text"
                 value={lodging.name}
-                onChange={(e) => onUpdate(lodging.localId, 'name', e.target.value)}
+                onChange={(e) =>
+                  onUpdate(lodging.localId, "name", e.target.value)
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg flex-1"
                 placeholder="宿名"
               />
@@ -54,14 +67,18 @@ export default function LodgingTab({ lodgings, onAdd, onSave, onRemove, onUpdate
               <input
                 type="url"
                 value={lodging.reservation_url}
-                onChange={(e) => onUpdate(lodging.localId, 'reservation_url', e.target.value)}
+                onChange={(e) =>
+                  onUpdate(lodging.localId, "reservation_url", e.target.value)
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg"
                 placeholder="予約サイトURL"
               />
               <input
                 type="text"
                 value={lodging.address}
-                onChange={(e) => onUpdate(lodging.localId, 'address', e.target.value)}
+                onChange={(e) =>
+                  onUpdate(lodging.localId, "address", e.target.value)
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg"
                 placeholder="住所"
               />
@@ -69,7 +86,9 @@ export default function LodgingTab({ lodgings, onAdd, onSave, onRemove, onUpdate
                 type="time"
                 step={600}
                 value={lodging.check_in}
-                onChange={(e) => onUpdate(lodging.localId, 'check_in', e.target.value)}
+                onChange={(e) =>
+                  onUpdate(lodging.localId, "check_in", e.target.value)
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg"
                 placeholder="チェックイン"
               />
@@ -77,29 +96,41 @@ export default function LodgingTab({ lodgings, onAdd, onSave, onRemove, onUpdate
                 type="time"
                 step={600}
                 value={lodging.check_out}
-                onChange={(e) => onUpdate(lodging.localId, 'check_out', e.target.value)}
+                onChange={(e) =>
+                  onUpdate(lodging.localId, "check_out", e.target.value)
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg"
                 placeholder="チェックアウト"
               />
               <input
                 type="text"
                 value={lodging.reservation_number}
-                onChange={(e) => onUpdate(lodging.localId, 'reservation_number', e.target.value)}
+                onChange={(e) =>
+                  onUpdate(
+                    lodging.localId,
+                    "reservation_number",
+                    e.target.value,
+                  )
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg"
                 placeholder="予約番号"
               />
               <input
                 type="number"
                 value={lodging.cost_yen}
-                onChange={(e) => onUpdate(lodging.localId, 'cost_yen', e.target.value)}
+                onChange={(e) =>
+                  onUpdate(lodging.localId, "cost_yen", e.target.value)
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg"
                 placeholder="費用（円）"
               />
             </div>
           </div>
         ))}
-        {lodgings.length === 0 && <p className="text-sm text-gray-500">宿が登録されていません</p>}
+        {lodgings.length === 0 && (
+          <p className="text-sm text-gray-500">宿が登録されていません</p>
+        )}
       </div>
     </div>
-  )
+  );
 }

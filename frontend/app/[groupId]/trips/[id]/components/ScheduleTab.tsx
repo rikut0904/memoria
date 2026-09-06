@@ -1,20 +1,24 @@
-import { ScheduleItem } from '../types'
+import { ScheduleItem } from "../types";
 
 type ScheduleTabProps = {
-  tripDates: string[]
-  selectedDayIndex: number
-  currentDate: string
-  scheduleItems: ScheduleItem[]
-  hourOptions: string[]
-  minuteOptions: string[]
-  onSelectDay: (index: number) => void
-  onAdd: () => void
-  onSave: () => void
-  onRemove: (localId: string) => void
-  onContentChange: (localId: string, value: string) => void
-  onTimePartChange: (localId: string, part: 'hour' | 'minute', value: string) => void
-  splitTime: (time: string) => { hour: string; minute: string }
-}
+  tripDates: string[];
+  selectedDayIndex: number;
+  currentDate: string;
+  scheduleItems: ScheduleItem[];
+  hourOptions: string[];
+  minuteOptions: string[];
+  onSelectDay: (index: number) => void;
+  onAdd: () => void;
+  onSave: () => void;
+  onRemove: (localId: string) => void;
+  onContentChange: (localId: string, value: string) => void;
+  onTimePartChange: (
+    localId: string,
+    part: "hour" | "minute",
+    value: string,
+  ) => void;
+  splitTime: (time: string) => { hour: string; minute: string };
+};
 
 export default function ScheduleTab({
   tripDates,
@@ -33,7 +37,7 @@ export default function ScheduleTab({
 }: ScheduleTabProps) {
   const dayItems = scheduleItems
     .filter((item) => item.date === currentDate)
-    .sort((a, b) => a.time.localeCompare(b.time))
+    .sort((a, b) => a.time.localeCompare(b.time));
 
   return (
     <div className="mt-6 space-y-4">
@@ -45,8 +49,8 @@ export default function ScheduleTab({
               onClick={() => onSelectDay(index)}
               className={`px-3 py-1 text-sm rounded-full border ${
                 selectedDayIndex === index
-                  ? 'border-primary-500 text-primary-600 bg-primary-50'
-                  : 'border-gray-200 text-gray-500 hover:text-gray-700'
+                  ? "border-primary-500 text-primary-600 bg-primary-50"
+                  : "border-gray-200 text-gray-500 hover:text-gray-700"
               }`}
             >
               {index + 1}日目
@@ -71,7 +75,7 @@ export default function ScheduleTab({
 
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <div className="text-sm text-gray-600 mb-3">
-          {currentDate ? `${currentDate} のスケジュール` : '日程が未設定です'}
+          {currentDate ? `${currentDate} のスケジュール` : "日程が未設定です"}
         </div>
         <div className="space-y-3">
           {dayItems.map((item) => (
@@ -79,7 +83,9 @@ export default function ScheduleTab({
               <div className="flex items-center gap-2">
                 <select
                   value={splitTime(item.time).hour}
-                  onChange={(e) => onTimePartChange(item.localId, 'hour', e.target.value)}
+                  onChange={(e) =>
+                    onTimePartChange(item.localId, "hour", e.target.value)
+                  }
                   className="w-16 px-2 py-1 border border-gray-300 rounded-lg"
                 >
                   {hourOptions.map((hour) => (
@@ -91,7 +97,9 @@ export default function ScheduleTab({
                 <span className="text-gray-400">:</span>
                 <select
                   value={splitTime(item.time).minute}
-                  onChange={(e) => onTimePartChange(item.localId, 'minute', e.target.value)}
+                  onChange={(e) =>
+                    onTimePartChange(item.localId, "minute", e.target.value)
+                  }
                   className="w-16 px-2 py-1 border border-gray-300 rounded-lg"
                 >
                   {minuteOptions.map((minute) => (
@@ -122,5 +130,5 @@ export default function ScheduleTab({
         </div>
       </div>
     </div>
-  )
+  );
 }

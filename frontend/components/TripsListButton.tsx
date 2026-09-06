@@ -1,28 +1,30 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import HeaderButton from '@/components/HeaderButton'
-import { getCurrentGroupId } from '@/lib/group'
+import { useRouter } from "next/navigation";
+import HeaderButton from "@/components/HeaderButton";
+import { getCurrentGroupId } from "@/lib/group";
 
 type TripsListButtonProps = {
-  label?: string
-  className?: string
-}
+  label?: string;
+  className?: string;
+};
 
 export default function TripsListButton({
-  label = '旅行一覧に戻る',
-  className = '',
+  label = "旅行一覧に戻る",
+  className = "",
 }: TripsListButtonProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleClick = () => {
-    const groupId = getCurrentGroupId()
+    const groupId = getCurrentGroupId();
     if (!groupId) {
-      router.push('/')
-      return
+      router.push("/");
+      return;
     }
-    router.push(`/${groupId}/trips`)
-  }
+    router.push(`/${groupId}/trips`);
+  };
 
-  return <HeaderButton label={label} onClick={handleClick} className={className} />
+  return (
+    <HeaderButton label={label} onClick={handleClick} className={className} />
+  );
 }

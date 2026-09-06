@@ -1,12 +1,16 @@
-'use client'
+"use client";
 
 type HeaderButtonProps = {
-  label: string
-  onClick: () => void
-  className?: string
-}
+  label: string;
+  onClick: () => void;
+  className?: string;
+};
 
-export default function HeaderButton({ label, onClick, className = '' }: HeaderButtonProps) {
+export default function HeaderButton({
+  label,
+  onClick,
+  className = "",
+}: HeaderButtonProps) {
   return (
     <button
       type="button"
@@ -15,5 +19,5 @@ export default function HeaderButton({ label, onClick, className = '' }: HeaderB
     >
       {label}
     </button>
-  )
+  );
 }

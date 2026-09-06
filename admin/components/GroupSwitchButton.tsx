@@ -1,30 +1,30 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import { clearCurrentGroup } from '@/lib/group'
-import HeaderButton from '@/components/HeaderButton'
+import { clearCurrentGroup } from "@/lib/group";
+import HeaderButton from "@/components/HeaderButton";
 
 type GroupSwitchButtonProps = {
-  label?: string
-  className?: string
-}
+  label?: string;
+  className?: string;
+};
 
 export default function GroupSwitchButton({
-  label = 'グループ一覧',
-  className = '',
+  label = "グループ一覧",
+  className = "",
 }: GroupSwitchButtonProps) {
-  const router = useRouter()
-  const appBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL
+  const appBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
 
   const handleClick = () => {
-    clearCurrentGroup()
+    clearCurrentGroup();
     if (!appBaseUrl) {
-      console.warn('NEXT_PUBLIC_APP_BASE_URL is not set')
-      return
+      console.warn("NEXT_PUBLIC_APP_BASE_URL is not set");
+      return;
     }
-    const url = new URL('/', appBaseUrl)
-    window.location.href = url.toString()
-  }
+    const url = new URL("/", appBaseUrl);
+    window.location.href = url.toString();
+  };
 
-  return <HeaderButton label={label} onClick={handleClick} className={className} />
+  return (
+    <HeaderButton label={label} onClick={handleClick} className={className} />
+  );
 }

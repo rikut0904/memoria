@@ -1,10 +1,10 @@
-import { Trip } from '../types'
+import { Trip } from "../types";
 
 type TripHeaderProps = {
-  trip: Trip
-  onPost: () => void
-  onAlbum: () => void
-}
+  trip: Trip;
+  onPost: () => void;
+  onAlbum: () => void;
+};
 
 export default function TripHeader({ trip, onPost, onAlbum }: TripHeaderProps) {
   return (
@@ -12,8 +12,8 @@ export default function TripHeader({ trip, onPost, onAlbum }: TripHeaderProps) {
       <div>
         <h2 className="text-xl font-semibold text-gray-800">{trip.title}</h2>
         <p className="text-sm text-gray-600 mt-1">
-          {new Date(trip.start_at).toLocaleDateString('ja-JP')} 〜{' '}
-          {new Date(trip.end_at).toLocaleDateString('ja-JP')}
+          {new Date(trip.start_at).toLocaleDateString("ja-JP")} 〜{" "}
+          {new Date(trip.end_at).toLocaleDateString("ja-JP")}
         </p>
       </div>
       <div className="flex flex-col items-end gap-2">
@@ -31,5 +31,5 @@ export default function TripHeader({ trip, onPost, onAlbum }: TripHeaderProps) {
         </button>
       </div>
     </div>
-  )
+  );
 }

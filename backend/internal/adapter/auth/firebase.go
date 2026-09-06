@@ -7,13 +7,13 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
-	"google.golang.org/api/option"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 )
 
 type FirebaseAuth struct {
-	client *auth.Client
+	client      *auth.Client
 	tokenSource oauth2.TokenSource
 }
 
@@ -22,11 +22,11 @@ func NewFirebaseAuth(projectID, clientEmail, privateKey string) (*FirebaseAuth, 
 
 	// Create service account credentials
 	credentials := map[string]string{
-		"type":                        "service_account",
-		"project_id":                  projectID,
-		"private_key":                 privateKey,
-		"client_email":                clientEmail,
-		"token_uri":                   "https://oauth2.googleapis.com/token",
+		"type":         "service_account",
+		"project_id":   projectID,
+		"private_key":  privateKey,
+		"client_email": clientEmail,
+		"token_uri":    "https://oauth2.googleapis.com/token",
 	}
 
 	credJSON, err := json.Marshal(credentials)

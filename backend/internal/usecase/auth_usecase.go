@@ -19,12 +19,12 @@ import (
 )
 
 type AuthUsecase struct {
-	firebaseAuth   *auth.FirebaseAuth
-	userRepo       repository.UserRepository
-	firebaseAPIKey string
-	sessionTTL     time.Duration
+	firebaseAuth    *auth.FirebaseAuth
+	userRepo        repository.UserRepository
+	firebaseAPIKey  string
+	sessionTTL      time.Duration
 	frontendBaseURL string
-	projectID      string
+	projectID       string
 }
 
 type AuthError struct {
@@ -41,12 +41,12 @@ func (e *AuthError) Error() string {
 
 func NewAuthUsecase(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, firebaseAPIKey string, sessionTTL time.Duration, frontendBaseURL string, projectID string) *AuthUsecase {
 	return &AuthUsecase{
-		firebaseAuth:   firebaseAuth,
-		userRepo:       userRepo,
-		firebaseAPIKey: firebaseAPIKey,
-		sessionTTL:     sessionTTL,
+		firebaseAuth:    firebaseAuth,
+		userRepo:        userRepo,
+		firebaseAPIKey:  firebaseAPIKey,
+		sessionTTL:      sessionTTL,
 		frontendBaseURL: strings.TrimRight(frontendBaseURL, "/"),
-		projectID:      projectID,
+		projectID:       projectID,
 	}
 }
 
@@ -98,6 +98,11 @@ func (u *AuthUsecase) Login(email, password, backPath string) (*model.User, stri
 	user, err := u.ensureUser(resp.LocalID, resp.Email)
 	if err != nil {
 		return nil, "", "", "", err
+	}
+	now := time.Now()
+	user.LastAccessAt = &now
+	if err := u.userRepo.Update(user); err != nil {
+		return nil, "", "", "", fmt.Errorf("update last access time: %w", err)
 	}
 	sessionCookie, err := u.createSessionCookie(resp.IDToken)
 	if err != nil {

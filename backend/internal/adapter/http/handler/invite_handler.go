@@ -83,13 +83,13 @@ func (h *InviteHandler) CreateInvite(c echo.Context) error {
 }
 
 type VerifyInviteResponse struct {
-	Email     string `json:"email"`
-	ExpiresAt string `json:"expires_at"`
-	Status    string `json:"status"`
-	GroupID   uint   `json:"group_id"`
-	GroupName string `json:"group_name"`
-	Role      string `json:"role"`
-	UserExists bool  `json:"user_exists"`
+	Email      string `json:"email"`
+	ExpiresAt  string `json:"expires_at"`
+	Status     string `json:"status"`
+	GroupID    uint   `json:"group_id"`
+	GroupName  string `json:"group_name"`
+	Role       string `json:"role"`
+	UserExists bool   `json:"user_exists"`
 }
 
 func (h *InviteHandler) VerifyInvite(c echo.Context) error {

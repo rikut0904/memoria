@@ -1,102 +1,103 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import api from '@/lib/api'
-import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
-import { getErrorMessage } from '@/lib/getErrorMessage'
-import GroupSwitchButton from '@/components/GroupSwitchButton'
-import AppHeader from '@/components/AppHeader'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
+import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
+import { getErrorMessage } from "@/lib/getErrorMessage";
+import GroupSwitchButton from "@/components/GroupSwitchButton";
+import AppHeader from "@/components/AppHeader";
 
 interface User {
-  id: number
-  email: string
-  display_name: string
-  role: string
-  firebase_uid: string
-  created_at: string
+  id: number;
+  email: string;
+  display_name: string;
+  role: string;
+  firebase_uid: string;
+  created_at: string;
 }
 
 type UpdateUserRoleRequest = {
-  role: string
-}
+  role: string;
+};
 
 export default function UsersManagementPage() {
-  const router = useRouter()
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const router = useRouter();
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const meRes = await api.get('/me')
-        setCurrentUser(meRes.data)
+        const meRes = await api.get("/me");
+        setCurrentUser(meRes.data);
 
-        if (meRes.data.role !== 'admin') {
-          router.push('/')
-          return
+        if (meRes.data.role !== "admin") {
+          router.push("/");
+          return;
         }
 
-        const usersRes = await api.get('/users')
-        setUsers(usersRes.data || [])
+        const usersRes = await api.get("/users");
+        setUsers(usersRes.data || []);
       } catch (error) {
-        console.error('Failed to fetch data:', error)
-        router.push(buildLoginUrl(getCurrentPathWithQuery()))
+        console.error("Failed to fetch data:", error);
+        router.push(buildLoginUrl(getCurrentPathWithQuery()));
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUsers()
-  }, [router])
+    fetchUsers();
+  }, [router]);
 
   const handleRoleChange = async (userId: number, newRole: string) => {
     if (!confirm(`このユーザーのロールを「${newRole}」に変更しますか？`)) {
-      return
+      return;
     }
 
     try {
-      const payload: UpdateUserRoleRequest = { role: newRole }
-      await api.patch(`/users/${userId}/role`, payload)
+      const payload: UpdateUserRoleRequest = { role: newRole };
+      await api.patch(`/users/${userId}/role`, payload);
       // ユーザーリストを更新
-      const usersRes = await api.get('/users')
-      setUsers(usersRes.data || [])
-      alert('ロールを更新しました')
+      const usersRes = await api.get("/users");
+      setUsers(usersRes.data || []);
+      alert("ロールを更新しました");
     } catch (error) {
-      console.error('Failed to update role:', error)
-      alert('ロールの更新に失敗しました')
+      console.error("Failed to update role:", error);
+      alert("ロールの更新に失敗しました");
     }
-  }
+  };
 
   const handleDeleteUser = async (userId: number, email: string) => {
-    if (!confirm(`ユーザー「${email}」を削除しますか？この操作は取り消せません。`)) {
-      return
+    if (
+      !confirm(`ユーザー「${email}」を削除しますか？この操作は取り消せません。`)
+    ) {
+      return;
     }
 
     try {
-      await api.delete(`/users/${userId}`)
+      await api.delete(`/users/${userId}`);
       // ユーザーリストを更新
-      setUsers(users.filter(u => u.id !== userId))
-      alert('ユーザーを削除しました')
+      setUsers(users.filter((u) => u.id !== userId));
+      alert("ユーザーを削除しました");
     } catch (error) {
-      console.error('Failed to delete user:', error)
-      alert(getErrorMessage(error, 'ユーザーの削除に失敗しました'))
+      console.error("Failed to delete user:", error);
+      alert(getErrorMessage(error, "ユーザーの削除に失敗しました"));
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">読み込み中...</p>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen admin">
       <AppHeader
-        title="Memoria - 管理"
         displayName={currentUser?.display_name}
         email={currentUser?.email}
         right={
@@ -111,13 +112,13 @@ export default function UsersManagementPage() {
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
               <button
-                onClick={() => router.push('/')}
+                onClick={() => router.push("/")}
                 className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
               >
                 管理トップ
               </button>
               <button
-                onClick={() => router.push('/users')}
+                onClick={() => router.push("/users")}
                 className="border-b-2 border-primary-500 py-4 px-1 text-sm font-medium text-primary-600"
               >
                 ユーザー管理
@@ -168,7 +169,7 @@ export default function UsersManagementPage() {
                     {user.display_name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {user.role === 'admin' ? (
+                    {user.role === "admin" ? (
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                         管理者
                       </span>
@@ -179,12 +180,12 @@ export default function UsersManagementPage() {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(user.created_at).toLocaleDateString('ja-JP')}
+                    {new Date(user.created_at).toLocaleDateString("ja-JP")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    {user.role === 'admin' ? (
+                    {user.role === "admin" ? (
                       <button
-                        onClick={() => handleRoleChange(user.id, 'member')}
+                        onClick={() => handleRoleChange(user.id, "member")}
                         className="text-yellow-600 hover:text-yellow-900"
                         disabled={currentUser?.id === user.id}
                       >
@@ -192,7 +193,7 @@ export default function UsersManagementPage() {
                       </button>
                     ) : (
                       <button
-                        onClick={() => handleRoleChange(user.id, 'admin')}
+                        onClick={() => handleRoleChange(user.id, "admin")}
                         className="text-green-600 hover:text-green-900"
                       >
                         管理者に昇格
@@ -213,5 +214,5 @@ export default function UsersManagementPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

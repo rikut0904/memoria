@@ -1,14 +1,14 @@
-import { BudgetItem, BudgetSummary } from '../types'
+import { BudgetItem, BudgetSummary } from "../types";
 
 type BudgetTabProps = {
-  summary: BudgetSummary
-  total: number
-  items: BudgetItem[]
-  onAdd: () => void
-  onSave: () => void
-  onRemove: (localId: string) => void
-  onUpdate: (localId: string, field: keyof BudgetItem, value: string) => void
-}
+  summary: BudgetSummary;
+  total: number;
+  items: BudgetItem[];
+  onAdd: () => void;
+  onSave: () => void;
+  onRemove: (localId: string) => void;
+  onUpdate: (localId: string, field: keyof BudgetItem, value: string) => void;
+};
 
 export default function BudgetTab({
   summary,
@@ -24,7 +24,7 @@ export default function BudgetTab({
       <div className="bg-primary-50 border border-primary-100 rounded-lg p-4">
         <p className="text-sm text-primary-700">合計予算</p>
         <p className="text-2xl font-semibold text-primary-700">
-          {total.toLocaleString('ja-JP')} 円
+          {total.toLocaleString("ja-JP")} 円
         </p>
       </div>
 
@@ -32,13 +32,13 @@ export default function BudgetTab({
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <p className="text-sm text-gray-600">移動手段の合計</p>
           <p className="text-lg font-semibold text-gray-800">
-            {summary.transport_total.toLocaleString('ja-JP')} 円
+            {summary.transport_total.toLocaleString("ja-JP")} 円
           </p>
         </div>
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <p className="text-sm text-gray-600">宿の合計</p>
           <p className="text-lg font-semibold text-gray-800">
-            {summary.lodging_total.toLocaleString('ja-JP')} 円
+            {summary.lodging_total.toLocaleString("ja-JP")} 円
           </p>
         </div>
       </div>
@@ -64,14 +64,16 @@ export default function BudgetTab({
             <input
               type="text"
               value={item.name}
-              onChange={(e) => onUpdate(item.localId, 'name', e.target.value)}
+              onChange={(e) => onUpdate(item.localId, "name", e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="項目名"
             />
             <input
               type="number"
               value={item.cost_yen}
-              onChange={(e) => onUpdate(item.localId, 'cost_yen', e.target.value)}
+              onChange={(e) =>
+                onUpdate(item.localId, "cost_yen", e.target.value)
+              }
               className="w-40 px-3 py-2 border border-gray-300 rounded-lg"
               placeholder="費用（円）"
             />
@@ -83,8 +85,10 @@ export default function BudgetTab({
             </button>
           </div>
         ))}
-        {items.length === 0 && <p className="text-sm text-gray-500">追加費用が登録されていません</p>}
+        {items.length === 0 && (
+          <p className="text-sm text-gray-500">追加費用が登録されていません</p>
+        )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import Script from 'next/script'
+import Script from "next/script";
 
 export default function VerticalAd() {
   return (
     <div className="auth-ad">
       <ins
         className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={{ display: "block" }}
         data-ad-client="ca-pub-6748867170638544"
         data-ad-slot="9125921528"
         data-ad-format="auto"
@@ -17,9 +17,9 @@ export default function VerticalAd() {
         id="adsbygoogle-vertical"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
-          __html: '(adsbygoogle = window.adsbygoogle || []).push({});',
+          __html: "(adsbygoogle = window.adsbygoogle || []).push({});",
         }}
       />
     </div>
-  )
+  );
 }

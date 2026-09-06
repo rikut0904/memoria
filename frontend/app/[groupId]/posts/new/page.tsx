@@ -1,5 +1,5 @@
-import { Suspense } from 'react'
-import NewPostClient from './view'
+import { Suspense } from "react";
+import NewPostClient from "./view";
 
 export default function NewPostPage() {
   return (
@@ -12,5 +12,5 @@ export default function NewPostPage() {
     >
       <NewPostClient />
     </Suspense>
-  )
+  );
 }

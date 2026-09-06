@@ -9,14 +9,14 @@ import (
 )
 
 type TripUsecase struct {
-	tripRepo          repository.TripRepository
-	itineraryRepo     repository.TripItineraryRepository
-	wishlistRepo      repository.TripWishlistRepository
-	expenseRepo       repository.TripExpenseRepository
-	relationRepo      repository.TripRelationRepository
-	detailRepo        repository.TripDetailRepository
-	albumRepo         repository.AlbumRepository
-	postRepo          repository.PostRepository
+	tripRepo      repository.TripRepository
+	itineraryRepo repository.TripItineraryRepository
+	wishlistRepo  repository.TripWishlistRepository
+	expenseRepo   repository.TripExpenseRepository
+	relationRepo  repository.TripRelationRepository
+	detailRepo    repository.TripDetailRepository
+	albumRepo     repository.AlbumRepository
+	postRepo      repository.PostRepository
 }
 
 func NewTripUsecase(

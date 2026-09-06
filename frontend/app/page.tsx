@@ -1,87 +1,86 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import api from '@/lib/api'
-import { clearCurrentGroup, setCurrentGroup } from '@/lib/group'
-import { clearAuthToken, clearRefreshToken } from '@/lib/auth'
-import { signalLogout } from '@/lib/logoutSync'
-import { buildLoginUrl, getCurrentPathWithQuery } from '@/lib/backPath'
-import AppHeader from '@/components/AppHeader'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
+import { clearCurrentGroup, setCurrentGroup } from "@/lib/group";
+import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
+import { signalLogout } from "@/lib/logoutSync";
+import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
+import AppHeader from "@/components/AppHeader";
 
 interface User {
-  id: number
-  email: string
-  display_name: string
-  role: string
+  id: number;
+  email: string;
+  display_name: string;
+  role: string;
 }
 
 interface Group {
-  id: number
-  name: string
-  created_by: number
-  created_at: string
+  id: number;
+  name: string;
+  created_by: number;
+  created_at: string;
 }
 
 export default function Home() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(true)
-  const [authChecked, setAuthChecked] = useState(false)
-  const [groups, setGroups] = useState<Group[]>([])
-  const [newGroupName, setNewGroupName] = useState('')
-  const [creating, setCreating] = useState(false)
-  const [error, setError] = useState('')
-  const [user, setUser] = useState<User | null>(null)
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState("");
+  const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const userRes = await api.get('/me')
-        setUser(userRes.data)
-        const res = await api.get('/groups')
-        setGroups(res.data || [])
+        const userRes = await api.get("/me");
+        setUser(userRes.data);
+        const res = await api.get("/groups");
+        setGroups(res.data || []);
       } catch (err) {
-        console.error('Failed to fetch groups:', err)
-        clearAuthToken()
-        clearRefreshToken()
-        router.replace(buildLoginUrl(getCurrentPathWithQuery()))
+        console.error("Failed to fetch groups:", err);
+        clearAuthToken();
+        clearRefreshToken();
+        router.replace(buildLoginUrl(getCurrentPathWithQuery()));
       } finally {
-        setLoading(false)
-        setAuthChecked(true)
+        setLoading(false);
+        setAuthChecked(true);
       }
-    }
+    };
 
-    fetchGroups()
-  }, [router])
+    fetchGroups();
+  }, [router]);
 
   const handleCreateGroup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newGroupName.trim()) return
-    setCreating(true)
-    setError('')
+    e.preventDefault();
+    if (!newGroupName.trim()) return;
+    setCreating(true);
+    setError("");
 
     try {
-      const res = await api.post('/groups', { name: newGroupName.trim() })
-      const created = res.data as Group
-      setGroups((prev) => [created, ...prev])
-      setNewGroupName('')
-      setCurrentGroup(created.id, created.name)
-      router.push(`/${created.id}`)
+      const res = await api.post("/groups", { name: newGroupName.trim() });
+      const created = res.data as Group;
+      setGroups((prev) => [created, ...prev]);
+      setNewGroupName("");
+      setCurrentGroup(created.id, created.name);
+      router.push(`/${created.id}`);
     } catch (err) {
-      console.error('Failed to create group:', err)
-      setError('グループの作成に失敗しました')
+      console.error("Failed to create group:", err);
+      setError("グループの作成に失敗しました");
     } finally {
-      setCreating(false)
+      setCreating(false);
     }
-  }
+  };
 
   const handleOpenGroup = (group: Group) => {
-    setCurrentGroup(group.id, group.name)
-    router.push(`/${group.id}`)
-  }
-
+    setCurrentGroup(group.id, group.name);
+    router.push(`/${group.id}`);
+  };
 
   if (!authChecked) {
-    return null
+    return null;
   }
 
   if (loading) {
@@ -94,28 +93,27 @@ export default function Home() {
           <p className="text-gray-600">読み込み中...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen">
       <AppHeader
-        title="Memoria"
         maxWidthClassName="max-w-5xl"
         displayName={user?.display_name}
         email={user?.email}
         right={
           <>
-            {user?.role === 'admin' && (
+            {user?.role === "admin" && (
               <button
                 onClick={() => {
-                  const adminBase = process.env.NEXT_PUBLIC_ADMIN_BASE_URL
+                  const adminBase = process.env.NEXT_PUBLIC_ADMIN_BASE_URL;
                   if (!adminBase) {
-                    console.warn('NEXT_PUBLIC_ADMIN_BASE_URL is not set')
-                    return
+                    console.warn("NEXT_PUBLIC_ADMIN_BASE_URL is not set");
+                    return;
                   }
-                  const url = new URL('/', adminBase)
-                  window.location.href = url.toString()
+                  const url = new URL("/", adminBase);
+                  window.location.href = url.toString();
                 }}
                 className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
@@ -124,14 +122,14 @@ export default function Home() {
             )}
             <button
               onClick={async () => {
-                clearCurrentGroup()
-                clearAuthToken()
-                clearRefreshToken()
-                signalLogout()
+                clearCurrentGroup();
+                clearAuthToken();
+                clearRefreshToken();
+                signalLogout();
                 try {
-                  await api.post('/logout')
+                  await api.post("/logout");
                 } finally {
-                  router.push(buildLoginUrl(getCurrentPathWithQuery()))
+                  router.push(buildLoginUrl(getCurrentPathWithQuery()));
                 }
               }}
               className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
@@ -153,8 +151,13 @@ export default function Home() {
               </p>
             </div>
             <div className="card border border-purple-200 bg-white">
-              <div className="text-sm font-semibold text-gray-800 mb-3">新しいグループを作る</div>
-              <form onSubmit={handleCreateGroup} className="flex flex-col gap-3">
+              <div className="text-sm font-semibold text-gray-800 mb-3">
+                新しいグループを作る
+              </div>
+              <form
+                onSubmit={handleCreateGroup}
+                className="flex flex-col gap-3"
+              >
                 <input
                   type="text"
                   value={newGroupName}
@@ -168,7 +171,7 @@ export default function Home() {
                   disabled={creating}
                   className="px-5 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
                 >
-                  {creating ? '作成中...' : 'グループを作成'}
+                  {creating ? "作成中..." : "グループを作成"}
                 </button>
               </form>
               {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
@@ -177,7 +180,9 @@ export default function Home() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-800">参加中のグループ</h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            参加中のグループ
+          </h2>
           {groups.length === 0 ? (
             <div className="card text-gray-600 border border-dashed border-gray-300">
               まだグループがありません。上のフォームから作成してください。
@@ -185,11 +190,16 @@ export default function Home() {
           ) : (
             <div className="grid-card">
               {groups.map((group) => (
-                <div key={group.id} className="card border border-gray-200 hover:border-primary-300 transition-colors">
+                <div
+                  key={group.id}
+                  className="card border border-gray-200 hover:border-primary-300 transition-colors"
+                >
                   <div className="flex items-start justify-between gap-4">
-                    <div className="text-lg font-semibold text-gray-800">{group.name}
+                    <div className="text-lg font-semibold text-gray-800">
+                      {group.name}
                       <p className="text-xs text-gray-500 mt-1">
-                        作成日: {new Date(group.created_at).toLocaleDateString('ja-JP')}
+                        作成日:{" "}
+                        {new Date(group.created_at).toLocaleDateString("ja-JP")}
                       </p>
                     </div>
                   </div>
@@ -208,5 +218,5 @@ export default function Home() {
         </section>
       </main>
     </div>
-  )
+  );
 }
