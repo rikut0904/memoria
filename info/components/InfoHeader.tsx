@@ -7,13 +7,13 @@ import api from "@/lib/api";
 import { getAuthToken, getRefreshToken } from "@/lib/auth";
 
 const APP_BASE_URL =
-  process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:23000";
 const AUTH_BASE_URL =
-  process.env.NEXT_PUBLIC_AUTH_BASE_URL || "http://localhost:3001";
+  process.env.NEXT_PUBLIC_AUTH_BASE_URL || "http://localhost:23001";
 const HELP_BASE_URL =
-  process.env.NEXT_PUBLIC_HELP_BASE_URL || "http://localhost:3003";
+  process.env.NEXT_PUBLIC_HELP_BASE_URL || "http://localhost:23003";
 const CONTACT_BASE_URL =
-  process.env.NEXT_PUBLIC_CONTACT_BASE_URL || "http://localhost:3005";
+  process.env.NEXT_PUBLIC_CONTACT_BASE_URL || "http://localhost:23005";
 
 export default function InfoHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
