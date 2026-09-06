@@ -99,6 +99,11 @@ func (u *AuthUsecase) Login(email, password, backPath string) (*model.User, stri
 	if err != nil {
 		return nil, "", "", "", err
 	}
+	now := time.Now()
+	user.LastAccessAt = &now
+	if err := u.userRepo.Update(user); err != nil {
+		return nil, "", "", "", fmt.Errorf("update last access time: %w", err)
+	}
 	sessionCookie, err := u.createSessionCookie(resp.IDToken)
 	if err != nil {
 		return nil, "", "", "", err
