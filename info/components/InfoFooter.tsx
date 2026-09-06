@@ -1,7 +1,7 @@
 const HELP_BASE_URL =
-  process.env.NEXT_PUBLIC_HELP_BASE_URL || "http://localhost:3003";
+  process.env.NEXT_PUBLIC_HELP_BASE_URL || "http://localhost:23003";
 const CONTACT_BASE_URL =
-  process.env.NEXT_PUBLIC_CONTACT_BASE_URL || "http://localhost:3005";
+  process.env.NEXT_PUBLIC_CONTACT_BASE_URL || "http://localhost:23005";
 
 import Image from "next/image";
 import Link from "next/link";
