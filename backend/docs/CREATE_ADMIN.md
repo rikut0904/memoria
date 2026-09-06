@@ -14,6 +14,16 @@ Memoriaは招待制のアプリケーションですが、最初の管理者ア�
 
 ## 使用方法
 
+### Docker Compose（ローカル推奨）
+
+リポジトリのルートで実行すると、PostgreSQL・Firebase Emulator・LocalStackを起動したうえで、対話形式で管理者を作成します。
+
+```bash
+make admin
+```
+
+作成後はFirebase Emulator UI（`http://localhost:29000`）でユーザーを確認できます。
+
 ### 方法1: インタラクティブモード（推奨）
 
 コマンドラインで対話的に情報を入力します：

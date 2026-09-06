@@ -77,7 +77,7 @@ make up
 
 1. ローカルは `make up` で依存サービスを起動
 2. Firebase Emulator UIでメール/パスワードユーザーを確認・作成
-3. `backend/cmd/create-admin` で管理者ユーザーを作成
+3. `make admin` で管理者ユーザーを作成
 4. stg/prodのみ、各環境のFirebase/AWS/PostgreSQLと環境変数を設定
 
 ## ドキュメント
