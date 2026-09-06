@@ -1,11 +1,11 @@
 import Image from "next/image";
 
 const INFO_BASE_URL =
-  process.env.NEXT_PUBLIC_INFO_BASE_URL || "http://localhost:3004";
+  process.env.NEXT_PUBLIC_INFO_BASE_URL || "http://localhost:23004";
 const HELP_BASE_URL =
-  process.env.NEXT_PUBLIC_HELP_BASE_URL || "http://localhost:3003";
+  process.env.NEXT_PUBLIC_HELP_BASE_URL || "http://localhost:23003";
 const CONTACT_BASE_URL =
-  process.env.NEXT_PUBLIC_CONTACT_BASE_URL || "http://localhost:3005";
+  process.env.NEXT_PUBLIC_CONTACT_BASE_URL || "http://localhost:23005";
 
 export default function SiteFooter() {
   return (
