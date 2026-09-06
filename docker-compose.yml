@@ -7,7 +7,7 @@ services:
     env_file:
       - ./backend/.env
     ports:
-      - "8081:8081"
+      - "28080:28080"
     volumes:
       - ./backend/templates:/app/templates:ro
     restart: on-failure
@@ -17,16 +17,16 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
-        NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:3002
-        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
+        NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:23002
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
     container_name: memoria_frontend
     env_file:
       - ./frontend/.env
     environment:
-      PORT: 3000
+      PORT: 23000
     ports:
-      - "3000:3000"
+      - "23000:23000"
     depends_on:
       - backend
 
@@ -35,19 +35,19 @@ services:
       context: ./auth
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
-        NEXT_PUBLIC_APP_BASE_URL: http://localhost:3000
-        NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:3002
-        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:3004
-        NEXT_PUBLIC_HELP_BASE_URL: http://localhost:3003
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
+        NEXT_PUBLIC_APP_BASE_URL: http://localhost:23000
+        NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:23002
+        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
+        NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
         NEXT_PUBLIC_APP_ENV: development
     container_name: memoria_auth
     env_file:
       - ./auth/.env
     environment:
-      PORT: 3001
+      PORT: 23001
     ports:
-      - "3001:3001"
+      - "23001:23001"
     depends_on:
       - backend
 
@@ -56,16 +56,16 @@ services:
       context: ./admin
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
-        NEXT_PUBLIC_APP_BASE_URL: http://localhost:3000
-        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
+        NEXT_PUBLIC_APP_BASE_URL: http://localhost:23000
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
     container_name: memoria_admin
     env_file:
       - ./admin/.env
     environment:
-      PORT: 3002
+      PORT: 23002
     ports:
-      - "3002:3002"
+      - "23002:23002"
     depends_on:
       - backend
 
@@ -74,15 +74,15 @@ services:
       context: ./help
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
-        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
     container_name: memoria_help
     env_file:
       - ./help/.env
     environment:
-      PORT: 3003
+      PORT: 23003
     ports:
-      - "3003:3003"
+      - "23003:23003"
     depends_on:
       - backend
 
@@ -91,16 +91,16 @@ services:
       context: ./info
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
-        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
-        NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:3005
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
+        NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
     container_name: memoria_info
     env_file:
       - ./info/.env
     environment:
-      PORT: 3004
+      PORT: 23004
     ports:
-      - "3004:3004"
+      - "23004:23004"
     depends_on:
       - backend
 
@@ -109,15 +109,15 @@ services:
       context: ./contact
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
-        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:3001
-        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:3004
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
+        NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
+        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
     container_name: memoria_contact
     env_file:
       - ./contact/.env
     environment:
-      PORT: 3005
+      PORT: 23005
     ports:
-      - "3005:3005"
+      - "23005:23005"
     depends_on:
       - backend
