@@ -242,6 +242,9 @@ clean-contact:
 clean-help:
 	cd help && rm -rf .next node_modules package-lock.json
 
+clean/all: ## ローカルの永続データを削除
+	docker compose down -v
+
 # ============================================================
 # 開発用コマンド
 # ============================================================
@@ -314,6 +317,3 @@ dev-help:
 
 help: ## Makefile のターゲット一覧
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
-
-clean/all: ## ローカルの永続データを削除
-	docker compose down -v
