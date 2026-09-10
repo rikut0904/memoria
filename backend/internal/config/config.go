@@ -28,19 +28,20 @@ type Config struct {
 	FirebaseAPIKey           string
 	FirebaseAuthEmulatorHost string
 
-	FrontendBaseURL        string
-	AllowedOrigins         string
-	AllowedOriginSuffixes  string
-	CookieDomain           string
-	EnableLocalStorageAuth bool
-	SESFromEmail           string
-	SESInviteTemplatePath  string
-	AWSRegion              string
-	S3Bucket               string
-	S3Endpoint             string
-	S3AccessKey            string
-	S3SecretKey            string
-	AWSEndpoint            string
+	FrontendBaseURL           string
+	LocalEmailVerificationURL string
+	AllowedOrigins            string
+	AllowedOriginSuffixes     string
+	CookieDomain              string
+	EnableLocalStorageAuth    bool
+	SESFromEmail              string
+	SESInviteTemplatePath     string
+	AWSRegion                 string
+	S3Bucket                  string
+	S3Endpoint                string
+	S3AccessKey               string
+	S3SecretKey               string
+	AWSEndpoint               string
 }
 
 func Load() Config {
@@ -60,19 +61,20 @@ func Load() Config {
 		FirebaseAPIKey:           getEnv("FIREBASE_API_KEY", ""),
 		FirebaseAuthEmulatorHost: getEnv("FIREBASE_AUTH_EMULATOR_HOST", ""),
 
-		FrontendBaseURL:        getEnv("FRONTEND_BASE_URL", ""),
-		AllowedOrigins:         getEnv("ALLOWED_ORIGINS", ""),
-		AllowedOriginSuffixes:  getEnv("ALLOWED_ORIGIN_SUFFIXES", ""),
-		CookieDomain:           getEnv("COOKIE_DOMAIN", ""),
-		EnableLocalStorageAuth: getEnv("APP_ENV", "local") != "production",
-		SESFromEmail:           getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),
-		SESInviteTemplatePath:  getEnv("SES_INVITE_TEMPLATE_PATH", ""),
-		AWSRegion:              getEnv("AWS_REGION", "ap-northeast-1"),
-		S3Bucket:               getEnv("S3_BUCKET", ""),
-		S3Endpoint:             getEnv("S3_ENDPOINT", ""),
-		S3AccessKey:            getEnv("S3_ACCESS_KEY", ""),
-		S3SecretKey:            getEnv("S3_SECRET_KEY", ""),
-		AWSEndpoint:            getEnv("AWS_ENDPOINT", ""),
+		FrontendBaseURL:           getEnv("FRONTEND_BASE_URL", ""),
+		LocalEmailVerificationURL: getEnv("LOCAL_EMAIL_VERIFICATION_URL", ""),
+		AllowedOrigins:            getEnv("ALLOWED_ORIGINS", ""),
+		AllowedOriginSuffixes:     getEnv("ALLOWED_ORIGIN_SUFFIXES", ""),
+		CookieDomain:              getEnv("COOKIE_DOMAIN", ""),
+		EnableLocalStorageAuth:    getEnv("APP_ENV", "local") != "production",
+		SESFromEmail:              getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),
+		SESInviteTemplatePath:     getEnv("SES_INVITE_TEMPLATE_PATH", ""),
+		AWSRegion:                 getEnv("AWS_REGION", "ap-northeast-1"),
+		S3Bucket:                  getEnv("S3_BUCKET", ""),
+		S3Endpoint:                getEnv("S3_ENDPOINT", ""),
+		S3AccessKey:               getEnv("S3_ACCESS_KEY", ""),
+		S3SecretKey:               getEnv("S3_SECRET_KEY", ""),
+		AWSEndpoint:               getEnv("AWS_ENDPOINT", ""),
 	}
 
 	// Parse DATABASE_URL if available (Railway, Heroku style)

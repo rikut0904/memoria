@@ -97,6 +97,11 @@ func (f *FirebaseAuth) DeleteUser(ctx context.Context, uid string) error {
 	return f.client.DeleteUser(ctx, uid)
 }
 
+func (f *FirebaseAuth) MarkEmailVerified(ctx context.Context, uid string) error {
+	_, err := f.client.UpdateUser(ctx, uid, (&auth.UserToUpdate{}).EmailVerified(true))
+	return err
+}
+
 func (f *FirebaseAuth) GetClient() *auth.Client {
 	return f.client
 }

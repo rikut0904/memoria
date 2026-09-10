@@ -26,6 +26,7 @@ func RegisterRoutes(
 	frontendBaseURL string,
 	allowedOriginsRaw string,
 	allowedOriginSuffixesRaw string,
+	appEnv string,
 ) {
 	// Middleware
 	e.Use(middleware.Logger())
@@ -112,6 +113,9 @@ func RegisterRoutes(
 	api.POST("/signup", authHandler.Signup)
 	api.POST("/logout", authHandler.Logout)
 	api.POST("/refresh", authHandler.Refresh)
+	if appEnv == "local" {
+		api.GET("/dev/auth/verify-email", authHandler.VerifyEmail)
+	}
 
 	// Public invite routes
 	api.GET("/invites/:token", inviteHandler.VerifyInvite)

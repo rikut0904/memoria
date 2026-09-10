@@ -98,6 +98,22 @@ func (m *SESMailer) SendGroupInvite(email, role, token, groupName string, isExis
 	return err
 }
 
+func (m *SESMailer) SendEmailVerification(email, verificationURL string) error {
+	textBody := fmt.Sprintf("メールアドレスの認証を完了するには、次のリンクを開いてください。\n\n%s\n\nこのメールに心当たりがない場合は破棄してください。", verificationURL)
+	_, err := m.client.SendEmail(&ses.SendEmailInput{
+		Source:      aws.String(m.from),
+		Destination: &ses.Destination{ToAddresses: []*string{aws.String(email)}},
+		Message: &ses.Message{
+			Subject: &ses.Content{Data: aws.String("Memoria メールアドレス認証"), Charset: aws.String("UTF-8")},
+			Body: &ses.Body{
+				Text: &ses.Content{Data: aws.String(textBody), Charset: aws.String("UTF-8")},
+				Html: &ses.Content{Data: aws.String(textToHTML(textBody)), Charset: aws.String("UTF-8")},
+			},
+		},
+	})
+	return err
+}
+
 func (m *SESMailer) defaultGroupInviteBody(inviteURL, roleLabel, groupName string, isExisting bool) string {
 	var firstLine string
 	if isExisting {

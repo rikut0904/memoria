@@ -70,6 +70,7 @@ services:
       S3_SECRET_KEY: test
       SES_FROM_EMAIL: no-reply@memoria.local
       FRONTEND_BASE_URL: http://localhost:23000
+      LOCAL_EMAIL_VERIFICATION_URL: http://localhost:28080/api/dev/auth/verify-email
       ALLOWED_ORIGINS: http://localhost:23000,http://localhost:23001,http://localhost:23002,http://localhost:23003,http://localhost:23004,http://localhost:23005
     ports:
       - "28080:28080"

@@ -10,6 +10,8 @@ import VerticalAd from "@/components/VerticalAd";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
+const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:23000";
+
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -47,8 +49,14 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      await api.post("/signup", { email, password, display_name: displayName });
-      router.push("/");
+		const res = await api.post("/signup", { email, password, display_name: displayName });
+		if (res?.data?.id_token) {
+			const redirectUrl = new URL(APP_BASE_URL);
+			redirectUrl.searchParams.set("auth_token", res.data.id_token);
+			window.location.replace(redirectUrl.toString());
+			return;
+		}
+		router.push("/");
     } catch (err) {
       console.error("Signup failed:", err);
       const code = axios.isAxiosError(err) ? err.response?.data?.code : "";

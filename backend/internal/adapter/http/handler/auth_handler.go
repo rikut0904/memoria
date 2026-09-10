@@ -142,17 +142,29 @@ func (h *AuthHandler) Signup(c echo.Context) error {
 
 	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
 
-	return c.JSON(http.StatusCreated, AuthResponse{
+	resp := AuthResponse{
 		ID:          user.ID,
 		Email:       user.Email,
 		DisplayName: user.DisplayName,
 		Role:        user.Role,
-	})
+		Token:       sessionCookie,
+	}
+	if h.enableLocalStorageAuth {
+		resp.IDToken = sessionCookie
+	}
+	return c.JSON(http.StatusCreated, resp)
 }
 
 func (h *AuthHandler) Logout(c echo.Context) error {
 	clearSessionCookie(c, h.secureCookie, h.cookieDomain)
 	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *AuthHandler) VerifyEmail(c echo.Context) error {
+	if err := h.authUsecase.VerifyEmail(c.QueryParam("token")); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "メール認証に失敗しました")
+	}
+	return c.HTML(http.StatusOK, "<h1>メール認証が完了しました</h1><p>ログイン画面に戻ってログインしてください。</p>")
 }
 
 func sanitizeBackPath(backPath string) string {
