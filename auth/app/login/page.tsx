@@ -15,7 +15,7 @@ const ADMIN_BASE_URL =
   process.env.NEXT_PUBLIC_ADMIN_BASE_URL || "http://localhost:3002";
 const HELP_BASE_URL = process.env.NEXT_PUBLIC_HELP_BASE_URL || "";
 const INFO_BASE_URL = process.env.NEXT_PUBLIC_INFO_BASE_URL || "";
-const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "development";
+const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "local";
 
 const trimTrailingSlash = (value: string) => value.replace(/\/$/, "");
 const joinPath = (base: string, path: string) => {
@@ -88,7 +88,7 @@ function LoginContent() {
       const res = await api.post("/login", { email, password, back_path: "" });
       const idToken = res?.data?.id_token as string | undefined;
       const refreshToken = res?.data?.refresh_token as string | undefined;
-      if (APP_ENV !== "production" && idToken) {
+		if (APP_ENV !== "prod" && idToken) {
         const url = new URL(redirectUrl);
         url.searchParams.set("auth_token", idToken);
         if (refreshToken) {

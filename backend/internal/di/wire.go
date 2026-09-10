@@ -92,7 +92,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	// Handlers
 	userHandler := handler.NewUserHandler(userUsecase)
 	groupHandler := handler.NewGroupHandler(groupUsecase, userUsecase)
-	secureCookie := cfg.AppEnv == "production"
+	secureCookie := cfg.AppEnv == "prod"
 	authHandler := handler.NewAuthHandler(authUsecase, secureCookie, sessionTTL, cfg.CookieDomain, cfg.EnableLocalStorageAuth)
 	inviteHandler := handler.NewInviteHandler(inviteUsecase, groupUsecase, userUsecase, authUsecase, secureCookie, sessionTTL, cfg.CookieDomain)
 	albumHandler := handler.NewAlbumHandler(albumUsecase)

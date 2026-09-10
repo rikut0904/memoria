@@ -66,7 +66,7 @@ func Load() Config {
 		AllowedOrigins:            getEnv("ALLOWED_ORIGINS", ""),
 		AllowedOriginSuffixes:     getEnv("ALLOWED_ORIGIN_SUFFIXES", ""),
 		CookieDomain:              getEnv("COOKIE_DOMAIN", ""),
-		EnableLocalStorageAuth:    getEnv("APP_ENV", "local") != "production",
+		EnableLocalStorageAuth:    getEnv("APP_ENV", "local") != "prod",
 		SESFromEmail:              getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),
 		SESInviteTemplatePath:     getEnv("SES_INVITE_TEMPLATE_PATH", ""),
 		AWSRegion:                 getEnv("AWS_REGION", "ap-northeast-1"),
