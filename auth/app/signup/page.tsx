@@ -50,7 +50,7 @@ export default function SignupPage() {
     setLoading(true);
     try {
 		const res = await api.post("/signup", { email, password, display_name: displayName });
-		if (res?.data?.id_token) {
+		if (APP_ENV === "local" && res?.data?.id_token) {
 			const redirectUrl = new URL(APP_BASE_URL);
 			redirectUrl.searchParams.set("auth_token", res.data.id_token);
 			window.location.replace(redirectUrl.toString());

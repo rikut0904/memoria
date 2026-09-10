@@ -88,7 +88,7 @@ function LoginContent() {
       const res = await api.post("/login", { email, password, back_path: "" });
       const idToken = res?.data?.id_token as string | undefined;
       const refreshToken = res?.data?.refresh_token as string | undefined;
-		if (APP_ENV !== "prod" && idToken) {
+		if (APP_ENV === "local" && idToken) {
         const url = new URL(redirectUrl);
         url.searchParams.set("auth_token", idToken);
         if (refreshToken) {
