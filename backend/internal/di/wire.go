@@ -29,6 +29,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 		cfg.FirebaseProjectID,
 		cfg.FirebaseClientEmail,
 		cfg.FirebasePrivateKey,
+		cfg.AppEnv,
 	)
 	if err != nil {
 		return nil, err
@@ -82,7 +83,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	groupUsecase := usecase.NewGroupUsecase(groupRepo, groupMemberRepo)
 	// Firebase Session Cookie の上限は 14 日
 	sessionTTL := 14 * 24 * time.Hour
-	authUsecase := usecase.NewAuthUsecase(firebaseAuth, userRepo, cfg.FirebaseAPIKey, sessionTTL, cfg.FrontendBaseURL, cfg.FirebaseProjectID, cfg.FirebaseAuthEmulatorHost, mailer, cfg.LocalEmailVerificationURL)
+	authUsecase := usecase.NewAuthUsecase(firebaseAuth, userRepo, cfg.AppEnv, cfg.FirebaseAPIKey, sessionTTL, cfg.FrontendBaseURL, cfg.FirebaseProjectID, cfg.FirebaseAuthEmulatorHost, mailer, cfg.LocalEmailVerificationURL)
 	inviteUsecase := usecase.NewInviteUsecase(inviteRepo, userRepo, groupRepo, groupMemberRepo, mailer)
 	albumUsecase := usecase.NewAlbumUsecase(albumRepo, photoRepo)
 	photoUsecase := usecase.NewPhotoUsecase(photoRepo, albumRepo, s3Service)

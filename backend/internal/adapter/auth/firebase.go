@@ -18,9 +18,9 @@ type FirebaseAuth struct {
 	tokenSource oauth2.TokenSource
 }
 
-func NewFirebaseAuth(projectID, clientEmail, privateKey string) (*FirebaseAuth, error) {
+func NewFirebaseAuth(projectID, clientEmail, privateKey, appEnv string) (*FirebaseAuth, error) {
 	ctx := context.Background()
-	if os.Getenv("FIREBASE_AUTH_EMULATOR_HOST") != "" {
+	if appEnv == "local" && os.Getenv("FIREBASE_AUTH_EMULATOR_HOST") != "" {
 		app, err := firebase.NewApp(ctx, &firebase.Config{ProjectID: projectID}, option.WithoutAuthentication())
 		if err != nil {
 			return nil, err

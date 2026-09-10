@@ -36,7 +36,7 @@ func main() {
 	}
 
 	// Firebase認証の初期化
-	firebaseAuth, err := auth.NewFirebaseAuth(cfg.FirebaseProjectID, cfg.FirebaseClientEmail, cfg.FirebasePrivateKey)
+	firebaseAuth, err := auth.NewFirebaseAuth(cfg.FirebaseProjectID, cfg.FirebaseClientEmail, cfg.FirebasePrivateKey, cfg.AppEnv)
 	if err != nil {
 		log.Fatalf("Firebase認証の初期化に失敗しました: %v", err)
 	}

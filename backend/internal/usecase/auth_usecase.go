@@ -21,6 +21,7 @@ import (
 type AuthUsecase struct {
 	firebaseAuth       *auth.FirebaseAuth
 	userRepo           repository.UserRepository
+	appEnv             string
 	firebaseAPIKey     string
 	sessionTTL         time.Duration
 	frontendBaseURL    string
@@ -44,12 +45,13 @@ func (e *AuthError) Error() string {
 	return e.Code
 }
 
-func NewAuthUsecase(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, firebaseAPIKey string, sessionTTL time.Duration, frontendBaseURL string, projectID string, authEmulatorHost string, verificationMailer interface {
+func NewAuthUsecase(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, appEnv string, firebaseAPIKey string, sessionTTL time.Duration, frontendBaseURL string, projectID string, authEmulatorHost string, verificationMailer interface {
 	SendEmailVerification(email, verificationURL string) error
 }, localVerificationURL string) *AuthUsecase {
 	return &AuthUsecase{
 		firebaseAuth:         firebaseAuth,
 		userRepo:             userRepo,
+		appEnv:               appEnv,
 		firebaseAPIKey:       firebaseAPIKey,
 		sessionTTL:           sessionTTL,
 		frontendBaseURL:      strings.TrimRight(frontendBaseURL, "/"),
@@ -65,6 +67,10 @@ type firebaseAuthResponse struct {
 	LocalID      string `json:"localId"`
 	Email        string `json:"email"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+func (u *AuthUsecase) isLocalEnvironment() bool {
+	return u.appEnv == "local" && u.authEmulatorHost != ""
 }
 
 type firebaseOobResponse struct {
@@ -100,7 +106,7 @@ func (u *AuthUsecase) Login(email, password, backPath string) (*model.User, stri
 	if err != nil {
 		return nil, "", "", "", err
 	}
-	if !verified && u.authEmulatorHost == "" {
+	if !verified && !u.isLocalEnvironment() {
 		if err := u.sendVerifyEmail(resp.IDToken, backPath); err != nil {
 			log.Printf("Failed to send verify email: %v", err)
 		}
@@ -144,7 +150,7 @@ func (u *AuthUsecase) Signup(email, password, displayName, backPath string) (*mo
 		return nil, "", err
 	}
 
-	if u.authEmulatorHost != "" {
+	if u.isLocalEnvironment() {
 		sessionCookie, err := u.createSessionCookie(resp.IDToken)
 		if err != nil {
 			return nil, "", err
@@ -180,7 +186,7 @@ func (u *AuthUsecase) RefreshSession(refreshToken string) (string, string, strin
 }
 
 func (u *AuthUsecase) createSessionCookie(idToken string) (string, error) {
-	if u.authEmulatorHost != "" {
+	if u.isLocalEnvironment() {
 		return idToken, nil
 	}
 	if u.firebaseAPIKey == "" {
@@ -258,7 +264,7 @@ func (u *AuthUsecase) sendVerifyEmail(idToken string, backPath string) error {
 	if u.frontendBaseURL == "" {
 		return errors.New("frontend base url is required")
 	}
-	if u.authEmulatorHost != "" && u.verificationMailer != nil {
+	if u.isLocalEnvironment() && u.verificationMailer != nil {
 		token, err := u.firebaseAuth.VerifyIDToken(context.Background(), idToken)
 		if err != nil {
 			return err
@@ -284,7 +290,7 @@ func (u *AuthUsecase) sendVerifyEmail(idToken string, backPath string) error {
 }
 
 func (u *AuthUsecase) VerifyEmail(idToken string) error {
-	if u.authEmulatorHost == "" {
+	if !u.isLocalEnvironment() {
 		return errors.New("local email verification is not available")
 	}
 	if strings.TrimSpace(idToken) == "" {
@@ -339,7 +345,7 @@ func (u *AuthUsecase) signUpWithPassword(email, password string) (*firebaseAuthR
 
 func (u *AuthUsecase) callFirebaseAuth(endpoint string, payload map[string]any) (*firebaseAuthResponse, error) {
 	base := "https://identitytoolkit.googleapis.com"
-	if u.authEmulatorHost != "" {
+	if u.isLocalEnvironment() {
 		base = "http://" + u.authEmulatorHost
 	}
 	url := fmt.Sprintf("%s/identitytoolkit.googleapis.com/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
@@ -372,7 +378,7 @@ func (u *AuthUsecase) callFirebaseAuth(endpoint string, payload map[string]any) 
 
 func (u *AuthUsecase) callFirebaseOob(endpoint string, payload map[string]any) (*firebaseOobResponse, error) {
 	base := "https://identitytoolkit.googleapis.com"
-	if u.authEmulatorHost != "" {
+	if u.isLocalEnvironment() {
 		base = "http://" + u.authEmulatorHost
 	}
 	url := fmt.Sprintf("%s/identitytoolkit.googleapis.com/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
@@ -403,7 +409,7 @@ func (u *AuthUsecase) callFirebaseOob(endpoint string, payload map[string]any) (
 func (u *AuthUsecase) callFirebaseRefresh(refreshToken string) (*firebaseRefreshResponse, error) {
 	base := "https://securetoken.googleapis.com"
 	path := "/v1/token"
-	if u.authEmulatorHost != "" {
+	if u.isLocalEnvironment() {
 		base = "http://" + u.authEmulatorHost
 		path = "/securetoken.googleapis.com/v1/token"
 	}
@@ -435,7 +441,7 @@ func (u *AuthUsecase) callFirebaseRefresh(refreshToken string) (*firebaseRefresh
 }
 func (u *AuthUsecase) callFirebaseLookup(endpoint string, payload map[string]any) (*firebaseLookupResponse, error) {
 	base := "https://identitytoolkit.googleapis.com"
-	if u.authEmulatorHost != "" {
+	if u.isLocalEnvironment() {
 		base = "http://" + u.authEmulatorHost
 	}
 	url := fmt.Sprintf("%s/identitytoolkit.googleapis.com/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
