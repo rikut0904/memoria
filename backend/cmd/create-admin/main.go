@@ -28,6 +28,9 @@ func main() {
 
 	// 設定の読み込み
 	cfg := config.Load()
+	if err := cfg.Validate(); err != nil {
+		log.Fatalf("設定が不正です: %v", err)
+	}
 
 	// データベース接続
 	db, err := persistence.NewDB(cfg)

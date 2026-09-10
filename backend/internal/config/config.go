@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -91,6 +92,36 @@ func Load() Config {
 	}
 
 	return cfg
+}
+
+// Validate checks settings that must be present outside local development.
+func (c Config) Validate() error {
+	if c.AppEnv != "local" && c.AppEnv != "stg" && c.AppEnv != "prod" {
+		return fmt.Errorf("APP_ENV must be one of local, stg, or prod (got %q)", c.AppEnv)
+	}
+	if c.AppEnv == "local" {
+		return nil
+	}
+
+	missing := make([]string, 0)
+	for name, value := range map[string]string{
+		"FIREBASE_PROJECT_ID":   c.FirebaseProjectID,
+		"FIREBASE_CLIENT_EMAIL": c.FirebaseClientEmail,
+		"FIREBASE_PRIVATE_KEY":  c.FirebasePrivateKey,
+		"FIREBASE_API_KEY":      c.FirebaseAPIKey,
+		"FRONTEND_BASE_URL":     c.FrontendBaseURL,
+	} {
+		if strings.TrimSpace(value) == "" {
+			missing = append(missing, name)
+		}
+	}
+	if os.Getenv("DATABASE_URL") == "" && (c.DBHost == "" || c.DBUser == "" || c.DBPassword == "" || c.DBName == "") {
+		missing = append(missing, "DATABASE_URL or DB_HOST/DB_USER/DB_PASSWORD/DB_NAME")
+	}
+	if len(missing) > 0 {
+		return fmt.Errorf("required configuration is missing for %s: %s", c.AppEnv, strings.Join(missing, ", "))
+	}
+	return nil
 }
 
 func normalizePrivateKey(raw string) string {

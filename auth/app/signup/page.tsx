@@ -11,6 +11,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:23000";
+const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "local";
 
 export default function SignupPage() {
   const router = useRouter();
