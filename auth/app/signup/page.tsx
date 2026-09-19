@@ -11,7 +11,8 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:23000";
-const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "local";
+const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "";
+const isAppEnvConfigured = ["local", "stg", "prod"].includes(APP_ENV);
 
 export default function SignupPage() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!isAppEnvConfigured) return;
     const token = getAuthToken();
     if (!token) return;
     api
@@ -84,7 +86,12 @@ export default function SignupPage() {
             新しいアカウントを作成
           </p>
 
-          <form onSubmit={handleSignup} className="space-y-4">
+          {!isAppEnvConfigured ? (
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm" role="alert">
+              環境設定エラーです。NEXT_PUBLIC_APP_ENVにlocal、stg、またはprodを設定してください。
+            </div>
+          ) : (
+            <form onSubmit={handleSignup} className="space-y-4">
             <div>
               <label
                 htmlFor="displayName"
@@ -174,7 +181,8 @@ export default function SignupPage() {
             >
               {loading ? "作成中..." : "サインアップ"}
             </button>
-          </form>
+            </form>
+          )}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
