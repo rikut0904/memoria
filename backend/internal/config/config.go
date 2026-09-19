@@ -115,8 +115,12 @@ func (c Config) Validate() error {
 			missing = append(missing, name)
 		}
 	}
-	if os.Getenv("DATABASE_URL") == "" && (c.DBHost == "" || c.DBUser == "" || c.DBPassword == "" || c.DBName == "") {
-		missing = append(missing, "DATABASE_URL or DB_HOST/DB_USER/DB_PASSWORD/DB_NAME")
+	if strings.TrimSpace(os.Getenv("DATABASE_URL")) == "" {
+		for _, name := range []string{"DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"} {
+			if strings.TrimSpace(os.Getenv(name)) == "" {
+				missing = append(missing, name)
+			}
+		}
 	}
 	if len(missing) > 0 {
 		return fmt.Errorf("required configuration is missing for %s: %s", c.AppEnv, strings.Join(missing, ", "))
