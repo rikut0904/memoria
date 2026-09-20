@@ -28,7 +28,7 @@ ps: ## コンテナ状態確認
 	docker compose ps
 
 admin: ## ローカルFirebase Emulatorに管理者を作成
-	docker compose up -d postgres firebase localstack
+	docker compose up -d postgres firebase ministack
 	docker compose run --rm --build --no-deps --entrypoint /app/create-admin backend
 
 # ============================================================

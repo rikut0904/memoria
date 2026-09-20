@@ -16,7 +16,7 @@ Memoriaは招待制のアプリケーションですが、最初の管理者ア�
 
 ### Docker Compose（ローカル推奨）
 
-リポジトリのルートで実行すると、PostgreSQL・Firebase Emulator・LocalStackを起動したうえで、対話形式で管理者を作成します。
+リポジトリのルートで実行すると、PostgreSQL・Firebase Emulator・MiniStackを起動したうえで、対話形式で管理者を作成します。
 
 ```bash
 make admin
