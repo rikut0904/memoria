@@ -24,7 +24,7 @@
 - Firebase Authentication
 
 ### Backend
-- Go 1.22
+- Go 1.27
 - Echo (Web Framework)
 - GORM (ORM)
 - PostgreSQL
