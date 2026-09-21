@@ -24,7 +24,7 @@ jobs:
           cache-dependency-path: backend/go.sum
       - name: Scan Go dependencies
         working-directory: backend
-        run: go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
