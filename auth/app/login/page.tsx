@@ -90,7 +90,7 @@ function LoginContent() {
       const res = await api.post("/login", { email, password, back_path: "" });
       const idToken = res?.data?.id_token as string | undefined;
       const refreshToken = res?.data?.refresh_token as string | undefined;
-		if (APP_ENV === "local" && idToken) {
+      if (APP_ENV === "local" && idToken) {
         const url = new URL(redirectUrl);
         url.searchParams.set("auth_token", idToken);
         if (refreshToken) {
@@ -130,63 +130,66 @@ function LoginContent() {
           </p>
 
           {!isAppEnvConfigured ? (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm" role="alert">
+            <div
+              className="bg-red-50 text-red-600 p-3 rounded-lg text-sm"
+              role="alert"
+            >
               環境設定エラーです。NEXT_PUBLIC_APP_ENVにlocal、stg、またはprodを設定してください。
             </div>
           ) : (
             <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                メールアドレス
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                required
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                パスワード
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                required
-              />
-            </div>
-
-            {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
-                {error}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  メールアドレス
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                />
               </div>
-            )}
-            {info && (
-              <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm border border-green-200">
-                {info}
-              </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "ログイン中..." : "ログイン"}
-            </button>
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  パスワード
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+              {info && (
+                <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm border border-green-200">
+                  {info}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "ログイン中..." : "ログイン"}
+              </button>
             </form>
           )}
 

@@ -1,0 +1,42 @@
+name: integration
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start local services
+        run: docker compose up -d --build postgres firebase ministack backend
+      - name: Wait for backend health
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://localhost:28080/health >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose ps
+          docker compose logs backend ministack firebase
+          exit 1
+      - name: Verify local service state
+        run: |
+          set -euo pipefail
+          curl --fail --silent http://localhost:28080/health
+          docker compose exec -T \
+            -e AWS_ACCESS_KEY_ID=test \
+            -e AWS_SECRET_ACCESS_KEY=test \
+            -e AWS_DEFAULT_REGION=ap-northeast-1 \
+            ministack aws --endpoint-url=http://localhost:4566 s3api head-bucket --bucket memoria-local
+      - name: Stop local services
+        if: always()
+        run: docker compose down -v --remove-orphans
