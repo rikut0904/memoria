@@ -152,7 +152,7 @@ fmt-frontend:
 	cd frontend && npx prettier --write .
 
 fmt-backend:
-	cd backend && gofmt -w .
+	cd backend && gofmt -w $$(find cmd internal -type f -name '*.go')
 
 fmt-auth:
 	cd auth && npx prettier --write .

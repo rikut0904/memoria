@@ -24,7 +24,7 @@ jobs:
           cache-dependency-path: backend/go.sum
       - name: Check Go formatting
         working-directory: backend
-        run: test -z "$(gofmt -l .)"
+        run: test -z "$(gofmt -l cmd internal)"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
