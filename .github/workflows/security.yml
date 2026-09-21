@@ -25,7 +25,7 @@ jobs:
       - name: Scan Go dependencies
         working-directory: backend
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Audit frontend dependencies
