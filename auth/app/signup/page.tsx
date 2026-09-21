@@ -10,7 +10,8 @@ import VerticalAd from "@/components/VerticalAd";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
-const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:23000";
+const APP_BASE_URL =
+  process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:23000";
 const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "";
 const isAppEnvConfigured = ["local", "stg", "prod"].includes(APP_ENV);
 
@@ -52,14 +53,18 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-		const res = await api.post("/signup", { email, password, display_name: displayName });
-		if (APP_ENV === "local" && res?.data?.id_token) {
-			const redirectUrl = new URL(APP_BASE_URL);
-			redirectUrl.searchParams.set("auth_token", res.data.id_token);
-			window.location.replace(redirectUrl.toString());
-			return;
-		}
-		router.push("/");
+      const res = await api.post("/signup", {
+        email,
+        password,
+        display_name: displayName,
+      });
+      if (APP_ENV === "local" && res?.data?.id_token) {
+        const redirectUrl = new URL(APP_BASE_URL);
+        redirectUrl.searchParams.set("auth_token", res.data.id_token);
+        window.location.replace(redirectUrl.toString());
+        return;
+      }
+      router.push("/");
     } catch (err) {
       console.error("Signup failed:", err);
       const code = axios.isAxiosError(err) ? err.response?.data?.code : "";
@@ -87,100 +92,103 @@ export default function SignupPage() {
           </p>
 
           {!isAppEnvConfigured ? (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm" role="alert">
+            <div
+              className="bg-red-50 text-red-600 p-3 rounded-lg text-sm"
+              role="alert"
+            >
               環境設定エラーです。NEXT_PUBLIC_APP_ENVにlocal、stg、またはprodを設定してください。
             </div>
           ) : (
             <form onSubmit={handleSignup} className="space-y-4">
-            <div>
-              <label
-                htmlFor="displayName"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                表示名
-              </label>
-              <input
-                type="text"
-                id="displayName"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="あなたの名前"
-                required
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                メールアドレス
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                required
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                パスワード（8文字以上）
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                required
-                minLength={8}
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                パスワード（確認）
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                required
-                minLength={8}
-              />
-            </div>
-
-            {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
-                {error}
+              <div>
+                <label
+                  htmlFor="displayName"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  表示名
+                </label>
+                <input
+                  type="text"
+                  id="displayName"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="あなたの名前"
+                  required
+                />
               </div>
-            )}
-            {info && (
-              <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm border border-green-200">
-                {info}
-              </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "作成中..." : "サインアップ"}
-            </button>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  メールアドレス
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  パスワード（8文字以上）
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                  minLength={8}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  パスワード（確認）
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                  minLength={8}
+                />
+              </div>
+
+              {error && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+              {info && (
+                <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm border border-green-200">
+                  {info}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "作成中..." : "サインアップ"}
+              </button>
             </form>
           )}
 

@@ -1,0 +1,36 @@
+name: fmt
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24"
+  GO_VERSION: "1.27"
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: backend/go.sum
+      - name: Check Go formatting
+        working-directory: backend
+        run: test -z "$(gofmt -l cmd internal)"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Check frontend formatting
+        run: |
+          set -euo pipefail
+          for app in frontend auth admin info contact help; do
+            npx --yes prettier@3.6.2 --check "${app}"
+          done

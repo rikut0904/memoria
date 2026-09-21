@@ -36,6 +36,8 @@ services:
     image: ministackorg/ministack:1.5.13
     container_name: memoria_ministack
     environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
       AWS_DEFAULT_REGION: ap-northeast-1
       PERSIST_STATE: "1"
       STATE_DIR: /data/ministack-state
