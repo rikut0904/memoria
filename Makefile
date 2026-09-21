@@ -4,7 +4,7 @@ NEXTJS_PROJECTS := frontend auth admin info contact help
 # Docker操作
 # ============================================================
 
-.PHONY: up down logs build ps install
+.PHONY: up down logs build ps install admin clean/all
 
 up: ## 全サービス起動
 	docker compose up --build
@@ -26,6 +26,10 @@ build:
 
 ps: ## コンテナ状態確認
 	docker compose ps
+
+admin: ## ローカルFirebase Emulatorに管理者を作成
+	docker compose up -d postgres firebase ministack
+	docker compose run --rm --build --no-deps --entrypoint /app/create-admin backend
 
 # ============================================================
 # 個別起動
@@ -237,6 +241,9 @@ clean-contact:
 
 clean-help:
 	cd help && rm -rf .next node_modules package-lock.json
+
+clean/all: ## ローカルの永続データを削除
+	docker compose down -v
 
 # ============================================================
 # 開発用コマンド

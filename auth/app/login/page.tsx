@@ -15,7 +15,8 @@ const ADMIN_BASE_URL =
   process.env.NEXT_PUBLIC_ADMIN_BASE_URL || "http://localhost:3002";
 const HELP_BASE_URL = process.env.NEXT_PUBLIC_HELP_BASE_URL || "";
 const INFO_BASE_URL = process.env.NEXT_PUBLIC_INFO_BASE_URL || "";
-const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "development";
+const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "";
+const isAppEnvConfigured = ["local", "stg", "prod"].includes(APP_ENV);
 
 const trimTrailingSlash = (value: string) => value.replace(/\/$/, "");
 const joinPath = (base: string, path: string) => {
@@ -70,6 +71,7 @@ function LoginContent() {
   const redirectUrl = buildRedirectUrl(rawReturnTo, rawBackPath);
 
   useEffect(() => {
+    if (!isAppEnvConfigured) return;
     api
       .get("/me")
       .then(() => {
@@ -88,7 +90,7 @@ function LoginContent() {
       const res = await api.post("/login", { email, password, back_path: "" });
       const idToken = res?.data?.id_token as string | undefined;
       const refreshToken = res?.data?.refresh_token as string | undefined;
-      if (APP_ENV !== "production" && idToken) {
+		if (APP_ENV === "local" && idToken) {
         const url = new URL(redirectUrl);
         url.searchParams.set("auth_token", idToken);
         if (refreshToken) {
@@ -127,7 +129,12 @@ function LoginContent() {
             大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。
           </p>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          {!isAppEnvConfigured ? (
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm" role="alert">
+              環境設定エラーです。NEXT_PUBLIC_APP_ENVにlocal、stg、またはprodを設定してください。
+            </div>
+          ) : (
+            <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label
                 htmlFor="email"
@@ -180,7 +187,8 @@ function LoginContent() {
             >
               {loading ? "ログイン中..." : "ログイン"}
             </button>
-          </form>
+            </form>
+          )}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">

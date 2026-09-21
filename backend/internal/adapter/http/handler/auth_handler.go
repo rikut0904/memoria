@@ -64,17 +64,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 
 	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
 
-	resp := AuthResponse{
-		ID:           user.ID,
-		Email:        user.Email,
-		DisplayName:  user.DisplayName,
-		Role:         user.Role,
-		Token:        sessionCookie,
-		RefreshToken: refreshToken,
-	}
-	if h.enableLocalStorageAuth {
-		resp.IDToken = idToken
-	}
+	resp := newAuthResponse(user.ID, user.Email, user.DisplayName, user.Role, sessionCookie, refreshToken, idToken, h.enableLocalStorageAuth)
 	return c.JSON(http.StatusOK, resp)
 }
 
@@ -83,8 +73,8 @@ type RefreshRequest struct {
 }
 
 type RefreshResponse struct {
-	Token        string `json:"token"`
-	RefreshToken string `json:"refresh_token"`
+	Token        string `json:"token,omitempty"`
+	RefreshToken string `json:"refresh_token,omitempty"`
 	IDToken      string `json:"id_token,omitempty"`
 }
 
@@ -105,13 +95,7 @@ func (h *AuthHandler) Refresh(c echo.Context) error {
 	}
 
 	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
-	resp := RefreshResponse{
-		Token:        sessionCookie,
-		RefreshToken: newRefresh,
-	}
-	if h.enableLocalStorageAuth {
-		resp.IDToken = idToken
-	}
+	resp := newRefreshResponse(sessionCookie, newRefresh, idToken, h.enableLocalStorageAuth)
 	return c.JSON(http.StatusOK, resp)
 }
 
@@ -142,17 +126,46 @@ func (h *AuthHandler) Signup(c echo.Context) error {
 
 	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
 
-	return c.JSON(http.StatusCreated, AuthResponse{
-		ID:          user.ID,
-		Email:       user.Email,
-		DisplayName: user.DisplayName,
-		Role:        user.Role,
-	})
+	resp := newAuthResponse(user.ID, user.Email, user.DisplayName, user.Role, sessionCookie, "", sessionCookie, h.enableLocalStorageAuth)
+	return c.JSON(http.StatusCreated, resp)
+}
+
+func newAuthResponse(id uint, email, displayName, role, sessionCookie, refreshToken, idToken string, includeTokens bool) AuthResponse {
+	resp := AuthResponse{
+		ID:          id,
+		Email:       email,
+		DisplayName: displayName,
+		Role:        role,
+	}
+	if includeTokens {
+		resp.Token = sessionCookie
+		resp.RefreshToken = refreshToken
+		resp.IDToken = idToken
+	}
+	return resp
+}
+
+func newRefreshResponse(sessionCookie, refreshToken, idToken string, includeTokens bool) RefreshResponse {
+	if !includeTokens {
+		return RefreshResponse{}
+	}
+	return RefreshResponse{
+		Token:        sessionCookie,
+		RefreshToken: refreshToken,
+		IDToken:      idToken,
+	}
 }
 
 func (h *AuthHandler) Logout(c echo.Context) error {
 	clearSessionCookie(c, h.secureCookie, h.cookieDomain)
 	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *AuthHandler) VerifyEmail(c echo.Context) error {
+	if err := h.authUsecase.VerifyEmail(c.QueryParam("token")); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "メール認証に失敗しました")
+	}
+	return c.HTML(http.StatusOK, "<h1>メール認証が完了しました</h1><p>ログイン画面に戻ってログインしてください。</p>")
 }
 
 func sanitizeBackPath(backPath string) string {

@@ -9,6 +9,9 @@ import (
 
 func main() {
 	cfg := config.Load()
+	if err := cfg.Validate(); err != nil {
+		log.Fatalf("invalid configuration: %v", err)
+	}
 
 	e, err := di.BuildServer(cfg)
 	if err != nil {

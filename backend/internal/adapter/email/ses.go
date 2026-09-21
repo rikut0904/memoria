@@ -19,7 +19,7 @@ type SESMailer struct {
 	textTemplate string
 }
 
-func NewSESMailer(region, accessKey, secretKey, fromEmail, baseURL, inviteTemplatePath string) (*SESMailer, error) {
+func NewSESMailer(region, accessKey, secretKey, fromEmail, baseURL, inviteTemplatePath, awsEndpoint string) (*SESMailer, error) {
 	if fromEmail == "" {
 		return nil, fmt.Errorf("SES_FROM_EMAIL is required")
 	}
@@ -30,6 +30,9 @@ func NewSESMailer(region, accessKey, secretKey, fromEmail, baseURL, inviteTempla
 	cfg := &aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
+	}
+	if awsEndpoint != "" {
+		cfg.Endpoint = aws.String(awsEndpoint)
 	}
 
 	sess, err := session.NewSession(cfg)
@@ -92,6 +95,22 @@ func (m *SESMailer) SendGroupInvite(email, role, token, groupName string, isExis
 	}
 
 	_, err := m.client.SendEmail(input)
+	return err
+}
+
+func (m *SESMailer) SendEmailVerification(email, verificationURL string) error {
+	textBody := fmt.Sprintf("メールアドレスの認証を完了するには、次のリンクを開いてください。\n\n%s\n\nこのメールに心当たりがない場合は破棄してください。", verificationURL)
+	_, err := m.client.SendEmail(&ses.SendEmailInput{
+		Source:      aws.String(m.from),
+		Destination: &ses.Destination{ToAddresses: []*string{aws.String(email)}},
+		Message: &ses.Message{
+			Subject: &ses.Content{Data: aws.String("Memoria メールアドレス認証"), Charset: aws.String("UTF-8")},
+			Body: &ses.Body{
+				Text: &ses.Content{Data: aws.String(textBody), Charset: aws.String("UTF-8")},
+				Html: &ses.Content{Data: aws.String(textToHTML(textBody)), Charset: aws.String("UTF-8")},
+			},
+		},
+	})
 	return err
 }
 

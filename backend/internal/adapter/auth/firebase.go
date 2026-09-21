@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"os"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
@@ -17,8 +18,19 @@ type FirebaseAuth struct {
 	tokenSource oauth2.TokenSource
 }
 
-func NewFirebaseAuth(projectID, clientEmail, privateKey string) (*FirebaseAuth, error) {
+func NewFirebaseAuth(projectID, clientEmail, privateKey, appEnv string) (*FirebaseAuth, error) {
 	ctx := context.Background()
+	if appEnv == "local" && os.Getenv("FIREBASE_AUTH_EMULATOR_HOST") != "" {
+		app, err := firebase.NewApp(ctx, &firebase.Config{ProjectID: projectID}, option.WithoutAuthentication())
+		if err != nil {
+			return nil, err
+		}
+		client, err := app.Auth(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return &FirebaseAuth{client: client}, nil
+	}
 
 	// Create service account credentials
 	credentials := map[string]string{
@@ -83,6 +95,11 @@ func (f *FirebaseAuth) CreateUser(ctx context.Context, params *auth.UserToCreate
 
 func (f *FirebaseAuth) DeleteUser(ctx context.Context, uid string) error {
 	return f.client.DeleteUser(ctx, uid)
+}
+
+func (f *FirebaseAuth) MarkEmailVerified(ctx context.Context, uid string) error {
+	_, err := f.client.UpdateUser(ctx, uid, (&auth.UserToUpdate{}).EmailVerified(true))
+	return err
 }
 
 func (f *FirebaseAuth) GetClient() *auth.Client {
