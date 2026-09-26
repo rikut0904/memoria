@@ -20,7 +20,12 @@ GitHub の Settings > Environments で `stg` と `prod` を作成し、それぞ
 - `RAILWAY_SERVICE_ID`: Backend用Railway service ID
 - `RAILWAY_ENVIRONMENT`: 対象Railway environment名またはID
 - `DATABASE_URL`: 対象環境のPostgreSQL接続URL
-- `VERCEL_TOKEN`: Vercel access token
+- `VERCEL_TOKEN_FRONTEND`: `frontend` 用Vercel access token
+- `VERCEL_TOKEN_AUTH`: `auth` 用Vercel access token
+- `VERCEL_TOKEN_ADMIN`: `admin` 用Vercel access token
+- `VERCEL_TOKEN_INFO`: `info` 用Vercel access token
+- `VERCEL_TOKEN_CONTACT`: `contact` 用Vercel access token
+- `VERCEL_TOKEN_HELP`: `help` 用Vercel access token
 - `VERCEL_ORG_ID`: Vercel teamまたはユーザーのID
 - `VERCEL_PROJECT_ID_FRONTEND`: `frontend` 用Vercel project ID
 - `VERCEL_PROJECT_ID_AUTH`: `auth` 用Vercel project ID

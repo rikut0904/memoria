@@ -92,7 +92,12 @@ jobs:
 
       - name: Deploy Vercel projects
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TOKEN_FRONTEND: ${{ secrets.VERCEL_TOKEN_FRONTEND }}
+          VERCEL_TOKEN_AUTH: ${{ secrets.VERCEL_TOKEN_AUTH }}
+          VERCEL_TOKEN_ADMIN: ${{ secrets.VERCEL_TOKEN_ADMIN }}
+          VERCEL_TOKEN_INFO: ${{ secrets.VERCEL_TOKEN_INFO }}
+          VERCEL_TOKEN_CONTACT: ${{ secrets.VERCEL_TOKEN_CONTACT }}
+          VERCEL_TOKEN_HELP: ${{ secrets.VERCEL_TOKEN_HELP }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID_FRONTEND: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
           VERCEL_PROJECT_ID_AUTH: ${{ secrets.VERCEL_PROJECT_ID_AUTH }}
@@ -102,7 +107,6 @@ jobs:
           VERCEL_PROJECT_ID_HELP: ${{ secrets.VERCEL_PROJECT_ID_HELP }}
         run: |
           set -euo pipefail
-          test -n "${VERCEL_TOKEN}"
           test -n "${VERCEL_ORG_ID}"
           declare -A projects=(
             [frontend]="${VERCEL_PROJECT_ID_FRONTEND}"
@@ -112,23 +116,32 @@ jobs:
             [contact]="${VERCEL_PROJECT_ID_CONTACT}"
             [help]="${VERCEL_PROJECT_ID_HELP}"
           )
+          declare -A tokens=(
+            [frontend]="${VERCEL_TOKEN_FRONTEND}"
+            [auth]="${VERCEL_TOKEN_AUTH}"
+            [admin]="${VERCEL_TOKEN_ADMIN}"
+            [info]="${VERCEL_TOKEN_INFO}"
+            [contact]="${VERCEL_TOKEN_CONTACT}"
+            [help]="${VERCEL_TOKEN_HELP}"
+          )
           for app in frontend auth admin info contact help; do
             test -n "${projects[$app]}"
+            test -n "${tokens[$app]}"
             (
               cd "${app}"
               npx --yes vercel@latest link --yes \
                 --project "${projects[$app]}" \
                 --scope "${VERCEL_ORG_ID}" \
-                --token "${VERCEL_TOKEN}"
+                --token "${tokens[$app]}"
               npx --yes vercel@latest pull --yes \
                 --environment=production \
                 --scope "${VERCEL_ORG_ID}" \
-                --token "${VERCEL_TOKEN}"
+                --token "${tokens[$app]}"
               npx --yes vercel@latest build --prod \
                 --scope "${VERCEL_ORG_ID}" \
-                --token "${VERCEL_TOKEN}"
+                --token "${tokens[$app]}"
               npx --yes vercel@latest deploy --prebuilt --prod \
                 --scope "${VERCEL_ORG_ID}" \
-                --token "${VERCEL_TOKEN}"
+                --token "${tokens[$app]}"
             )
           done
