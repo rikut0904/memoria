@@ -40,11 +40,11 @@
 - `stg`: 検証用Firebase/AWS/PostgreSQL
 - `prod`: 本番用Firebase/AWS/PostgreSQL
 
-### Railway へのデプロイ
+### デプロイ
 
-Backend を Railway にデプロイする手順は [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) を参照してください。
+デプロイの発火条件と `stg` / `prod` の設定は [doc/deployment.md](./doc/deployment.md) を参照してください。
 
-Railway は `DATABASE_URL` 環境変数に自動対応しています。
+デプロイ先は Railway、Vercel 等の環境別 deploy hook を利用できます。Railway は `DATABASE_URL` 環境変数に自動対応しています。
 
 ## セットアップ
 

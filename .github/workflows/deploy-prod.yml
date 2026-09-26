@@ -1,0 +1,130 @@
+name: CD prod
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "24"
+  GO_VERSION: "1.27"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: backend/go.sum
+
+      - name: Build backend
+        working-directory: backend
+        run: go build ./...
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build frontend applications
+        run: |
+          set -euo pipefail
+          for app in frontend auth admin info contact help; do
+            npm --prefix "${app}" ci --include=optional
+            npm --prefix "${app}" audit --audit-level=high
+            npm --prefix "${app}" run build
+          done
+
+  migrate:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      APP_ENV: prod
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: backend/go.sum
+
+      - name: Migrate database
+        working-directory: backend
+        run: go run ./cmd/migrate
+
+  deploy:
+    needs: [validate, migrate]
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Deploy backend
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+          RAILWAY_ENVIRONMENT: ${{ secrets.RAILWAY_ENVIRONMENT }}
+        run: |
+          set -euo pipefail
+          test -n "${RAILWAY_TOKEN}"
+          test -n "${RAILWAY_PROJECT_ID}"
+          test -n "${RAILWAY_SERVICE_ID}"
+          test -n "${RAILWAY_ENVIRONMENT}"
+          npm install --global @railway/cli
+          railway up ./backend \
+            --path-as-root \
+            --project "${RAILWAY_PROJECT_ID}" \
+            --environment "${RAILWAY_ENVIRONMENT}" \
+            --service "${RAILWAY_SERVICE_ID}" \
+            --ci
+
+      - name: Deploy Vercel projects
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID_FRONTEND: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+          VERCEL_PROJECT_ID_AUTH: ${{ secrets.VERCEL_PROJECT_ID_AUTH }}
+          VERCEL_PROJECT_ID_ADMIN: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
+          VERCEL_PROJECT_ID_INFO: ${{ secrets.VERCEL_PROJECT_ID_INFO }}
+          VERCEL_PROJECT_ID_CONTACT: ${{ secrets.VERCEL_PROJECT_ID_CONTACT }}
+          VERCEL_PROJECT_ID_HELP: ${{ secrets.VERCEL_PROJECT_ID_HELP }}
+        run: |
+          set -euo pipefail
+          test -n "${VERCEL_TOKEN}"
+          test -n "${VERCEL_ORG_ID}"
+          declare -A projects=(
+            [frontend]="${VERCEL_PROJECT_ID_FRONTEND}"
+            [auth]="${VERCEL_PROJECT_ID_AUTH}"
+            [admin]="${VERCEL_PROJECT_ID_ADMIN}"
+            [info]="${VERCEL_PROJECT_ID_INFO}"
+            [contact]="${VERCEL_PROJECT_ID_CONTACT}"
+            [help]="${VERCEL_PROJECT_ID_HELP}"
+          )
+          for app in frontend auth admin info contact help; do
+            test -n "${projects[$app]}"
+            (
+              cd "${app}"
+              npx --yes vercel@latest link --yes \
+                --project "${projects[$app]}" \
+                --scope "${VERCEL_ORG_ID}" \
+                --token "${VERCEL_TOKEN}"
+              npx --yes vercel@latest pull --yes \
+                --environment=production \
+                --scope "${VERCEL_ORG_ID}" \
+                --token "${VERCEL_TOKEN}"
+              npx --yes vercel@latest build --prod \
+                --scope "${VERCEL_ORG_ID}" \
+                --token "${VERCEL_TOKEN}"
+              npx --yes vercel@latest deploy --prebuilt --prod \
+                --scope "${VERCEL_ORG_ID}" \
+                --token "${VERCEL_TOKEN}"
+            )
+          done

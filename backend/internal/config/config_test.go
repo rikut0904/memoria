@@ -2,6 +2,34 @@ package config
 
 import "testing"
 
+func TestLoadDefaultsAutoMigrateOnlyForLocal(t *testing.T) {
+	t.Setenv("APP_ENV", "local")
+	t.Setenv("AUTO_MIGRATE", "")
+	if cfg := Load(); !cfg.AutoMigrate {
+		t.Fatal("expected auto-migration to be enabled for local")
+	}
+
+	t.Setenv("APP_ENV", "stg")
+	t.Setenv("AUTO_MIGRATE", "")
+	if cfg := Load(); cfg.AutoMigrate {
+		t.Fatal("expected auto-migration to be disabled by default outside local")
+	}
+}
+
+func TestLoadAllowsExplicitAutoMigrateOverride(t *testing.T) {
+	t.Setenv("APP_ENV", "prod")
+	t.Setenv("AUTO_MIGRATE", "true")
+	if cfg := Load(); !cfg.AutoMigrate {
+		t.Fatal("expected explicit AUTO_MIGRATE=true to enable auto-migration")
+	}
+
+	t.Setenv("APP_ENV", "local")
+	t.Setenv("AUTO_MIGRATE", "false")
+	if cfg := Load(); cfg.AutoMigrate {
+		t.Fatal("expected explicit AUTO_MIGRATE=false to disable auto-migration")
+	}
+}
+
 func validNonLocalConfig() Config {
 	return Config{
 		AppEnv:              "stg",
