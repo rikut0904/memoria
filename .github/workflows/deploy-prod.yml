@@ -1,4 +1,4 @@
-name: CD prod
+name: prod-deploy
 
 on:
   workflow_dispatch:
@@ -81,7 +81,7 @@ jobs:
           test -n "${RAILWAY_SERVICE_ID}"
           test -n "${RAILWAY_ENVIRONMENT}"
           npm install --global @railway/cli
-          railway up ./backend \
+          railway up . \
             --path-as-root \
             --project "${RAILWAY_PROJECT_ID}" \
             --environment "${RAILWAY_ENVIRONMENT}" \

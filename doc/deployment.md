@@ -39,4 +39,4 @@ GitHub の Settings > Environments で `stg` と `prod` を作成し、それぞ
 
 Backendの `AUTO_MIGRATE` は `stg` / `prod` では `false` にしてください。コード上のデフォルトもlocal以外は無効ですが、環境変数で明示的に `false` を設定します。アプリ起動時ではなく、CDの `migrate` jobだけがスキーマ変更を行います。
 
-Railway Backendは `backend` ディレクトリを `--path-as-root` で指定して、対象EnvironmentのServiceへデプロイします。Vercelの各プロジェクトは、GitHub Environmentごとに登録したproject IDへ `--prod` でデプロイします。stg用とprod用でVercelプロジェクトが分かれている場合は、各Environmentに異なるproject IDを登録してください。
+Railway Backendは `/` ディレクトリを `--path-as-root` で指定して、対象EnvironmentのServiceへデプロイします。Vercelの各プロジェクトは、GitHub Environmentごとに登録したproject IDへ `--prod` でデプロイします。stg用とprod用でVercelプロジェクトが分かれている場合は、各Environmentに異なるproject IDを登録してください。
