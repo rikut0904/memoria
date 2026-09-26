@@ -26,12 +26,6 @@ GitHub の Settings > Environments で `stg` と `prod` を作成し、それぞ
 - `VERCEL_TOKEN_INFO`: `info` 用Vercel access token
 - `VERCEL_TOKEN_CONTACT`: `contact` 用Vercel access token
 - `VERCEL_TOKEN_HELP`: `help` 用Vercel access token
-- `VERCEL_ORG_ID_FRONTEND`: `frontend` 用Vercel Team IDまたはslug
-- `VERCEL_ORG_ID_AUTH`: `auth` 用Vercel Team IDまたはslug
-- `VERCEL_ORG_ID_ADMIN`: `admin` 用Vercel Team IDまたはslug
-- `VERCEL_ORG_ID_INFO`: `info` 用Vercel Team IDまたはslug
-- `VERCEL_ORG_ID_CONTACT`: `contact` 用Vercel Team IDまたはslug
-- `VERCEL_ORG_ID_HELP`: `help` 用Vercel Team IDまたはslug
 - `VERCEL_PROJECT_ID_FRONTEND`: `frontend` 用Vercel project ID
 - `VERCEL_PROJECT_ID_AUTH`: `auth` 用Vercel project ID
 - `VERCEL_PROJECT_ID_ADMIN`: `admin` 用Vercel project ID
@@ -58,4 +52,4 @@ Releaseタグは `vX.Y.Z` 形式です。初回リリースで入力がない場
 
 Backendの `AUTO_MIGRATE` は `stg` / `prod` では `false` にしてください。コード上のデフォルトもlocal以外は無効ですが、環境変数で明示的に `false` を設定します。アプリ起動時ではなく、CDの `migrate` jobだけがスキーマ変更を行います。
 
-Railway Backendは `/` ディレクトリを `--path-as-root` で指定して、対象EnvironmentのServiceへデプロイします。Vercelの各プロジェクトは、GitHub Environmentごとに登録したproject IDへ `--prod` でデプロイします。stg用とprod用でVercelプロジェクトが分かれている場合は、各Environmentに異なるproject IDを登録してください。
+Railway Backendは `/` ディレクトリを `--path-as-root` で指定して、対象EnvironmentのServiceへデプロイします。個人Vercelアカウントのデフォルトscopeを使い、各プロジェクトはGitHub Environmentごとに登録したproject IDへ `--prod` でデプロイします。stg用とprod用でVercelプロジェクトが分かれている場合は、各Environmentに異なるproject IDを登録してください。
