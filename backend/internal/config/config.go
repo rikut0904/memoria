@@ -50,11 +50,16 @@ func Load() Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables")
 	}
+	appEnv := getEnv("APP_ENV", "local")
+	autoMigrate := appEnv == "local"
+	if raw := os.Getenv("AUTO_MIGRATE"); raw != "" {
+		autoMigrate = raw != "false"
+	}
 
 	cfg := Config{
-		AppEnv:      getEnv("APP_ENV", "local"),
+		AppEnv:      appEnv,
 		AppPort:     getEnv("APP_PORT", "8080"),
-		AutoMigrate: getEnv("AUTO_MIGRATE", "true") != "false",
+		AutoMigrate: autoMigrate,
 
 		FirebaseProjectID:        getEnv("FIREBASE_PROJECT_ID", ""),
 		FirebaseClientEmail:      getEnv("FIREBASE_CLIENT_EMAIL", ""),
@@ -67,7 +72,7 @@ func Load() Config {
 		AllowedOrigins:            getEnv("ALLOWED_ORIGINS", ""),
 		AllowedOriginSuffixes:     getEnv("ALLOWED_ORIGIN_SUFFIXES", ""),
 		CookieDomain:              getEnv("COOKIE_DOMAIN", ""),
-		EnableLocalStorageAuth:    getEnv("APP_ENV", "local") == "local",
+		EnableLocalStorageAuth:    appEnv == "local",
 		SESFromEmail:              getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),
 		SESInviteTemplatePath:     getEnv("SES_INVITE_TEMPLATE_PATH", ""),
 		AWSRegion:                 getEnv("AWS_REGION", "ap-northeast-1"),
