@@ -68,6 +68,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: stg
     steps:
+      - uses: actions/checkout@v4
+
       - name: Deploy backend
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
