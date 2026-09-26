@@ -40,7 +40,16 @@ GitHub の Settings > Environments で `stg` と `prod` を作成し、それぞ
 
 `main` への push では `stg` のみ自動デプロイされます。デプロイ前に専用の `migrate` job がデータベースを更新し、成功した場合だけRailway Backendと6つのVercelプロジェクトがデプロイされます。
 
-本番デプロイは Actions の `CD prod` workflow を選択して実行します。`prod` Environment に承認者を設定した場合、承認されるまでRailway/Vercelのデプロイ処理は開始されません。
+本番デプロイは Actions の `prod-deploy` workflow を選択して実行します。`prod` Environment に承認者を設定した場合、承認されるまでRailway/Vercelのデプロイ処理は開始されません。
+
+prodデプロイが成功すると、GitHub Releaseと自動生成のリリースノートを作成します。手動実行時のバージョン入力は次の規則で処理されます。
+
+- `major` のみ指定: `X.0.0`
+- `minor` のみ指定: 直前のバージョンのXを引き継いだ `X.Y.0`
+- `major` と `minor` を同時指定: エラー
+- どちらも未指定: 直前の `X.Y.Z` を引き継いだ `X.Y.(Z+1)`
+
+Releaseタグは `vX.Y.Z` 形式です。初回リリースで入力がない場合は `v0.0.1` になります。
 
 Backendの `AUTO_MIGRATE` は `stg` / `prod` では `false` にしてください。コード上のデフォルトもlocal以外は無効ですが、環境変数で明示的に `false` を設定します。アプリ起動時ではなく、CDの `migrate` jobだけがスキーマ変更を行います。
 
