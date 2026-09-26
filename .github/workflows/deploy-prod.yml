@@ -105,7 +105,12 @@ jobs:
           VERCEL_TOKEN_INFO: ${{ secrets.VERCEL_TOKEN_INFO }}
           VERCEL_TOKEN_CONTACT: ${{ secrets.VERCEL_TOKEN_CONTACT }}
           VERCEL_TOKEN_HELP: ${{ secrets.VERCEL_TOKEN_HELP }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_ORG_ID_FRONTEND: ${{ secrets.VERCEL_ORG_ID_FRONTEND }}
+          VERCEL_ORG_ID_AUTH: ${{ secrets.VERCEL_ORG_ID_AUTH }}
+          VERCEL_ORG_ID_ADMIN: ${{ secrets.VERCEL_ORG_ID_ADMIN }}
+          VERCEL_ORG_ID_INFO: ${{ secrets.VERCEL_ORG_ID_INFO }}
+          VERCEL_ORG_ID_CONTACT: ${{ secrets.VERCEL_ORG_ID_CONTACT }}
+          VERCEL_ORG_ID_HELP: ${{ secrets.VERCEL_ORG_ID_HELP }}
           VERCEL_PROJECT_ID_FRONTEND: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
           VERCEL_PROJECT_ID_AUTH: ${{ secrets.VERCEL_PROJECT_ID_AUTH }}
           VERCEL_PROJECT_ID_ADMIN: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
@@ -114,7 +119,6 @@ jobs:
           VERCEL_PROJECT_ID_HELP: ${{ secrets.VERCEL_PROJECT_ID_HELP }}
         run: |
           set -euo pipefail
-          test -n "${VERCEL_ORG_ID}"
           declare -A projects=(
             [frontend]="${VERCEL_PROJECT_ID_FRONTEND}"
             [auth]="${VERCEL_PROJECT_ID_AUTH}"
@@ -131,24 +135,33 @@ jobs:
             [contact]="${VERCEL_TOKEN_CONTACT}"
             [help]="${VERCEL_TOKEN_HELP}"
           )
+          declare -A orgs=(
+            [frontend]="${VERCEL_ORG_ID_FRONTEND}"
+            [auth]="${VERCEL_ORG_ID_AUTH}"
+            [admin]="${VERCEL_ORG_ID_ADMIN}"
+            [info]="${VERCEL_ORG_ID_INFO}"
+            [contact]="${VERCEL_ORG_ID_CONTACT}"
+            [help]="${VERCEL_ORG_ID_HELP}"
+          )
           for app in frontend auth admin info contact help; do
             test -n "${projects[$app]}"
             test -n "${tokens[$app]}"
+            test -n "${orgs[$app]}"
             (
               cd "${app}"
               npx --yes vercel@latest link --yes \
                 --project "${projects[$app]}" \
-                --scope "${VERCEL_ORG_ID}" \
+                --scope "${orgs[$app]}" \
                 --token "${tokens[$app]}"
               npx --yes vercel@latest pull --yes \
                 --environment=production \
-                --scope "${VERCEL_ORG_ID}" \
+                --scope "${orgs[$app]}" \
                 --token "${tokens[$app]}"
               npx --yes vercel@latest build --prod \
-                --scope "${VERCEL_ORG_ID}" \
+                --scope "${orgs[$app]}" \
                 --token "${tokens[$app]}"
               npx --yes vercel@latest deploy --prebuilt --prod \
-                --scope "${VERCEL_ORG_ID}" \
+                --scope "${orgs[$app]}" \
                 --token "${tokens[$app]}"
             )
           done
