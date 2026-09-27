@@ -44,7 +44,7 @@ export default function AppHeader({
           <Link href="/" className="py-2 block h-16">
             <Image
               src="/img/logo.png"
-              alt="Memoria"
+              alt="思い出memoria"
               width={200}
               height={64}
               className="h-full w-auto"

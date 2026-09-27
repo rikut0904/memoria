@@ -16,7 +16,7 @@ export default function InfoFooter() {
               <Link href="/">
                 <Image
                   src="/img/logo.png"
-                  alt="Memoria"
+                  alt="思い出memoria"
                   width={150}
                   height={48}
                   className="h-12 w-auto"
@@ -82,7 +82,8 @@ export default function InfoFooter() {
 
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} memoria. All rights reserved.
+            &copy; {new Date().getFullYear()} 思い出memoria. All rights
+            reserved.
           </p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link

@@ -199,7 +199,7 @@ export default function InviteAcceptPage() {
         <div className="card max-w-md w-full">
           <div className="text-center mb-6">
             <div className="text-3xl font-bold text-primary-600 mb-2">
-              Memoria
+              思い出memoria
             </div>
             <h2 className="text-xl font-semibold text-gray-800">
               グループ招待
@@ -276,7 +276,7 @@ export default function InviteAcceptPage() {
       <div className="card max-w-md w-full">
         <div className="text-center mb-8">
           <div className="text-3xl font-bold text-primary-600 mb-2">
-            Memoria
+            思い出memoria
           </div>
           <h2 className="text-xl font-semibold text-gray-800">
             招待を受け取りました

@@ -102,7 +102,7 @@ export default function InfoPage() {
             >
               <Image
                 src="/img/hero.png"
-                alt="Memoriaアプリのイメージ"
+                alt="思い出memoriaアプリのイメージ"
                 width={800}
                 height={600}
                 className="w-full rounded-2xl shadow-2xl"

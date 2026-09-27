@@ -75,7 +75,7 @@ export default function ContactPage() {
               お問い合わせ
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              memoriaに関するご質問や不具合の報告をお送りください
+              思い出memoriaに関するご質問や不具合の報告をお送りください
             </p>
           </div>
 

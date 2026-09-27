@@ -64,7 +64,7 @@ func (m *SESMailer) SendGroupInvite(email, role, token, groupName string, isExis
 		roleLabel = "グループ管理者"
 	}
 
-	subject := "Memoria グループ招待のお知らせ"
+	subject := "思い出memoria グループ招待のお知らせ"
 	textBody := m.defaultGroupInviteBody(inviteURL, roleLabel, groupName, isExisting)
 	if m.textTemplate != "" {
 		textBody = applyTemplate(m.textTemplate, inviteURL, roleLabel, email, groupName, isExisting)
@@ -104,7 +104,7 @@ func (m *SESMailer) SendEmailVerification(email, verificationURL string) error {
 		Source:      aws.String(m.from),
 		Destination: &ses.Destination{ToAddresses: []*string{aws.String(email)}},
 		Message: &ses.Message{
-			Subject: &ses.Content{Data: aws.String("Memoria メールアドレス認証"), Charset: aws.String("UTF-8")},
+			Subject: &ses.Content{Data: aws.String("思い出memoria メールアドレス認証"), Charset: aws.String("UTF-8")},
 			Body: &ses.Body{
 				Text: &ses.Content{Data: aws.String(textBody), Charset: aws.String("UTF-8")},
 				Html: &ses.Content{Data: aws.String(textToHTML(textBody)), Charset: aws.String("UTF-8")},
