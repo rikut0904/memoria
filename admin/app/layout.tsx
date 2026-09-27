@@ -5,7 +5,7 @@ import "./globals.css";
 import TokenBridge from "./token-bridge";
 import LogoutSync from "./logout-sync";
 
-const siteTitle = "Memoria - 管理";
+const siteTitle = "思い出memoria";
 const siteDescription =
   "大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。";
 const siteImages = ["/img/app.png"];

@@ -4,7 +4,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import LogoutSync from "./logout-sync";
 
-const siteTitle = "Memoria - ログイン";
+const siteTitle = "思い出memoria | ログイン";
 const siteDescription =
   "大切な思い出を安全にプライベートに保存・共有できるWebアプリケーションです。";
 const siteImages = ["/img/app.png"];

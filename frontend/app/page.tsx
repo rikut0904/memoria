@@ -88,7 +88,7 @@ export default function Home() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl font-bold text-primary-600 mb-4">
-            Memoria
+            思い出memoria
           </div>
           <p className="text-gray-600">読み込み中...</p>
         </div>
@@ -146,7 +146,7 @@ export default function Home() {
             <div>
               <h1>思い出を、ひとつの場所に</h1>
               <p className="text-sm text-gray-600">
-                Memoriaは、写真・投稿・旅行の記録をグループ単位でまとめて保存できます。
+                思い出memoriaは、写真・投稿・旅行の記録をグループ単位でまとめて保存できます。
                 まずは参加するグループを選ぶか、新しいグループを作成してください。
               </p>
             </div>

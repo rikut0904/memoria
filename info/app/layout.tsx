@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import "./globals.css";
 import TokenBridge from "./token-bridge";
 
-const siteTitle = "Memoria - インフォメーション";
-const siteDescription = "Memoriaのインフォメーションページです。";
+const siteTitle = "思い出memoria - インフォメーション";
+const siteDescription = "思い出memoriaのインフォメーションページです。";
 const siteImages = ["/img/app.png"];
 
 export const metadata: Metadata = {

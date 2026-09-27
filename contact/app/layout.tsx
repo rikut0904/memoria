@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import "./globals.css";
 import TokenBridge from "./token-bridge";
 
-const siteTitle = "Memoria - お問い合わせ";
-const siteDescription = "memoriaに関するご質問や不具合の報告をお送りください。";
+const siteTitle = "思い出memoria";
+const siteDescription = "思い出memoriaに関するご質問や不具合の報告をお送りください。";
 const siteImages = ["/img/app.png"];
 
 export const metadata: Metadata = {
