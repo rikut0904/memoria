@@ -13,7 +13,7 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Start local services
         run: docker compose up -d --build postgres firebase ministack backend
       - name: Wait for backend health
