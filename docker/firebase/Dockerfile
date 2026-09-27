@@ -1,4 +1,4 @@
-FROM node:22-alpine
+FROM node:26-alpine
 WORKDIR /app
 RUN apk add --no-cache openjdk17-jre-headless \
   && npm install --global firebase-tools@13.35.1
