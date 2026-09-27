@@ -12,25 +12,6 @@ import (
 )
 
 func NewDB(cfg config.Config) (*gorm.DB, error) {
-	db, err := ConnectDB(cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	// Auto-migrate all models (can be disabled via AUTO_MIGRATE=false)
-	if cfg.AutoMigrate {
-		if err := Migrate(db); err != nil {
-			return nil, err
-		}
-	} else {
-		log.Println("Auto-migration is disabled")
-	}
-
-	return db, nil
-}
-
-// ConnectDB opens a database connection without changing the schema.
-func ConnectDB(cfg config.Config) (*gorm.DB, error) {
 	sslMode := cfg.DBSSLMode
 	if sslMode == "" {
 		sslMode = "disable"
@@ -51,12 +32,20 @@ func ConnectDB(cfg config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
+	// Auto-migrate all models (can be disabled via AUTO_MIGRATE=false)
+	if cfg.AutoMigrate {
+		if err := autoMigrate(db); err != nil {
+			return nil, err
+		}
+	} else {
+		log.Println("Auto-migration is disabled")
+	}
+
 	return db, nil
 }
 
-// Migrate applies the current model schema to the database.
-func Migrate(db *gorm.DB) error {
-	log.Println("Running database migration...")
+func autoMigrate(db *gorm.DB) error {
+	log.Println("Running auto-migration...")
 
 	models := []interface{}{
 		&model.User{},
@@ -88,9 +77,9 @@ func Migrate(db *gorm.DB) error {
 	}
 
 	if err := db.AutoMigrate(models...); err != nil {
-		return fmt.Errorf("failed to migrate database: %w", err)
+		return fmt.Errorf("failed to auto-migrate: %w", err)
 	}
 
-	log.Println("Database migration completed successfully")
+	log.Println("Auto-migration completed successfully")
 	return nil
 }
