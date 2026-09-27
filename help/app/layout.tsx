@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import TokenBridge from "./token-bridge";
 
-const siteTitle = "思い出memoria - ヘルプ";
+const siteTitle = "思い出memoria";
 const siteDescription = "思い出memoriaのヘルプページです。";
 const siteImages = ["/img/app.png"];
 
