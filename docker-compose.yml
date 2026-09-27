@@ -46,6 +46,18 @@ services:
     volumes:
       - memoria_ministack_data:/data
       - ./docker/ministack/init.sh:/etc/localstack/init/ready.d/init.sh:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test
+          AWS_DEFAULT_REGION=ap-northeast-1
+          aws --endpoint-url=http://localhost:4566 s3api head-bucket
+          --bucket memoria-local >/dev/null 2>&1
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 2s
 
   backend:
     build:
@@ -85,7 +97,7 @@ services:
       firebase:
         condition: service_started
       ministack:
-        condition: service_started
+        condition: service_healthy
 
   frontend:
     build:
