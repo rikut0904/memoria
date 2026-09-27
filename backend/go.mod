@@ -9,6 +9,8 @@ require (
 	github.com/labstack/echo/v4 v4.15.4
 	golang.org/x/oauth2 v0.37.0
 	google.golang.org/api v0.299.0
+	gorm.io/driver/postgres v1.6.3
+	gorm.io/gorm v1.31.2
 )
 
 require (
@@ -42,7 +44,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.24.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.9.2 // indirect
+	github.com/jackc/pgx/v5 v5.10.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
