@@ -22,6 +22,7 @@ const featuresDetail = [
     ],
   },
   {
+    emoji: "\u{1F4DD}",
     title: "投稿機能",
     description: "日々の思い出をテキストと共に記録",
     details: [
@@ -37,6 +38,7 @@ const featuresDetail = [
     ],
   },
   {
+    emoji: "\u{1F4F7}",
     title: "アルバム・写真管理",
     description: "写真を整理して、思い出をアルバムに",
     details: [
@@ -52,6 +54,7 @@ const featuresDetail = [
     ],
   },
   {
+    emoji: "\u{1F50E}",
     title: "タグ検索",
     description: "タグを使って思い出を簡単に検索",
     details: [
@@ -67,6 +70,7 @@ const featuresDetail = [
     ],
   },
   {
+    emoji: "\u{1F4AC}",
     title: "いいね・コメント",
     description: "グループメンバーとコミュニケーション",
     details: [
@@ -82,6 +86,7 @@ const featuresDetail = [
     ],
   },
   {
+    emoji: "\u{1F5FA}\u{FE0F}",
     title: "旅行計画",
     description: "旅行のスケジュール・予算を一元管理",
     details: [
@@ -106,13 +111,13 @@ export default function FeaturesDetailPage() {
       <InfoHeader />
 
       {/* メインコンテンツ */}
-      <main className="container py-16">
-        <div className="max-w-4xl mx-auto">
+      <main className="container pb-16">
+        <div className="max-w-4xl mx-auto mt-16 sm:mt-20 lg:mt-24">
           {/* ヘッダー */}
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               充実した機能
-            </h2>
+            </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
               思い出memoriaが提供する全ての機能を詳しく紹介します
             </p>
@@ -120,12 +125,12 @@ export default function FeaturesDetailPage() {
 
           {/* 機能詳細 */}
           <div className="space-y-12">
-            {featuresDetail.map((feature, index) => (
+            {featuresDetail.map((feature) => (
               <div
-                key={index}
-                className="p-8 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
+                key={feature.title}
+                className="p-6 sm:p-8 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white/70 dark:bg-gray-900/30 shadow-sm hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
               >
-                <div className="flex items-start gap-6">
+                <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-6">
                   <div className="flex-shrink-0">
                     <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900 rounded-xl flex items-center justify-center text-3xl">
                       {feature.emoji}
@@ -168,7 +173,7 @@ export default function FeaturesDetailPage() {
                             key={i}
                             className="flex items-start gap-3 text-gray-700 dark:text-gray-300"
                           >
-                            <span className="text-yellow-500 font-bold mt-1">
+                            <span className="text-primary-500 dark:text-primary-300 font-bold mt-1">
                               &#9733;
                             </span>
                             <span>{benefit}</span>

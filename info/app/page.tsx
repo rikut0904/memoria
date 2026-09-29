@@ -80,7 +80,7 @@ export default function InfoPage() {
                   今すぐ始める
                 </a>
                 <Link
-                  href="/features-detail"
+                  href="/features"
                   className="px-8 py-3 border-2 border-gray-300 dark:border-gray-600 hover:border-primary-600 hover:text-primary-600 dark:hover:border-primary-400 dark:hover:text-primary-400 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-colors text-center"
                 >
                   詳細を見る

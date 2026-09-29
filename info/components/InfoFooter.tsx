@@ -32,7 +32,7 @@ export default function InfoFooter() {
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <Link
-                  href="/features-detail"
+                  href="/features"
                   className="hover:text-white transition-colors"
                 >
                   機能詳細

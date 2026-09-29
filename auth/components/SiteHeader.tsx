@@ -35,7 +35,7 @@ export default function SiteHeader() {
             サービス紹介
           </a>
           <a
-            href={`${INFO_BASE_URL}/features-detail`}
+            href={`${INFO_BASE_URL}/features`}
             className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             機能詳細
@@ -92,7 +92,7 @@ export default function SiteHeader() {
             サービス紹介
           </a>
           <a
-            href={`${INFO_BASE_URL}/features-detail`}
+            href={`${INFO_BASE_URL}/features`}
             className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700"
           >
             機能詳細

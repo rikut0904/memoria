@@ -39,7 +39,7 @@ export default function SiteHeader() {
         </a>
         <div className="hidden items-center gap-2 sm:flex">
           <a href={INFO_BASE_URL} className={linkClass}>サービス紹介</a>
-          <a href={`${INFO_BASE_URL}/features-detail`} className={linkClass}>機能詳細</a>
+          <a href={`${INFO_BASE_URL}/features`} className={linkClass}>機能詳細</a>
           <a href={HELP_BASE_URL} className={linkClass}>ヘルプ</a>
           <a href={CONTACT_BASE_URL} className={linkClass}>お問い合わせ</a>
           <a href={startUrl} className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">アプリを開く</a>
@@ -52,7 +52,7 @@ export default function SiteHeader() {
       <div id="help-mobile-menu" className={`border-t border-gray-200 ${menuOpen ? "block" : "hidden"} sm:hidden`}>
         <div className="container flex flex-col gap-2 py-3">
           <a href={INFO_BASE_URL} className={mobileLinkClass}>サービス紹介</a>
-          <a href={`${INFO_BASE_URL}/features-detail`} className={mobileLinkClass}>機能詳細</a>
+          <a href={`${INFO_BASE_URL}/features`} className={mobileLinkClass}>機能詳細</a>
           <a href={HELP_BASE_URL} className={mobileLinkClass}>ヘルプ</a>
           <a href={CONTACT_BASE_URL} className={mobileLinkClass}>お問い合わせ</a>
           <a href={startUrl} className="rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-700">アプリを開く</a>
