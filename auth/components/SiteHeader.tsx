@@ -88,7 +88,10 @@ export default function SiteHeader() {
         className={`sm:hidden border-t border-gray-200 ${menuOpen ? "block" : "hidden"}`}
       >
         <div className="container flex flex-col gap-2 py-3">
-          <a href={INFO_BASE_URL} className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700">
+          <a
+            href={INFO_BASE_URL}
+            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700"
+          >
             サービス紹介
           </a>
           <a

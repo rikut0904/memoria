@@ -48,7 +48,10 @@ export default function AppHeader({
     <header className="sticky top-0 z-40 border-b border-gray-200/80 bg-white/95 shadow-sm backdrop-blur">
       <div className={`${maxWidthClassName} mx-auto px-4 sm:px-6 lg:px-8`}>
         <div className="flex min-h-20 items-center justify-between gap-4">
-          <Link href="/" className="block h-16 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+          <Link
+            href="/"
+            className="block h-16 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          >
             <Image
               src="/img/logo.png"
               alt="思い出memoria"
@@ -61,7 +64,11 @@ export default function AppHeader({
             {(displayName || email) && (
               <div
                 className="flex min-w-0 items-center gap-2 rounded-full border border-gray-200 bg-white py-1.5 pl-1.5 pr-3 text-gray-700 shadow-sm"
-                title={email && email !== userLabel ? `${userLabel}（${email}）` : userLabel}
+                title={
+                  email && email !== userLabel
+                    ? `${userLabel}（${email}）`
+                    : userLabel
+                }
                 aria-label={`ログイン中: ${userLabel}`}
               >
                 <span

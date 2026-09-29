@@ -11,7 +11,8 @@ export default function InfoCTA() {
           今すぐ始めよう
         </h2>
         <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-          大切な思い出を安全に保存し、家族や友人と共有しましょう。<br />
+          大切な思い出を安全に保存し、家族や友人と共有しましょう。
+          <br />
           思い出memoriaがあなたの思い出を特別なものにします。
         </p>
         <a
