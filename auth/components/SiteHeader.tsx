@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 
+const APP_BASE_URL =
+  process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:3000";
 const INFO_BASE_URL =
   process.env.NEXT_PUBLIC_INFO_BASE_URL || "http://localhost:3004";
 const HELP_BASE_URL =
@@ -25,30 +27,36 @@ export default function SiteHeader() {
             className="h-full w-auto"
           />
         </a>
-        <div className="hidden sm:flex items-center gap-2 sm:gap-4">
+        <div className="hidden sm:flex items-center gap-2 sm:gap-3">
+          <a
+            href={INFO_BASE_URL}
+            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          >
+            サービス紹介
+          </a>
           <a
             href={`${INFO_BASE_URL}/features-detail`}
-            className="text-sm px-3 py-1.5 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             機能詳細
           </a>
           <a
-            href={`${INFO_BASE_URL}/tech-stack`}
-            className="text-sm px-3 py-1.5 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400"
+            href={HELP_BASE_URL}
+            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
-            技術スタック
+            ヘルプ
           </a>
           <a
             href={CONTACT_BASE_URL}
-            className="text-sm px-3 py-1.5 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             お問い合わせ
           </a>
           <a
-            href={HELP_BASE_URL}
-            className="text-sm px-3 py-1.5 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400"
+            href={APP_BASE_URL}
+            className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
-            ヘルプ
+            アプリを開く
           </a>
         </div>
         <button
@@ -80,29 +88,32 @@ export default function SiteHeader() {
         className={`sm:hidden border-t border-gray-100 dark:border-gray-800 ${menuOpen ? "block" : "hidden"}`}
       >
         <div className="container flex flex-col gap-2 py-3">
+          <a href={INFO_BASE_URL} className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700">
+            サービス紹介
+          </a>
           <a
             href={`${INFO_BASE_URL}/features-detail`}
-            className="text-sm px-3 py-2 rounded-lg transition-colors text-gray-600 dark:text-gray-300 hover:text-primary-700 dark:hover:text-primary-400"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700"
           >
             機能詳細
           </a>
           <a
-            href={`${INFO_BASE_URL}/tech-stack`}
-            className="text-sm px-3 py-2 rounded-lg transition-colors text-gray-600 dark:text-gray-300 hover:text-primary-700 dark:hover:text-primary-400"
+            href={HELP_BASE_URL}
+            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700"
           >
-            技術スタック
+            ヘルプ
           </a>
           <a
             href={CONTACT_BASE_URL}
-            className="text-sm px-3 py-2 rounded-lg transition-colors text-gray-600 dark:text-gray-300 hover:text-primary-700 dark:hover:text-primary-400"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700"
           >
             お問い合わせ
           </a>
           <a
-            href={HELP_BASE_URL}
-            className="text-sm px-3 py-2 rounded-lg transition-colors text-gray-600 dark:text-gray-300 hover:text-primary-700 dark:hover:text-primary-400"
+            href={APP_BASE_URL}
+            className="rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-700"
           >
-            ヘルプ
+            アプリを開く
           </a>
         </div>
       </div>

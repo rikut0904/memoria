@@ -124,8 +124,9 @@ services:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
         NEXT_PUBLIC_APP_BASE_URL: http://localhost:23000
         NEXT_PUBLIC_ADMIN_BASE_URL: http://localhost:23002
-        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
         NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
+        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
+        NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
         NEXT_PUBLIC_APP_ENV: local
     container_name: memoria_auth
     environment:
@@ -159,7 +160,11 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
+        NEXT_PUBLIC_APP_BASE_URL: http://localhost:23000
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
+        NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
+        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
+        NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
     container_name: memoria_help
     environment:
       PORT: 23003
@@ -175,7 +180,10 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
+        NEXT_PUBLIC_APP_BASE_URL: http://localhost:23000
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
+        NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
+        NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
         NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
     container_name: memoria_info
     environment:
@@ -192,8 +200,10 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
+        NEXT_PUBLIC_APP_BASE_URL: http://localhost:23000
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
+        NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
     container_name: memoria_contact
     environment:
       PORT: 23005
