@@ -212,7 +212,6 @@ export default function DashboardPage() {
             onClick={() => router.push(`/${groupIdParam}/posts`)}
             className="card hover:shadow-lg transition-shadow text-center"
           >
-            <div className="text-4xl mb-2">📝</div>
             <div className="font-semibold text-gray-800">投稿一覧</div>
             <p className="text-sm text-gray-600 mt-1">すべての投稿を見る</p>
           </button>
@@ -221,7 +220,6 @@ export default function DashboardPage() {
             onClick={() => router.push(`/${groupIdParam}/albums`)}
             className="card hover:shadow-lg transition-shadow text-center"
           >
-            <div className="text-4xl mb-2">📸</div>
             <div className="font-semibold text-gray-800">アルバム一覧</div>
             <p className="text-sm text-gray-600 mt-1">すべてのアルバムを見る</p>
           </button>
@@ -230,7 +228,6 @@ export default function DashboardPage() {
             onClick={() => router.push(`/${groupIdParam}/trips`)}
             className="card hover:shadow-lg transition-shadow text-center"
           >
-            <div className="text-4xl mb-2">🧳</div>
             <div className="font-semibold text-gray-800">旅行</div>
             <p className="text-sm text-gray-600 mt-1">旅行の予定を管理</p>
           </button>
@@ -245,7 +242,6 @@ export default function DashboardPage() {
               disabled={!groupId}
               className="card hover:shadow-lg transition-shadow text-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <div className="text-4xl mb-2">👥</div>
               <div className="font-semibold text-gray-800">招待・管理</div>
               <p className="text-sm text-gray-600 mt-1">
                 メンバー招待と権限管理

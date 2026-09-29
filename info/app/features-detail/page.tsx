@@ -22,7 +22,6 @@ const featuresDetail = [
     ],
   },
   {
-    emoji: "\u{1F4DD}",
     title: "投稿機能",
     description: "日々の思い出をテキストと共に記録",
     details: [
@@ -38,7 +37,6 @@ const featuresDetail = [
     ],
   },
   {
-    emoji: "\u{1F5BC}\uFE0F",
     title: "アルバム・写真管理",
     description: "写真を整理して、思い出をアルバムに",
     details: [
@@ -54,7 +52,6 @@ const featuresDetail = [
     ],
   },
   {
-    emoji: "\u{1F3F7}\uFE0F",
     title: "タグ検索",
     description: "タグを使って思い出を簡単に検索",
     details: [
@@ -70,7 +67,6 @@ const featuresDetail = [
     ],
   },
   {
-    emoji: "\u{2764}\uFE0F",
     title: "いいね・コメント",
     description: "グループメンバーとコミュニケーション",
     details: [
@@ -86,7 +82,6 @@ const featuresDetail = [
     ],
   },
   {
-    emoji: "\u{2708}\uFE0F",
     title: "旅行計画",
     description: "旅行のスケジュール・予算を一元管理",
     details: [

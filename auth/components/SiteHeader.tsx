@@ -16,7 +16,7 @@ export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
+    <nav className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/95 shadow-sm backdrop-blur">
       <div className="container flex items-center justify-between py-4">
         <a href={INFO_BASE_URL} className="py-2 block h-16">
           <Image
@@ -85,7 +85,7 @@ export default function SiteHeader() {
       </div>
       <div
         id="auth-mobile-menu"
-        className={`sm:hidden border-t border-gray-100 dark:border-gray-800 ${menuOpen ? "block" : "hidden"}`}
+        className={`sm:hidden border-t border-gray-200 ${menuOpen ? "block" : "hidden"}`}
       >
         <div className="container flex flex-col gap-2 py-3">
           <a href={INFO_BASE_URL} className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700">
