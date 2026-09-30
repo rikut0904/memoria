@@ -7,7 +7,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/server ./cmd/server
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/create-admin ./cmd/create-admin
 
-FROM alpine:3.20
+FROM alpine:3.24
 WORKDIR /app
 RUN apk add --no-cache tzdata \
     && adduser -D appuser
