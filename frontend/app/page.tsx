@@ -115,7 +115,7 @@ export default function Home() {
                   const url = new URL("/", adminBase);
                   window.location.href = url.toString();
                 }}
-                className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
               >
                 管理画面
               </button>
@@ -132,7 +132,7 @@ export default function Home() {
                   router.push(buildLoginUrl(getCurrentPathWithQuery()));
                 }
               }}
-              className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             >
               ログアウト
             </button>

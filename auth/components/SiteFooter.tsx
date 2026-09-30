@@ -33,7 +33,7 @@ export default function SiteFooter() {
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <a
-                  href={`${INFO_BASE_URL}/features-detail`}
+                  href={`${INFO_BASE_URL}/features`}
                   className="hover:text-white transition-colors"
                 >
                   機能詳細
