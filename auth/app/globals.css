@@ -3,15 +3,15 @@
 
 /* カラーパレット */
 :root {
-  --background: #faf5ff;
-  --foreground: #171717;
-  --primary-color: #6b46c1;
-  --primary-light: #f5ebff;
+  --background: #fbf9fd;
+  --foreground: #302936;
+  --primary-color: #876b9d;
+  --primary-light: #f4eff8;
   --card-background: #ffffff;
   --card-border: #d1d5db;
-  --accordion-background: #f5ebff;
+  --accordion-background: #f4eff8;
   --header-color: var(--text-heading);
-  --text-heading: #6b46c1;
+  --text-heading: #705681;
   --text-body: #4b5563;
   --input-background: #ffffff;
   --input-border: #d1d5db;
@@ -21,15 +21,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #121212;
-    --foreground: #b0b0b0;
-    --primary-color: #a78bfa;
-    --primary-light: #1a1625;
+    --background: #19171c;
+    --foreground: #ded7e2;
+    --primary-color: #bba6cd;
+    --primary-light: #29232e;
     --card-background: #1e1e1e;
     --card-border: #2d2d2d;
-    --accordion-background: #1a1625;
+    --accordion-background: #29232e;
     --header-color: var(--text-heading);
-    --text-heading: #c4b5fd;
+    --text-heading: #c9bad2;
     --text-body: #9ca3af;
     --input-background: #252525;
     --input-border: #404040;

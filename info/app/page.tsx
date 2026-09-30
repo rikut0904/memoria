@@ -12,33 +12,27 @@ const APP_BASE_URL =
 
 const features = [
   {
-    emoji: "\u{1F465}",
     title: "グループ管理",
     description: "家族や友人とグループを作成し、思い出をまとめて管理できます。",
   },
   {
-    emoji: "\u{1F4DD}",
     title: "投稿機能",
     description: "ブログやメモとして、日々の思い出を記録・共有できます。",
   },
   {
-    emoji: "\u{1F5BC}\uFE0F",
     title: "アルバム・写真管理",
     description: "大切な写真をアルバムで整理し、安全に保存できます。",
   },
   {
-    emoji: "\u{1F3F7}\uFE0F",
     title: "タグ検索",
     description: "タグを使用して、思い出を簡単に検索・整理できます。",
   },
   {
-    emoji: "\u{2764}\uFE0F",
     title: "いいね・コメント",
     description:
       "グループメンバーと思い出を共有し、コミュニケーションできます。",
   },
   {
-    emoji: "\u{2708}\uFE0F",
     title: "旅行計画",
     description: "旅行のスケジュール、交通、宿泊、予算を一元管理できます。",
   },
@@ -86,7 +80,7 @@ export default function InfoPage() {
                   今すぐ始める
                 </a>
                 <Link
-                  href="/features-detail"
+                  href="/features"
                   className="px-8 py-3 border-2 border-gray-300 dark:border-gray-600 hover:border-primary-600 hover:text-primary-600 dark:hover:border-primary-400 dark:hover:text-primary-400 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-colors text-center"
                 >
                   詳細を見る
@@ -133,9 +127,6 @@ export default function InfoPage() {
                 }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="mb-4 inline-block p-3 bg-primary-100 dark:bg-primary-900 rounded-lg text-2xl">
-                  {feature.emoji}
-                </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   {feature.title}
                 </h3>
@@ -164,21 +155,18 @@ export default function InfoPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                emoji: "\u{1F5FA}\uFE0F",
                 title: "旅行計画",
                 description:
                   "目的地、日程、予算、宿泊地をまとめて管理。家族や友人と計画を共有できます。",
                 items: ["日程管理", "予算追跡", "宿泊地情報"],
               },
               {
-                emoji: "\u{1F4F8}",
                 title: "旅中の記録",
                 description:
                   "旅行中に撮った写真や動画、思い出をリアルタイムで投稿・共有。",
                 items: ["写真・動画投稿", "リアルタイム共有", "位置情報タグ"],
               },
               {
-                emoji: "\u{1F381}",
                 title: "思い出の整理",
                 description:
                   "旅行の思い出をアルバム化し、後から見返して楽しめます。",
@@ -189,7 +177,6 @@ export default function InfoPage() {
                 key={index}
                 className="p-8 bg-white dark:bg-[#1e1e1e] rounded-xl shadow-sm hover:shadow-lg transition-all duration-300"
               >
-                <div className="mb-4 text-4xl">{card.emoji}</div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
                   {card.title}
                 </h3>

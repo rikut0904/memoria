@@ -38,7 +38,6 @@ export default function OverviewTab({
               <ul className="space-y-2 text-sm text-gray-700">
                 {trip.albums.map((album) => (
                   <li key={album.id} className="flex items-start gap-2">
-                    <span className="text-gray-400">📷</span>
                     <div>
                       <p className="font-medium">{album.title}</p>
                       {album.description && (
@@ -63,7 +62,6 @@ export default function OverviewTab({
               <ul className="space-y-2 text-sm text-gray-700">
                 {trip.posts.map((post) => (
                   <li key={post.id} className="flex items-start gap-2">
-                    <span className="text-gray-400">📝</span>
                     <div>
                       <p className="font-medium">
                         {post.title || "(タイトルなし)"}
