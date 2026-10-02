@@ -23,13 +23,13 @@ export default function InfoFooter() {
                 />
               </Link>
             </div>
-            <p className="text-gray-400 mb-4">
+            <p className="text-white mb-4">
               大切な思い出を、いつでも、どこでも。
             </p>
           </div>
           <div>
             <h4 className="text-white font-bold mb-4">サービス</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2 text-sm text-white">
               <li>
                 <Link
                   href="/features"
@@ -50,7 +50,7 @@ export default function InfoFooter() {
           </div>
           <div>
             <h4 className="text-white font-bold mb-4">サポート</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2 text-sm text-white">
               <li>
                 <a
                   href={CONTACT_BASE_URL}
@@ -72,29 +72,29 @@ export default function InfoFooter() {
           <div>
             <h4 className="text-white font-bold mb-4">連絡先</h4>
             <a
-              href="mailto:contact@ml.omoide-memoria.com"
-              className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-sm"
+              href="mailto:contact@omoide-memoria.com"
+              className="text-white hover:text-white transition-colors flex items-center gap-2 text-sm"
             >
-              {"\u{2709}\uFE0F"} contact@ml.omoide-memoria.com
+              {"\u{2709}\uFE0F"} contact@omoide-memoria.com
             </a>
           </div>
         </div>
 
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-white">
             &copy; {new Date().getFullYear()} 思い出memoria. All rights
             reserved.
           </p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link
               href="/terms"
-              className="text-sm text-gray-400 hover:text-white transition-colors"
+              className="text-sm text-white hover:text-white transition-colors"
             >
               利用規約
             </Link>
             <Link
               href="/privacy"
-              className="text-sm text-gray-400 hover:text-white transition-colors"
+              className="text-sm text-white hover:text-white transition-colors"
             >
               プライバシーポリシー
             </Link>

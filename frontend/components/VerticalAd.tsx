@@ -1,10 +1,37 @@
 "use client";
 
-import Script from "next/script";
+import { useEffect, useRef } from "react";
+
+type AdSenseWindow = Window & {
+  adsbygoogle?: Array<Record<string, never>>;
+};
 
 export default function VerticalAd() {
+  const adContainerRef = useRef<HTMLDivElement>(null);
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    const container = adContainerRef.current;
+    if (!container) return;
+
+    const initializeAd = () => {
+      if (initializedRef.current || container.getBoundingClientRect().width <= 0) {
+        return;
+      }
+
+      initializedRef.current = true;
+      const adsWindow = window as AdSenseWindow;
+      (adsWindow.adsbygoogle = adsWindow.adsbygoogle || []).push({});
+    };
+
+    initializeAd();
+    const observer = new ResizeObserver(initializeAd);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="auth-ad">
+    <div ref={adContainerRef} className="auth-ad">
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}
@@ -12,13 +39,6 @@ export default function VerticalAd() {
         data-ad-slot="9125921528"
         data-ad-format="auto"
         data-full-width-responsive="true"
-      />
-      <Script
-        id="adsbygoogle-vertical"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: "(adsbygoogle = window.adsbygoogle || []).push({});",
-        }}
       />
     </div>
   );
