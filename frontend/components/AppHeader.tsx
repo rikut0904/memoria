@@ -144,7 +144,7 @@ export default function AppHeader({
           </Link>
           <div className="flex min-w-0 items-center justify-end gap-2 sm:gap-3">
             {(displayName || email) && (
-              <div className="hidden sm:block">
+              <div className="hidden xl:block">
                 <UserTag
                   userLabel={userLabel}
                   userInitial={userInitial}
@@ -152,7 +152,7 @@ export default function AppHeader({
                 />
               </div>
             )}
-            <div className="hidden items-center gap-2 sm:flex sm:gap-3">
+            <div className="hidden items-center gap-2 xl:flex xl:gap-3">
               {adminAction}
               {menuItems}
               <button
@@ -168,7 +168,7 @@ export default function AppHeader({
             <button
               type="button"
               ref={menuTriggerRef}
-              className="relative z-[60] inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 sm:hidden"
+              className="relative z-[60] inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 xl:hidden"
               aria-expanded={menuOpen}
               aria-controls="app-mobile-menu"
               aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
@@ -206,7 +206,7 @@ export default function AppHeader({
           label="アプリメニュー"
           triggerRef={menuTriggerRef}
           onClose={() => setMenuOpen(false)}
-          className="fixed inset-y-0 right-0 z-50 h-full w-[min(20rem,85vw)] overflow-y-auto bg-white px-5 pb-6 pt-20 shadow-2xl sm:hidden"
+          className="fixed inset-y-0 right-0 z-50 h-full w-[min(20rem,85vw)] overflow-y-auto bg-white px-5 pb-6 pt-20 shadow-2xl xl:hidden"
         >
           <div className="flex min-h-full flex-col">
             {menuHeading && (

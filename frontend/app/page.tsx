@@ -98,7 +98,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <AppHeader
-        maxWidthClassName="max-w-5xl"
+        maxWidthClassName="max-w-7xl"
         menuHeading="思い出をひとつの場所に"
         groupOptions={groups}
         displayName={user?.display_name}

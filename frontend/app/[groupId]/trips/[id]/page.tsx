@@ -503,7 +503,7 @@ export default function TripDetailPage() {
   return (
     <div className="min-h-screen">
       <AppHeader
-        maxWidthClassName="max-w-5xl"
+        maxWidthClassName="max-w-7xl"
         displayName={user?.display_name}
         email={user?.email}
         role={user?.role}

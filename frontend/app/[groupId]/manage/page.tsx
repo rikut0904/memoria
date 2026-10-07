@@ -149,7 +149,7 @@ export default function GroupManagementPage() {
   return (
     <div className="min-h-screen">
       <AppHeader
-        maxWidthClassName="max-w-6xl"
+        maxWidthClassName="max-w-7xl"
         displayName={user?.display_name}
         email={user?.email}
         role={user?.role}
