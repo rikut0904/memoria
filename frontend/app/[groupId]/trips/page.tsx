@@ -6,14 +6,14 @@ import api from "@/lib/api";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { getCurrentGroupId, getCurrentGroupName } from "@/lib/group";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
-import GroupSwitchButton from "@/components/GroupSwitchButton";
-import DashboardButton from "@/components/DashboardButton";
 import AppHeader from "@/components/AppHeader";
+import GroupNavigationMenu from "@/components/GroupNavigationMenu";
 
 interface User {
   id: number;
   email: string;
   display_name: string;
+  role?: string;
 }
 
 interface Trip {
@@ -73,22 +73,20 @@ export default function TripsPage() {
       <AppHeader
         displayName={user?.display_name}
         email={user?.email}
-        right={
-          <>
-            <GroupSwitchButton label="グループ一覧へ" />
-            <DashboardButton label="ダッシュボードへ" />
-            <button
-              onClick={() => router.push(`/${groupIdParam}/trips/new`)}
-              className="px-4 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-            >
-              新規旅行
-            </button>
-          </>
-        }
+        menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {getCurrentGroupName() && <h1>{getCurrentGroupName()}</h1>}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {getCurrentGroupName() && <h1 className="mb-0">{getCurrentGroupName()}</h1>}
+          <button
+            type="button"
+            onClick={() => router.push(`/${groupIdParam}/trips/new`)}
+            className="w-full rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 sm:w-auto"
+          >
+            新規旅行
+          </button>
+        </div>
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
             {error}

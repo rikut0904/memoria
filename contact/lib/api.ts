@@ -6,6 +6,7 @@ import {
   setRefreshToken,
   clearAuthToken,
   clearRefreshToken,
+  hydrateAuthTokensFromUrl,
 } from "./auth";
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -24,6 +25,7 @@ const refreshClient = axios.create({
 let refreshPromise: Promise<string | null> | null = null;
 
 api.interceptors.request.use(async (config) => {
+  hydrateAuthTokensFromUrl();
   const token = getAuthToken();
   if (token) {
     config.headers["Authorization"] = `Bearer ${token}`;

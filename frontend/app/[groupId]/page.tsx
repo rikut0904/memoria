@@ -4,15 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import api from "@/lib/api";
 import {
-  clearCurrentGroup,
   getCurrentGroupId,
   getCurrentGroupName,
 } from "@/lib/group";
-import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
-import { signalLogout } from "@/lib/logoutSync";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
-import GroupSwitchButton from "@/components/GroupSwitchButton";
 import AppHeader from "@/components/AppHeader";
+import GroupNavigationMenu from "@/components/GroupNavigationMenu";
 
 interface User {
   id: number;
@@ -88,19 +85,6 @@ export default function DashboardPage() {
     fetchData();
   }, [router]);
 
-  const handleLogout = async () => {
-    try {
-      clearCurrentGroup();
-      clearAuthToken();
-      clearRefreshToken();
-      signalLogout();
-      await api.post("/logout");
-      router.push(buildLoginUrl(getCurrentPathWithQuery()));
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -114,23 +98,13 @@ export default function DashboardPage() {
       <AppHeader
         displayName={user?.display_name}
         email={user?.email}
-        right={
-          <>
-            <GroupSwitchButton label="グループ一覧へ" />
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
-            >
-              ログアウト
-            </button>
-          </>
-        }
+        menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {groupName && <h1>{groupName}</h1>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="card">
+          <div id="posts" className="card scroll-mt-24">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">投稿</h2>
               <button
@@ -167,7 +141,7 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="card">
+          <div id="albums" className="card scroll-mt-24">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">アルバム</h2>
               <button

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import api from "@/lib/api";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import { getAuthToken } from "@/lib/auth";
 import VerticalAd from "@/components/VerticalAd";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -27,15 +26,13 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (!isAppEnvConfigured) return;
-    const token = getAuthToken();
-    if (!token) return;
     api
       .get("/me")
       .then(() => {
-        router.replace("/");
+        window.location.replace(APP_BASE_URL);
       })
       .catch(() => {});
-  }, [router]);
+  }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();

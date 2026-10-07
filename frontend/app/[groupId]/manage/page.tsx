@@ -6,14 +6,14 @@ import api from "@/lib/api";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { setCurrentGroup } from "@/lib/group";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
-import GroupSwitchButton from "@/components/GroupSwitchButton";
-import DashboardButton from "@/components/DashboardButton";
 import AppHeader from "@/components/AppHeader";
+import GroupNavigationMenu from "@/components/GroupNavigationMenu";
 
 interface User {
   id: number;
   email: string;
   display_name: string;
+  role?: string;
 }
 
 interface Group {
@@ -152,12 +152,7 @@ export default function GroupManagementPage() {
         maxWidthClassName="max-w-6xl"
         displayName={user?.display_name}
         email={user?.email}
-        right={
-          <>
-            <GroupSwitchButton label="グループ一覧へ" />
-            <DashboardButton label="ダッシュボードへ" />
-          </>
-        }
+        menuItems={<GroupNavigationMenu groupId={groupId} />}
       />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">

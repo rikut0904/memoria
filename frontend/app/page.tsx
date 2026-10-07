@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
-import { clearCurrentGroup, setCurrentGroup } from "@/lib/group";
+import { setCurrentGroup } from "@/lib/group";
 import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
-import { signalLogout } from "@/lib/logoutSync";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 import AppHeader from "@/components/AppHeader";
 
@@ -100,51 +99,17 @@ export default function Home() {
     <div className="min-h-screen">
       <AppHeader
         maxWidthClassName="max-w-5xl"
+        menuHeading="思い出をひとつの場所に"
+        groupOptions={groups}
         displayName={user?.display_name}
         email={user?.email}
-        right={
-          <>
-            {user?.role === "admin" && (
-              <button
-                onClick={() => {
-                  const adminBase = process.env.NEXT_PUBLIC_ADMIN_BASE_URL;
-                  if (!adminBase) {
-                    console.warn("NEXT_PUBLIC_ADMIN_BASE_URL is not set");
-                    return;
-                  }
-                  const url = new URL("/", adminBase);
-                  window.location.href = url.toString();
-                }}
-                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-              >
-                管理画面
-              </button>
-            )}
-            <button
-              onClick={async () => {
-                clearCurrentGroup();
-                clearAuthToken();
-                clearRefreshToken();
-                signalLogout();
-                try {
-                  await api.post("/logout");
-                } finally {
-                  router.push(buildLoginUrl(getCurrentPathWithQuery()));
-                }
-              }}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-            >
-              ログアウト
-            </button>
-          </>
-        }
       />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
         <section className="card border border-primary-200 bg-white/90">
           <div className="grid gap-6 md:grid-cols-2 items-center">
             <div>
-              <h1>思い出を、ひとつの場所に</h1>
+              <h1>思い出をひとつの場所に</h1>
               <p className="text-sm text-gray-600">
                 思い出memoriaは、写真・投稿・旅行の記録をグループ単位でまとめて保存できます。
                 まずは参加するグループを選ぶか、新しいグループを作成してください。
