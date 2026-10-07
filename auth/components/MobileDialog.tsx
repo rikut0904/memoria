@@ -84,9 +84,8 @@ export default function MobileDialog({
     document.body.style.overflow = "hidden";
 
     const focusDialog = () => {
-      const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(
-        FOCUSABLE_SELECTOR,
-      );
+      const firstFocusable =
+        dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
       (firstFocusable ?? dialogRef.current)?.focus();
     };
     const focusFrame = window.requestAnimationFrame(focusDialog);
