@@ -18,6 +18,7 @@ type AppHeaderProps = {
   maxWidthClassName?: string;
   displayName?: string;
   email?: string;
+  role?: string;
 };
 
 type UserTagProps = {
@@ -84,6 +85,7 @@ export default function AppHeader({
   maxWidthClassName = "max-w-7xl",
   displayName,
   email,
+  role,
 }: AppHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
@@ -96,6 +98,15 @@ export default function AppHeader({
       : emailName || normalizedDisplayName || "ユーザー";
   const userInitial = userLabel.slice(0, 1).toUpperCase();
   const menuItems = <>{pageMenuItems}</>;
+  const adminAction =
+    role === "admin" && process.env.NEXT_PUBLIC_ADMIN_BASE_URL ? (
+      <a
+        href={process.env.NEXT_PUBLIC_ADMIN_BASE_URL}
+        className="inline-flex items-center justify-center rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-sm font-semibold text-primary-700 transition hover:border-primary-300 hover:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+      >
+        管理画面
+      </a>
+    ) : null;
 
   const handleLogout = async () => {
     clearCurrentGroup();
@@ -142,6 +153,7 @@ export default function AppHeader({
               </div>
             )}
             <div className="hidden items-center gap-2 sm:flex sm:gap-3">
+              {adminAction}
               {menuItems}
               <button
                 type="button"
@@ -228,6 +240,7 @@ export default function AppHeader({
               </section>
             )}
             <div className="flex flex-col items-stretch gap-2 [&>button]:w-full [&>button]:text-left">
+              {adminAction}
               {menuItems}
             </div>
             {(displayName || email) && (

@@ -73,6 +73,7 @@ export default function TripsPage() {
       <AppHeader
         displayName={user?.display_name}
         email={user?.email}
+        role={user?.role}
         menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
 

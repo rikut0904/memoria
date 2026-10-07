@@ -506,6 +506,7 @@ export default function TripDetailPage() {
         maxWidthClassName="max-w-5xl"
         displayName={user?.display_name}
         email={user?.email}
+        role={user?.role}
         menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
 

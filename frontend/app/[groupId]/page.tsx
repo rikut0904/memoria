@@ -95,6 +95,7 @@ export default function DashboardPage() {
       <AppHeader
         displayName={user?.display_name}
         email={user?.email}
+        role={user?.role}
         menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
 

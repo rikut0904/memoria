@@ -129,6 +129,7 @@ export default function NewTripPage() {
         maxWidthClassName="max-w-7xl"
         displayName={user?.display_name}
         email={user?.email}
+        role={user?.role}
         menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
 

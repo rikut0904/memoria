@@ -11,6 +11,7 @@ import GroupNavigationMenu from "@/components/GroupNavigationMenu";
 type User = {
   display_name: string;
   email: string;
+  role?: string;
 };
 
 type Post = {
@@ -60,6 +61,7 @@ export default function PostsPage() {
       <AppHeader
         displayName={user?.display_name}
         email={user?.email}
+        role={user?.role}
         menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">

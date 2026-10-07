@@ -152,6 +152,7 @@ export default function GroupManagementPage() {
         maxWidthClassName="max-w-6xl"
         displayName={user?.display_name}
         email={user?.email}
+        role={user?.role}
         menuItems={<GroupNavigationMenu groupId={groupId} />}
       />
 
