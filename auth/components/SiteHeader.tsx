@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
+import MobileDialog from "@/components/MobileDialog";
 
 const APP_BASE_URL =
   process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:3000";
@@ -14,14 +15,7 @@ const CONTACT_BASE_URL =
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
-  useEffect(() => {
-    if (!menuOpen) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" || event.key === "Esc") setMenuOpen(false);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [menuOpen]);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
 
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/95 shadow-sm">
@@ -69,6 +63,7 @@ export default function SiteHeader() {
         </div>
         <button
           type="button"
+          ref={menuTriggerRef}
           className="relative z-[60] inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 sm:hidden"
           aria-expanded={menuOpen}
           aria-controls="auth-mobile-menu"
@@ -103,17 +98,13 @@ export default function SiteHeader() {
           </svg>
         </button>
       </div>
-      <div
-        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 sm:hidden ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        aria-hidden="true"
-        onClick={() => setMenuOpen(false)}
-      />
-      <div
+      <MobileDialog
+        open={menuOpen}
         id="auth-mobile-menu"
-        role="dialog"
-        aria-modal="true"
-        aria-label="認証メニュー"
-        className={`fixed inset-y-0 right-0 z-50 w-[min(20rem,85vw)] bg-white px-5 pt-20 shadow-2xl transition-transform duration-300 ease-out sm:hidden ${menuOpen ? "translate-x-0" : "pointer-events-none translate-x-full"}`}
+        label="認証メニュー"
+        triggerRef={menuTriggerRef}
+        onClose={() => setMenuOpen(false)}
+        className="fixed inset-y-0 right-0 z-50 w-[min(20rem,85vw)] bg-white px-5 pt-20 shadow-2xl sm:hidden"
       >
         <div className="container flex flex-col gap-2 py-3">
           <a
@@ -147,7 +138,7 @@ export default function SiteHeader() {
             アプリを開く
           </a>
         </div>
-      </div>
+      </MobileDialog>
     </nav>
   );
 }

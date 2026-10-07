@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
 import { clearCurrentGroup, setCurrentGroup } from "@/lib/group";
 import { signalLogout } from "@/lib/logoutSync";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
+import MobileDialog from "@/components/MobileDialog";
 
 type AppHeaderProps = {
   menuItems?: ReactNode;
@@ -85,21 +86,8 @@ export default function AppHeader({
   email,
 }: AppHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" || event.key === "Esc") setMenuOpen(false);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [menuOpen]);
   const normalizedDisplayName = displayName?.trim() || "";
   const emailName = email?.split("@")[0]?.trim() || "";
   const userLabel =
@@ -167,6 +155,7 @@ export default function AppHeader({
             </div>
             <button
               type="button"
+              ref={menuTriggerRef}
               className="relative z-[60] inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 sm:hidden"
               aria-expanded={menuOpen}
               aria-controls="app-mobile-menu"
@@ -199,18 +188,13 @@ export default function AppHeader({
             </button>
           </div>
         </div>
-        <div
-          className={`fixed inset-x-0 bottom-0 top-20 z-40 bg-black/30 transition-opacity duration-200 sm:hidden ${menuOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
-          aria-hidden="true"
-          onClick={() => setMenuOpen(false)}
-        />
-        <div
+        <MobileDialog
+          open={menuOpen}
           id="app-mobile-menu"
-          role="dialog"
-          aria-modal="true"
-          aria-label="アプリメニュー"
-          className={`fixed inset-y-0 right-0 z-50 h-full w-[min(20rem,85vw)] overflow-y-auto bg-white px-5 pb-6 pt-20 shadow-2xl transition-[opacity,transform] duration-200 ease-out sm:hidden ${menuOpen ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-full opacity-0"}`}
-          onClick={() => setMenuOpen(false)}
+          label="アプリメニュー"
+          triggerRef={menuTriggerRef}
+          onClose={() => setMenuOpen(false)}
+          className="fixed inset-y-0 right-0 z-50 h-full w-[min(20rem,85vw)] overflow-y-auto bg-white px-5 pb-6 pt-20 shadow-2xl sm:hidden"
         >
           <div className="flex min-h-full flex-col">
             {menuHeading && (
@@ -257,7 +241,7 @@ export default function AppHeader({
               </div>
             )}
           </div>
-        </div>
+        </MobileDialog>
       </div>
     </header>
   );
