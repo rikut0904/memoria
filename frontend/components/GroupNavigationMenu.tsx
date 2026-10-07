@@ -18,6 +18,10 @@ export default function GroupNavigationMenu({
     <>
       <GroupSwitchButton label="グループ一覧へ" />
       <HeaderButton
+        label="ダッシュボード"
+        onClick={() => router.push(groupPath)}
+      />
+      <HeaderButton
         label="投稿一覧"
         onClick={() => router.push(`${groupPath}/posts`)}
       />
