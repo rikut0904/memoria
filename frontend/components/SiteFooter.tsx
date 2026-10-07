@@ -85,7 +85,8 @@ export default function SiteFooter() {
 
         <div className="mt-10 border-t border-gray-700 pt-6">
           <p className="text-sm text-gray-300">
-            &copy; {new Date().getFullYear()} 思い出memoria. All rights reserved.
+            &copy; {new Date().getFullYear()} 思い出memoria. All rights
+            reserved.
           </p>
         </div>
       </div>

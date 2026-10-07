@@ -10,7 +10,6 @@ import { clearCurrentGroup, setCurrentGroup } from "@/lib/group";
 import { signalLogout } from "@/lib/logoutSync";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 
-
 type AppHeaderProps = {
   menuItems?: ReactNode;
   menuHeading?: ReactNode;
@@ -48,7 +47,9 @@ function UserTag({ userLabel, userInitial, email, onLogout }: UserTagProps) {
   return (
     <div
       className="flex min-w-0 items-center gap-2 rounded-full border border-gray-200 bg-white py-1.5 pl-1.5 pr-2 text-gray-700 shadow-sm"
-      title={email && email !== userLabel ? `${userLabel}（${email}）` : userLabel}
+      title={
+        email && email !== userLabel ? `${userLabel}（${email}）` : userLabel
+      }
       aria-label={`ログイン中: ${userLabel}`}
     >
       <span
@@ -57,7 +58,9 @@ function UserTag({ userLabel, userInitial, email, onLogout }: UserTagProps) {
       >
         {userInitial}
       </span>
-      <span className="min-w-0 truncate text-sm font-semibold">{userLabel}</span>
+      <span className="min-w-0 truncate text-sm font-semibold">
+        {userLabel}
+      </span>
       {onLogout && (
         <button
           type="button"
@@ -104,11 +107,7 @@ export default function AppHeader({
       ? normalizedDisplayName
       : emailName || normalizedDisplayName || "ユーザー";
   const userInitial = userLabel.slice(0, 1).toUpperCase();
-  const menuItems = (
-    <>
-      {pageMenuItems}
-    </>
-  );
+  const menuItems = <>{pageMenuItems}</>;
 
   const handleLogout = async () => {
     clearCurrentGroup();
@@ -147,7 +146,11 @@ export default function AppHeader({
           <div className="flex min-w-0 items-center justify-end gap-2 sm:gap-3">
             {(displayName || email) && (
               <div className="hidden sm:block">
-                <UserTag userLabel={userLabel} userInitial={userInitial} email={email} />
+                <UserTag
+                  userLabel={userLabel}
+                  userInitial={userInitial}
+                  email={email}
+                />
               </div>
             )}
             <div className="hidden items-center gap-2 sm:flex sm:gap-3">
@@ -170,8 +173,28 @@ export default function AppHeader({
               aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
               onClick={() => setMenuOpen((prev) => !prev)}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                {menuOpen ? <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /> : <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />}
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                {menuOpen ? (
+                  <path
+                    d="M6 6l12 12M18 6L6 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                ) : (
+                  <path
+                    d="M4 6h16M4 12h16M4 18h16"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                )}
               </svg>
             </button>
           </div>

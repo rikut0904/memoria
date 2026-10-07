@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import api from "@/lib/api";
-import {
-  getCurrentGroupId,
-  getCurrentGroupName,
-} from "@/lib/group";
+import { getCurrentGroupId, getCurrentGroupName } from "@/lib/group";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 import AppHeader from "@/components/AppHeader";
 import GroupNavigationMenu from "@/components/GroupNavigationMenu";

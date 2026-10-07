@@ -94,12 +94,12 @@ export default function AppHeader({
             <div className="hidden items-center gap-2 sm:flex sm:gap-3">
               {right}
               {showLogout && (
-              <button
-                onClick={handleLogout}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-              >
-                ログアウト
-              </button>
+                <button
+                  onClick={handleLogout}
+                  className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                >
+                  ログアウト
+                </button>
               )}
             </div>
             <button
@@ -110,8 +110,28 @@ export default function AppHeader({
               aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
               onClick={() => setMenuOpen((prev) => !prev)}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                {menuOpen ? <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /> : <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />}
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                {menuOpen ? (
+                  <path
+                    d="M6 6l12 12M18 6L6 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                ) : (
+                  <path
+                    d="M4 6h16M4 12h16M4 18h16"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                )}
               </svg>
             </button>
           </div>

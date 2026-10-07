@@ -15,7 +15,10 @@ export default function VerticalAd() {
     if (!container) return;
 
     const initializeAd = () => {
-      if (initializedRef.current || container.getBoundingClientRect().width <= 0) {
+      if (
+        initializedRef.current ||
+        container.getBoundingClientRect().width <= 0
+      ) {
         return;
       }
 

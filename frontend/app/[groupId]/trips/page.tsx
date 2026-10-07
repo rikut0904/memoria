@@ -78,7 +78,9 @@ export default function TripsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {getCurrentGroupName() && <h1 className="mb-0">{getCurrentGroupName()}</h1>}
+          {getCurrentGroupName() && (
+            <h1 className="mb-0">{getCurrentGroupName()}</h1>
+          )}
           <button
             type="button"
             onClick={() => router.push(`/${groupIdParam}/trips/new`)}

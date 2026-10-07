@@ -75,7 +75,9 @@ export default function SiteHeader() {
           aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
           onClick={() => setMenuOpen((prev) => !prev)}
         >
-          <span className="sr-only">{menuOpen ? "メニューを閉じる" : "メニューを開く"}</span>
+          <span className="sr-only">
+            {menuOpen ? "メニューを閉じる" : "メニューを開く"}
+          </span>
           <svg
             width="24"
             height="24"
@@ -83,7 +85,21 @@ export default function SiteHeader() {
             fill="none"
             aria-hidden="true"
           >
-            {menuOpen ? <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /> : <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />}
+            {menuOpen ? (
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            ) : (
+              <path
+                d="M4 6h16M4 12h16M4 18h16"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            )}
           </svg>
         </button>
       </div>

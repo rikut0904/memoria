@@ -62,7 +62,9 @@ export default function AlbumsPage() {
         menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        {getCurrentGroupName() && <h1>{getCurrentGroupName()}のアルバム一覧</h1>}
+        {getCurrentGroupName() && (
+          <h1>{getCurrentGroupName()}のアルバム一覧</h1>
+        )}
         {albums.length === 0 ? (
           <div className="card text-center text-gray-600">
             アルバムがありません
