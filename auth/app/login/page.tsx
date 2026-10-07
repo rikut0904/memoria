@@ -15,6 +15,7 @@ const ADMIN_BASE_URL =
   process.env.NEXT_PUBLIC_ADMIN_BASE_URL || "http://localhost:3002";
 const HELP_BASE_URL = process.env.NEXT_PUBLIC_HELP_BASE_URL || "";
 const INFO_BASE_URL = process.env.NEXT_PUBLIC_INFO_BASE_URL || "";
+const CONTACT_BASE_URL = process.env.NEXT_PUBLIC_CONTACT_BASE_URL || "";
 const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV || "";
 const isAppEnvConfigured = ["local", "stg", "prod"].includes(APP_ENV);
 
@@ -30,6 +31,7 @@ const buildRedirectUrl = (returnTo: string | null, backPath: string | null) => {
   const adminBase = trimTrailingSlash(ADMIN_BASE_URL);
   const helpBase = trimTrailingSlash(HELP_BASE_URL);
   const infoBase = trimTrailingSlash(INFO_BASE_URL);
+  const contactBase = trimTrailingSlash(CONTACT_BASE_URL);
   if (!returnTo) {
     if (backPath && backPath.startsWith("/")) {
       return joinPath(appBase, backPath);
@@ -50,6 +52,7 @@ const buildRedirectUrl = (returnTo: string | null, backPath: string | null) => {
     ]);
     if (helpBase) allowedOrigins.add(new URL(helpBase).origin);
     if (infoBase) allowedOrigins.add(new URL(infoBase).origin);
+    if (contactBase) allowedOrigins.add(new URL(contactBase).origin);
     if (allowedOrigins.has(url.origin)) return url.toString();
   } catch {
     // ignore invalid URL
@@ -193,16 +196,17 @@ function LoginContent() {
             </form>
           )}
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              アカウントをお持ちでないですか？{" "}
-              <button
-                onClick={() => router.push("/signup")}
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                サインアップ
-              </button>
+          <div className="mt-6 border-t border-gray-200 pt-6">
+            <p className="mb-3 text-center text-sm text-gray-600">
+              アカウントをお持ちでないですか？
             </p>
+            <button
+              type="button"
+              onClick={() => router.push("/signup")}
+              className="w-full rounded-lg border border-primary-300 bg-white px-4 py-3 text-sm font-semibold text-primary-700 transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            >
+              新規登録
+            </button>
           </div>
         </div>
         <div className="auth-ads-side">

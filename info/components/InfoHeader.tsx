@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import api from "@/lib/api";
 import { getAuthToken, getRefreshToken } from "@/lib/auth";
+import MobileDialog from "@/components/MobileDialog";
 
 const APP_BASE_URL =
   process.env.NEXT_PUBLIC_APP_BASE_URL || "http://localhost:23000";
@@ -23,6 +24,7 @@ const mobileLinkClass =
 export default function InfoHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const token = getAuthToken();
     const refreshToken = getRefreshToken();
@@ -38,7 +40,7 @@ export default function InfoHeader() {
   const loginUrl = `${AUTH_BASE_URL}/login?return_to=${encodeURIComponent(`${APP_BASE_URL}/`)}`;
   const startUrl = isAuthenticated ? `${APP_BASE_URL}/` : loginUrl;
   return (
-    <nav className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/95 shadow-sm backdrop-blur">
+    <nav className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/95 shadow-sm">
       <div className="container flex min-h-20 items-center justify-between gap-4">
         <a
           href={INFO_BASE_URL}
@@ -74,12 +76,16 @@ export default function InfoHeader() {
         </div>
         <button
           type="button"
-          className="rounded-lg p-2 text-gray-700 hover:bg-primary-50 hover:text-primary-700 sm:hidden"
+          ref={menuTriggerRef}
+          className="relative z-[60] inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 sm:hidden"
           aria-expanded={menuOpen}
           aria-controls="info-mobile-menu"
+          aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
           onClick={() => setMenuOpen((prev) => !prev)}
         >
-          <span className="sr-only">メニューを開く</span>
+          <span className="sr-only">
+            {menuOpen ? "メニューを閉じる" : "メニューを開く"}
+          </span>
           <svg
             width="24"
             height="24"
@@ -87,18 +93,31 @@ export default function InfoHeader() {
             fill="none"
             aria-hidden="true"
           >
-            <path
-              d="M4 6h16M4 12h16M4 18h16"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
+            {menuOpen ? (
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            ) : (
+              <path
+                d="M4 6h16M4 12h16M4 18h16"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            )}
           </svg>
         </button>
       </div>
-      <div
+      <MobileDialog
+        open={menuOpen}
         id="info-mobile-menu"
-        className={`border-t border-gray-200 ${menuOpen ? "block" : "hidden"} sm:hidden`}
+        label="サービスメニュー"
+        triggerRef={menuTriggerRef}
+        onClose={() => setMenuOpen(false)}
+        className="fixed inset-y-0 right-0 z-50 w-[min(20rem,85vw)] bg-white px-5 pt-20 shadow-2xl sm:hidden"
       >
         <div className="container flex flex-col gap-2 py-3">
           <a href={INFO_BASE_URL} className={mobileLinkClass}>
@@ -120,7 +139,7 @@ export default function InfoHeader() {
             アプリを開く
           </a>
         </div>
-      </div>
+      </MobileDialog>
     </nav>
   );
 }

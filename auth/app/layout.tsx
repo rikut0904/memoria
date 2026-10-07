@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
+import TokenBridge from "./token-bridge";
 import LogoutSync from "./logout-sync";
 
 const siteTitle = "思い出memoria";
@@ -53,6 +54,9 @@ export default function RootLayout({
         ></script>
       </head>
       <body>
+        <Suspense fallback={null}>
+          <TokenBridge />
+        </Suspense>
         <Suspense fallback={null}>
           <LogoutSync />
         </Suspense>
