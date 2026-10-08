@@ -1,21 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { getCurrentGroupId, getCurrentGroupName } from "@/lib/group";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 import GroupSwitchButton from "@/components/GroupSwitchButton";
-import DashboardButton from "@/components/DashboardButton";
 import AppHeader from "@/components/AppHeader";
+import GroupNavigationMenu from "@/components/GroupNavigationMenu";
 import TripsListButton from "@/components/TripsListButton";
 
 export default function NewPostClient() {
   const router = useRouter();
+  const params = useParams();
   const searchParams = useSearchParams();
+  const groupIdParam = params.groupId as string;
   const [user, setUser] = useState<{
     display_name: string;
     email: string;
+    role?: string;
   } | null>(null);
   const tripId = searchParams.get("trip_id");
 
@@ -41,12 +44,8 @@ export default function NewPostClient() {
       <AppHeader
         displayName={user?.display_name}
         email={user?.email}
-        right={
-          <>
-            <GroupSwitchButton label="グループ一覧へ" />
-            <DashboardButton label="ダッシュボードへ" />
-          </>
-        }
+        role={user?.role}
+        menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {getCurrentGroupName() && <h1>{getCurrentGroupName()}</h1>}

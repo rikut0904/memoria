@@ -4,6 +4,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import TokenBridge from "./token-bridge";
 import LogoutSync from "./logout-sync";
+import AdminAuthGuard from "@/components/AdminAuthGuard";
 
 const siteTitle = "思い出memoria";
 const siteDescription =
@@ -55,7 +56,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <LogoutSync />
         </Suspense>
-        {children}
+        <AdminAuthGuard>{children}</AdminAuthGuard>
       </body>
     </html>
   );

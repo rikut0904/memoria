@@ -33,5 +33,5 @@ jobs:
           set -euo pipefail
           for app in frontend auth admin info contact help; do
             npm --prefix "${app}" ci --include=optional
-            npm --prefix "${app}" audit --audit-level=high
+            npm --prefix "${app}" audit --omit=dev --audit-level=high
           done
