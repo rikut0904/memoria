@@ -1,6 +1,17 @@
 const TOKEN_KEY = "memoria_token";
 const REFRESH_KEY = "memoria_refresh_token";
 
+export function hydrateAuthTokensFromUrl(): void {
+  if (typeof window === "undefined") return;
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const token = searchParams.get("auth_token");
+  const refreshToken = searchParams.get("refresh_token");
+
+  if (token) window.localStorage.setItem(TOKEN_KEY, token);
+  if (refreshToken) window.localStorage.setItem(REFRESH_KEY, refreshToken);
+}
+
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") {
     return null;

@@ -6,7 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-const CONTACT_EMAIL = "contact@ml.omoide-memoria.com";
+const CONTACT_EMAIL = "contact@omoide-memoria.com";
 
 const CATEGORY_OPTIONS = [
   { value: "account", label: "アカウント・ログインに関する質問" },

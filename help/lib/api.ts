@@ -7,6 +7,7 @@ import {
   setRefreshToken,
   clearAuthToken,
   clearRefreshToken,
+  hydrateAuthTokensFromUrl,
 } from "./auth";
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -25,6 +26,7 @@ const refreshClient = axios.create({
 let refreshPromise: Promise<string | null> | null = null;
 
 api.interceptors.request.use(async (config) => {
+  hydrateAuthTokensFromUrl();
   const groupId = getCurrentGroupId();
   if (groupId) {
     config.headers["X-Group-ID"] = String(groupId);

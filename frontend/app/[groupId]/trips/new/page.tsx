@@ -6,10 +6,9 @@ import api from "@/lib/api";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { getCurrentGroupId, getCurrentGroupName } from "@/lib/group";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
-import GroupSwitchButton from "@/components/GroupSwitchButton";
-import DashboardButton from "@/components/DashboardButton";
 import AppHeader from "@/components/AppHeader";
 import TripsListButton from "@/components/TripsListButton";
+import GroupNavigationMenu from "@/components/GroupNavigationMenu";
 
 type CreateTripRequest = {
   title: string;
@@ -28,6 +27,7 @@ export default function NewTripPage() {
   const [user, setUser] = useState<{
     display_name: string;
     email: string;
+    role?: string;
   } | null>(null);
   const [albums, setAlbums] = useState<{ id: number; title: string }[]>([]);
   const [posts, setPosts] = useState<
@@ -126,16 +126,11 @@ export default function NewTripPage() {
   return (
     <div className="min-h-screen">
       <AppHeader
-        maxWidthClassName="max-w-4xl"
+        maxWidthClassName="max-w-7xl"
         displayName={user?.display_name}
         email={user?.email}
-        right={
-          <>
-            <GroupSwitchButton label="グループ一覧へ" />
-            <DashboardButton label="ダッシュボードへ" />
-            <TripsListButton />
-          </>
-        }
+        role={user?.role}
+        menuItems={<GroupNavigationMenu groupId={groupIdParam} />}
       />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

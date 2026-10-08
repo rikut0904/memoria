@@ -4,6 +4,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import TokenBridge from "./token-bridge";
 import LogoutSync from "./logout-sync";
+import SiteFooter from "@/components/SiteFooter";
 
 const siteTitle = "思い出memoria";
 const siteDescription =
@@ -61,6 +62,7 @@ export default function RootLayout({
           <LogoutSync />
         </Suspense>
         {children}
+        <SiteFooter />
       </body>
     </html>
   );

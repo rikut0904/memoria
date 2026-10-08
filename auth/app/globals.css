@@ -128,6 +128,12 @@ ul {
   margin-bottom: 0.75rem;
 }
 
+footer p,
+footer ul,
+footer a {
+  color: #f3f4f6;
+}
+
 /* カードスタイル */
 .card {
   background-color: var(--card-background);
