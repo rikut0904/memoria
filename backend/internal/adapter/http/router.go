@@ -22,6 +22,7 @@ func RegisterRoutes(
 	photoHandler *handler.PhotoHandler,
 	postHandler *handler.PostHandler,
 	tripHandler *handler.TripHandler,
+	groupDataHandler *handler.GroupDataHandler,
 	authMiddleware *customMiddleware.AuthMiddleware,
 	frontendBaseURL string,
 	allowedOriginsRaw string,
@@ -97,6 +98,7 @@ func RegisterRoutes(
 		},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "X-Group-ID"},
+		ExposeHeaders:    []string{echo.HeaderContentDisposition},
 		AllowCredentials: true,
 	}))
 
@@ -130,6 +132,9 @@ func RegisterRoutes(
 	protected.GET("/groups", groupHandler.GetMyGroups)
 	protected.POST("/groups", groupHandler.CreateGroup)
 	protected.GET("/groups/:id/members", groupHandler.GetGroupMembers)
+	protected.DELETE("/groups/:id", groupDataHandler.DeleteGroup)
+	protected.GET("/account-data/export", groupDataHandler.ExportAccount)
+	protected.POST("/account-data/import", groupDataHandler.ImportAccount)
 
 	// Group-scoped routes (require group membership)
 	group := api.Group("", authMiddleware.RequireGroup)

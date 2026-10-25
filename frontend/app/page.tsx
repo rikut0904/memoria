@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
-import { setCurrentGroup } from "@/lib/group";
+import { getErrorMessage } from "@/lib/getErrorMessage";
+import { clearCurrentGroup, getCurrentGroupId, setCurrentGroup } from "@/lib/group";
 import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 import AppHeader from "@/components/AppHeader";
@@ -31,6 +32,7 @@ export default function Home() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState<User | null>(null);
+  const [deletingGroupId, setDeletingGroupId] = useState<number | null>(null);
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -76,6 +78,22 @@ export default function Home() {
   const handleOpenGroup = (group: Group) => {
     setCurrentGroup(group.id, group.name);
     router.push(`/${group.id}`);
+  };
+
+  const handleDeleteGroup = async (group: Group) => {
+    if (!confirm(`「${group.name}」を削除しますか？投稿・写真・旅行記録なども削除され、元に戻せません。`)) return;
+    if (!confirm("本当に削除する場合は、もう一度確認してください。")) return;
+    setError("");
+    setDeletingGroupId(group.id);
+    try {
+      await api.delete(`/groups/${group.id}`);
+      setGroups((current) => current.filter((item) => item.id !== group.id));
+      if (getCurrentGroupId() === group.id) clearCurrentGroup();
+    } catch (err) {
+      setError(getErrorMessage(err, "グループの削除に失敗しました"));
+    } finally {
+      setDeletingGroupId(null);
+    }
   };
 
   if (!authChecked) {
@@ -175,6 +193,16 @@ export default function Home() {
                       className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm"
                     >
                       グループへ移動
+                    </button>
+                  </div>
+                  <div className="mt-3 border-t border-gray-100 pt-3 text-right">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteGroup(group)}
+                      disabled={deletingGroupId !== null}
+                      className="text-xs font-semibold text-red-600 hover:text-red-800 disabled:opacity-50"
+                    >
+                      {deletingGroupId === group.id ? "削除中..." : "このグループを削除"}
                     </button>
                   </div>
                 </div>

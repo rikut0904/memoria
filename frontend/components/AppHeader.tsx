@@ -107,6 +107,14 @@ export default function AppHeader({
         管理画面
       </a>
     ) : null;
+  const settingsAction = (
+    <Link
+      href="/settings"
+      className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-400 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+    >
+      ユーザー設定
+    </Link>
+  );
 
   const handleLogout = async () => {
     clearCurrentGroup();
@@ -154,6 +162,7 @@ export default function AppHeader({
             )}
             <div className="hidden items-center gap-2 xl:flex xl:gap-3">
               {adminAction}
+              {settingsAction}
               {menuItems}
               <button
                 type="button"
@@ -241,6 +250,7 @@ export default function AppHeader({
             )}
             <div className="flex flex-col items-stretch gap-2 [&>button]:w-full [&>button]:text-left">
               {adminAction}
+              {settingsAction}
               {menuItems}
             </div>
             {(displayName || email) && (

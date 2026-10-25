@@ -89,6 +89,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	photoUsecase := usecase.NewPhotoUsecase(photoRepo, albumRepo, s3Service)
 	postUsecase := usecase.NewPostUsecase(postRepo, tagRepo, albumRepo, photoRepo)
 	tripUsecase := usecase.NewTripUsecase(tripRepo, itineraryRepo, wishlistRepo, expenseRepo, tripRelationRepo, tripDetailRepo, albumRepo, postRepo)
+	groupDataUsecase := usecase.NewGroupDataUsecase(db, s3Service)
 
 	// Handlers
 	userHandler := handler.NewUserHandler(userUsecase)
@@ -100,6 +101,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	photoHandler := handler.NewPhotoHandler(photoUsecase)
 	postHandler := handler.NewPostHandler(postUsecase)
 	tripHandler := handler.NewTripHandler(tripUsecase)
+	groupDataHandler := handler.NewGroupDataHandler(groupDataUsecase)
 
 	// Middleware
 	authMiddleware := middleware.NewAuthMiddleware(firebaseAuth, userRepo, groupMemberRepo)
@@ -115,6 +117,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 		photoHandler,
 		postHandler,
 		tripHandler,
+		groupDataHandler,
 		authMiddleware,
 		cfg.FrontendBaseURL,
 		cfg.AllowedOrigins,
