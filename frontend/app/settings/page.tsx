@@ -134,7 +134,8 @@ export default function SettingsPage() {
         responseType: "blob",
       });
       const disposition = response.headers["content-disposition"] as
-        string | undefined;
+        | string
+        | undefined;
       const fallback = groupId
         ? `memoria-group-${groupId}.json`
         : "memoria-account.json";

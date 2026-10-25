@@ -149,25 +149,25 @@ lint-help:
 fmt: fmt-frontend fmt-backend fmt-auth fmt-admin fmt-info fmt-help fmt-contact ## 全プロジェクト format
 
 fmt-frontend:
-	cd frontend && npx prettier --write .
+	cd frontend && npx --yes prettier@3.6.2 --write .
 
 fmt-backend:
 	cd backend && gofmt -w $$(find cmd internal -type f -name '*.go')
 
 fmt-auth:
-	cd auth && npx prettier --write .
+	cd auth && npx --yes prettier@3.6.2 --write .
 
 fmt-admin:
-	cd admin && npx prettier --write .
+	cd admin && npx --yes prettier@3.6.2 --write .
 
 fmt-info:
-	cd info && npx prettier --write .
+	cd info && npx --yes prettier@3.6.2 --write .
 
 fmt-contact:
-	cd contact && npx prettier --write .
+	cd contact && npx --yes prettier@3.6.2 --write .
 
 fmt-help:
-	cd help && npx prettier --write .
+	cd help && npx --yes prettier@3.6.2 --write .
 
 # ============================================================
 # TypeScript 型チェック
