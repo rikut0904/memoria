@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"strings"
 	"time"
 
 	"memoria/internal/domain/model"
@@ -52,9 +53,11 @@ func (u *InviteUsecase) CreateInvite(email, role string, invitedBy uint, groupID
 	}
 
 	isExisting := false
+	isPending := false
 	if user, err := u.userRepo.FindByEmail(email); err == nil && user != nil {
-		isExisting = true
-		if _, err := u.groupMemberRepo.FindByGroupAndUser(groupID, user.ID); err == nil {
+		isPending = isPendingUser(user)
+		isExisting = !isPending
+		if _, err := u.groupMemberRepo.FindByGroupAndUser(groupID, user.ID); err == nil && !isPending {
 			return nil, errors.New("user already belongs to the group")
 		}
 	}
@@ -65,13 +68,40 @@ func (u *InviteUsecase) CreateInvite(email, role string, invitedBy uint, groupID
 		return nil, err
 	}
 
-	invite := &model.Invite{
+	expiresAt := time.Now().Add(7 * 24 * time.Hour)
+	var invite *model.Invite
+	if isPending {
+		invites, err := u.inviteRepo.FindByGroupID(groupID)
+		if err != nil {
+			return nil, err
+		}
+		for _, candidate := range invites {
+			if !strings.EqualFold(candidate.Email, email) || candidate.Status == "accepted" {
+				continue
+			}
+			previous := *candidate
+			candidate.Token = token
+			candidate.Status = "pending"
+			candidate.Role = role
+			candidate.ExpiresAt = expiresAt
+			candidate.InvitedBy = invitedBy
+			if err := u.inviteRepo.Update(candidate); err != nil {
+				return nil, err
+			}
+			if err := u.sendInvite(candidate, group.Name, isExisting, &previous); err != nil {
+				return nil, err
+			}
+			return candidate, nil
+		}
+	}
+
+	invite = &model.Invite{
 		GroupID:   groupID,
 		Email:     email,
 		Token:     token,
 		Status:    "pending",
 		Role:      role,
-		ExpiresAt: time.Now().Add(7 * 24 * time.Hour), // 7 days
+		ExpiresAt: expiresAt,
 		InvitedBy: invitedBy,
 	}
 
@@ -79,14 +109,25 @@ func (u *InviteUsecase) CreateInvite(email, role string, invitedBy uint, groupID
 		return nil, err
 	}
 
-	if u.mailer != nil {
-		if err := u.mailer.SendGroupInvite(invite.Email, invite.Role, invite.Token, group.Name, isExisting); err != nil {
-			_ = u.inviteRepo.Delete(invite.ID)
-			return nil, err
-		}
+	if err := u.sendInvite(invite, group.Name, isExisting, nil); err != nil {
+		_ = u.inviteRepo.Delete(invite.ID)
+		return nil, err
 	}
 
 	return invite, nil
+}
+
+func (u *InviteUsecase) sendInvite(invite *model.Invite, groupName string, isExisting bool, previous *model.Invite) error {
+	if u.mailer == nil {
+		return nil
+	}
+	if err := u.mailer.SendGroupInvite(invite.Email, invite.Role, invite.Token, groupName, isExisting); err != nil {
+		if previous != nil {
+			_ = u.inviteRepo.Update(previous)
+		}
+		return err
+	}
+	return nil
 }
 
 func (u *InviteUsecase) VerifyInvite(token string) (*model.Invite, error) {
