@@ -229,13 +229,15 @@ func (u *GroupDataUsecase) Import(groupID, currentUserID uint, data *GroupDataEx
 	uploadedKeys := make([]string, 0, len(data.Photos))
 	err := u.db.Transaction(func(tx *gorm.DB) error {
 		userMap := map[uint]uint{}
+		pendingUserIDs := map[uint]bool{}
 		for _, exported := range data.Users {
 			var user model.User
 			if err := tx.Where("LOWER(email) = LOWER(?)", strings.TrimSpace(exported.Email)).First(&user).Error; err == nil {
 				userMap[exported.ID] = user.ID
+				pendingUserIDs[user.ID] = isPendingUser(&user)
 			}
 		}
-		if err := importMembers(tx, groupID, currentUserID, data.Members, data.Users, userMap); err != nil {
+		if err := importMembers(tx, groupID, currentUserID, data.Members, data.Users, userMap, pendingUserIDs); err != nil {
 			return err
 		}
 		albumMap := map[uint]uint{}
@@ -391,7 +393,7 @@ func (u *GroupDataUsecase) Import(groupID, currentUserID uint, data *GroupDataEx
 // importMembers restores known users immediately and creates pending invites
 // for users who are not registered in the target account yet. The invite keeps
 // the original role so accepting it restores the source group's permissions.
-func importMembers(tx *gorm.DB, groupID, invitedBy uint, exportedMembers []ExportMember, exportedUsers []ExportUser, userMap map[uint]uint) error {
+func importMembers(tx *gorm.DB, groupID, invitedBy uint, exportedMembers []ExportMember, exportedUsers []ExportUser, userMap map[uint]uint, pendingUserIDs map[uint]bool) error {
 	userDetails := make(map[uint]ExportUser, len(exportedUsers))
 	for _, user := range exportedUsers {
 		userDetails[user.ID] = user
@@ -409,6 +411,12 @@ func importMembers(tx *gorm.DB, groupID, invitedBy uint, exportedMembers []Expor
 						return err
 					}
 				}
+				if pendingUserIDs[userID] {
+					details := userDetails[exported.UserID]
+					if err := ensurePendingInvite(tx, groupID, invitedBy, details.Email, normalizedMemberRole(exported.Role)); err != nil {
+						return err
+					}
+				}
 				continue
 			}
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -422,6 +430,12 @@ func importMembers(tx *gorm.DB, groupID, invitedBy uint, exportedMembers []Expor
 				JoinedAt: exported.JoinedAt,
 			}).Error; err != nil {
 				return err
+			}
+			if pendingUserIDs[userID] {
+				details := userDetails[exported.UserID]
+				if err := ensurePendingInvite(tx, groupID, invitedBy, details.Email, role); err != nil {
+					return err
+				}
 			}
 			continue
 		}
@@ -461,33 +475,41 @@ func importMembers(tx *gorm.DB, groupID, invitedBy uint, exportedMembers []Expor
 		}).Error; err != nil {
 			return err
 		}
-		var invite model.Invite
-		err = tx.Where("group_id = ? AND LOWER(email) = LOWER(?) AND status = ?", groupID, email, "pending").First(&invite).Error
-		if err == nil {
-			continue
-		}
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
-		token, err := generateToken()
-		if err != nil {
-			return err
-		}
-		// Invites are intentionally not emailed here. They remain visible in the
-		// group's invite management screen and can be sent again from there.
-		if err := tx.Create(&model.Invite{
-			GroupID:   groupID,
-			Email:     email,
-			Token:     token,
-			Status:    "pending",
-			Role:      role,
-			ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
-			InvitedBy: invitedBy,
-		}).Error; err != nil {
+		if err := ensurePendingInvite(tx, groupID, invitedBy, email, role); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func ensurePendingInvite(tx *gorm.DB, groupID, invitedBy uint, email, role string) error {
+	email = strings.TrimSpace(email)
+	if email == "" {
+		return nil
+	}
+	var invite model.Invite
+	err := tx.Where("group_id = ? AND LOWER(email) = LOWER(?) AND status = ?", groupID, email, "pending").First(&invite).Error
+	if err == nil {
+		return nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	token, err := generateToken()
+	if err != nil {
+		return err
+	}
+	// Invites are intentionally not emailed here. They remain visible in the
+	// group's invite management screen and can be sent again from there.
+	return tx.Create(&model.Invite{
+		GroupID:   groupID,
+		Email:     email,
+		Token:     token,
+		Status:    "pending",
+		Role:      role,
+		ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
+		InvitedBy: invitedBy,
+	}).Error
 }
 
 func normalizedMemberRole(role string) string {
