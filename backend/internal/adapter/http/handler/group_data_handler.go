@@ -16,6 +16,8 @@ type GroupDataHandler struct {
 	usecase *usecase.GroupDataUsecase
 }
 
+const maxAccountImportBytes = 100 * 1024 * 1024
+
 func NewGroupDataHandler(groupDataUsecase *usecase.GroupDataUsecase) *GroupDataHandler {
 	return &GroupDataHandler{usecase: groupDataUsecase}
 }
@@ -55,11 +57,11 @@ func (h *GroupDataHandler) ImportAccount(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid user")
 	}
 	groupIDParam := c.QueryParam("group_id")
-	if c.Request().ContentLength > 25*1024*1024 {
+	if c.Request().ContentLength > maxAccountImportBytes {
 		return echo.NewHTTPError(http.StatusRequestEntityTooLarge, "export file is too large")
 	}
 	var data usecase.AccountDataExport
-	decoder := json.NewDecoder(http.MaxBytesReader(c.Response().Writer, c.Request().Body, 25*1024*1024))
+	decoder := json.NewDecoder(http.MaxBytesReader(c.Response().Writer, c.Request().Body, maxAccountImportBytes))
 	if err := decoder.Decode(&data); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid export file")
 	}

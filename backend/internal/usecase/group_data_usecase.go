@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"fmt"
+	"path"
 	"strings"
 	"time"
 
@@ -13,7 +14,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-const groupDataExportVersion = 1
+const groupDataExportVersion = 2
 
 type ExportUser struct {
 	ID          uint   `json:"id"`
@@ -28,6 +29,11 @@ type ExportMember struct {
 	JoinedAt time.Time `json:"joined_at"`
 }
 
+type ExportPhoto struct {
+	model.Photo
+	Data []byte `json:"data"`
+}
+
 type GroupDataExport struct {
 	Version     int                      `json:"version"`
 	ExportedAt  time.Time                `json:"exported_at"`
@@ -35,7 +41,7 @@ type GroupDataExport struct {
 	Users       []ExportUser             `json:"users"`
 	Members     []ExportMember           `json:"members"`
 	Albums      []model.Album            `json:"albums"`
-	Photos      []model.Photo            `json:"photos"`
+	Photos      []ExportPhoto            `json:"photos"`
 	Posts       []model.Post             `json:"posts"`
 	Comments    []model.PostComment      `json:"comments"`
 	Tags        []model.Tag              `json:"tags"`
@@ -132,7 +138,6 @@ func (u *GroupDataUsecase) Export(groupID uint) (*GroupDataExport, error) {
 		args  []any
 	}{
 		{&result.Albums, "group_id = ?", []any{groupID}},
-		{&result.Photos, "group_id = ?", []any{groupID}},
 		{&result.Posts, "group_id = ?", []any{groupID}},
 		{&result.Trips, "group_id = ?", []any{groupID}},
 	}
@@ -140,6 +145,21 @@ func (u *GroupDataUsecase) Export(groupID uint) (*GroupDataExport, error) {
 		if err := u.db.Where(item.query, item.args...).Find(item.dst).Error; err != nil {
 			return nil, err
 		}
+	}
+	var photos []model.Photo
+	if err := u.db.Where("group_id = ?", groupID).Find(&photos).Error; err != nil {
+		return nil, err
+	}
+	result.Photos = make([]ExportPhoto, 0, len(photos))
+	for _, photo := range photos {
+		if u.s3 == nil || photo.S3Key == "" {
+			return nil, errors.New("photo storage is not configured")
+		}
+		data, err := u.s3.GetObject(photo.S3Key)
+		if err != nil {
+			return nil, fmt.Errorf("failed to export photo %d: %w", photo.ID, err)
+		}
+		result.Photos = append(result.Photos, ExportPhoto{Photo: photo, Data: data})
 	}
 	postIDs := idsOfPosts(result.Posts)
 	tripIDs := idsOfTrips(result.Trips)
@@ -206,7 +226,8 @@ func (u *GroupDataUsecase) Import(groupID, currentUserID uint, data *GroupDataEx
 	if member.Role != "manager" {
 		return errors.New("group manager access required")
 	}
-	return u.db.Transaction(func(tx *gorm.DB) error {
+	uploadedKeys := make([]string, 0, len(data.Photos))
+	err := u.db.Transaction(func(tx *gorm.DB) error {
 		userMap := map[uint]uint{}
 		for _, exported := range data.Users {
 			var user model.User
@@ -234,7 +255,10 @@ func (u *GroupDataUsecase) Import(groupID, currentUserID uint, data *GroupDataEx
 			albumMap[album.ID] = copy.ID
 		}
 		for _, photo := range data.Photos {
-			copy := photo
+			if len(photo.Data) == 0 {
+				return errors.New("photo content is missing from export")
+			}
+			copy := photo.Photo
 			copy.ID = 0
 			copy.GroupID = groupID
 			copy.AlbumID = albumMap[photo.AlbumID]
@@ -242,11 +266,19 @@ func (u *GroupDataUsecase) Import(groupID, currentUserID uint, data *GroupDataEx
 			if copy.AlbumID == 0 {
 				continue
 			}
-			var existing model.Photo
-			if err := tx.Where("s3_key = ?", copy.S3Key).First(&existing).Error; err == nil {
-				photoMap[photo.ID] = existing.ID
-				continue
+			extension := path.Ext(copy.S3Key)
+			uploadToken, err := generateToken()
+			if err != nil {
+				return err
 			}
+			copy.S3Key = fmt.Sprintf("albums/%d/import-%s%s", copy.AlbumID, uploadToken, extension)
+			if u.s3 == nil {
+				return errors.New("photo storage is not configured")
+			}
+			if err := u.s3.PutObject(copy.S3Key, photo.Data, copy.ContentType); err != nil {
+				return fmt.Errorf("failed to import photo: %w", err)
+			}
+			uploadedKeys = append(uploadedKeys, copy.S3Key)
 			if err := tx.Create(&copy).Error; err != nil {
 				return err
 			}
@@ -348,6 +380,12 @@ func (u *GroupDataUsecase) Import(groupID, currentUserID uint, data *GroupDataEx
 		}
 		return nil
 	})
+	if err != nil {
+		for _, key := range uploadedKeys {
+			_ = u.s3.DeleteObject(key)
+		}
+	}
+	return err
 }
 
 // importMembers restores known users immediately and creates pending invites
