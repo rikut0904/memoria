@@ -16,7 +16,7 @@ type GroupDataHandler struct {
 	usecase *usecase.GroupDataUsecase
 }
 
-const maxAccountImportBytes = 100 * 1024 * 1024
+const maxAccountDataBytes = 100 * 1024 * 1024
 
 func NewGroupDataHandler(groupDataUsecase *usecase.GroupDataUsecase) *GroupDataHandler {
 	return &GroupDataHandler{usecase: groupDataUsecase}
@@ -41,13 +41,20 @@ func (h *GroupDataHandler) ExportAccount(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, "group access required")
 	}
+	payload, err := json.Marshal(data)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create export file")
+	}
+	if len(payload) > maxAccountDataBytes {
+		return echo.NewHTTPError(http.StatusRequestEntityTooLarge, "export file is too large to restore; export a smaller group")
+	}
 	filename := "memoria-account-" + time.Now().Format("20060102-150405") + ".json"
 	if groupID != nil {
 		filename = "memoria-group-" + strconv.FormatUint(uint64(*groupID), 10) + "-" + time.Now().Format("20060102-150405") + ".json"
 	}
 	c.Response().Header().Set(echo.HeaderContentDisposition, "attachment; filename=\""+filename+"\"")
 	c.Response().Header().Set(echo.HeaderContentType, "application/json; charset=utf-8")
-	return c.JSON(http.StatusOK, data)
+	return c.Blob(http.StatusOK, "application/json; charset=utf-8", payload)
 }
 
 func (h *GroupDataHandler) ImportAccount(c echo.Context) error {
@@ -57,11 +64,11 @@ func (h *GroupDataHandler) ImportAccount(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid user")
 	}
 	groupIDParam := c.QueryParam("group_id")
-	if c.Request().ContentLength > maxAccountImportBytes {
+	if c.Request().ContentLength > maxAccountDataBytes {
 		return echo.NewHTTPError(http.StatusRequestEntityTooLarge, "export file is too large")
 	}
 	var data usecase.AccountDataExport
-	decoder := json.NewDecoder(http.MaxBytesReader(c.Response().Writer, c.Request().Body, maxAccountImportBytes))
+	decoder := json.NewDecoder(http.MaxBytesReader(c.Response().Writer, c.Request().Body, maxAccountDataBytes))
 	if err := decoder.Decode(&data); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid export file")
 	}
