@@ -195,6 +195,7 @@ export default function SettingsPage() {
   const [modal, setModal] = useState<ModalName>(null);
   const [busy, setBusy] = useState<BusyAction>(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [exportTarget, setExportTarget] = useState<"all" | string>("all");
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importTarget, setImportTarget] = useState("");
@@ -233,6 +234,7 @@ export default function SettingsPage() {
   const downloadExport = async () => {
     const groupId = exportTarget === "all" ? undefined : exportTarget;
     setError("");
+    setNotice("");
     setBusy("export");
     try {
       const query = groupId ? `?group_id=${encodeURIComponent(groupId)}` : "";
@@ -272,6 +274,7 @@ export default function SettingsPage() {
       return;
     }
     setError("");
+    setNotice("");
     setBusy("import");
     try {
       const query = importTarget
@@ -282,15 +285,30 @@ export default function SettingsPage() {
         importFile,
         { headers: { "Content-Type": "application/json" } },
       );
-      await refreshGroups();
+
+      let refreshFailed = false;
+      try {
+        await refreshGroups();
+      } catch (refreshError) {
+        refreshFailed = true;
+        console.error(
+          "Import succeeded but group refresh failed:",
+          refreshError,
+        );
+      }
+
       setModal(null);
       setImportFile(null);
       setImportTarget("");
-      alert(
-        response.data?.group_id
-          ? "新しいグループを作成して復元しました"
-          : "選択したグループにデータを追加しました",
-      );
+      const successMessage = response.data?.group_id
+        ? "新しいグループを作成して復元しました"
+        : "選択したグループにデータを追加しました";
+      if (refreshFailed) {
+        setNotice(
+          `${successMessage}。一覧の更新に失敗したため、ページを再読み込みしてください。`,
+        );
+      }
+      alert(successMessage);
     } catch (err) {
       setError(getErrorMessage(err, "インポートに失敗しました"));
     } finally {
@@ -324,6 +342,11 @@ export default function SettingsPage() {
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
+          </div>
+        )}
+        {notice && (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            {notice}
           </div>
         )}
         <section className="card border border-gray-200 bg-white">
