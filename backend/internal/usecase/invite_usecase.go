@@ -118,8 +118,18 @@ func (u *InviteUsecase) AcceptInviteForUser(token string, user *model.User) erro
 		return errors.New("email does not match invite")
 	}
 
-	if _, err := u.groupMemberRepo.FindByGroupAndUser(invite.GroupID, user.ID); err == nil {
-		return errors.New("user already belongs to the group")
+	if existingMember, err := u.groupMemberRepo.FindByGroupAndUser(invite.GroupID, user.ID); err == nil {
+		// Imported users already have a placeholder membership. Once the invited
+		// account claims that user record, accepting the invite only needs to
+		// finalize the invite instead of inserting a duplicate membership.
+		if existingMember.Role != invite.Role {
+			existingMember.Role = invite.Role
+			if err := u.groupMemberRepo.Update(existingMember); err != nil {
+				return err
+			}
+		}
+		invite.Status = "accepted"
+		return u.inviteRepo.Update(invite)
 	}
 
 	member := &model.GroupMember{

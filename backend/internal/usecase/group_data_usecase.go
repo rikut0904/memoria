@@ -214,7 +214,9 @@ func (u *GroupDataUsecase) Import(groupID, currentUserID uint, data *GroupDataEx
 				userMap[exported.ID] = user.ID
 			}
 		}
-		userMap[currentUserID] = currentUserID
+		if err := importMembers(tx, groupID, currentUserID, data.Members, data.Users, userMap); err != nil {
+			return err
+		}
 		albumMap := map[uint]uint{}
 		photoMap := map[uint]uint{}
 		postMap := map[uint]uint{}
@@ -346,6 +348,115 @@ func (u *GroupDataUsecase) Import(groupID, currentUserID uint, data *GroupDataEx
 		}
 		return nil
 	})
+}
+
+// importMembers restores known users immediately and creates pending invites
+// for users who are not registered in the target account yet. The invite keeps
+// the original role so accepting it restores the source group's permissions.
+func importMembers(tx *gorm.DB, groupID, invitedBy uint, exportedMembers []ExportMember, exportedUsers []ExportUser, userMap map[uint]uint) error {
+	userDetails := make(map[uint]ExportUser, len(exportedUsers))
+	for _, user := range exportedUsers {
+		userDetails[user.ID] = user
+	}
+
+	for _, exported := range exportedMembers {
+		userID, exists := userMap[exported.UserID]
+		if exists {
+			var member model.GroupMember
+			err := tx.Where("group_id = ? AND user_id = ?", groupID, userID).First(&member).Error
+			if err == nil {
+				// Never remove an existing manager's privilege during import.
+				if member.Role != "manager" && exported.Role == "manager" {
+					if err := tx.Model(&member).Update("role", "manager").Error; err != nil {
+						return err
+					}
+				}
+				continue
+			}
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+			role := normalizedMemberRole(exported.Role)
+			if err := tx.Create(&model.GroupMember{
+				GroupID:  groupID,
+				UserID:   userID,
+				Role:     role,
+				JoinedAt: exported.JoinedAt,
+			}).Error; err != nil {
+				return err
+			}
+			continue
+		}
+
+		details, ok := userDetails[exported.UserID]
+		if !ok {
+			continue
+		}
+		email := strings.TrimSpace(details.Email)
+		if email == "" {
+			continue
+		}
+		pendingFirebaseUID, err := generateToken()
+		if err != nil {
+			return err
+		}
+		pendingUser := &model.User{
+			FirebaseUID: "pending:" + pendingFirebaseUID,
+			Email:       email,
+			DisplayName: details.DisplayName,
+			Role:        "member",
+		}
+		if err := tx.Create(pendingUser).Error; err != nil {
+			return err
+		}
+		userMap[exported.UserID] = pendingUser.ID
+		role := normalizedMemberRole(exported.Role)
+		joinedAt := exported.JoinedAt
+		if joinedAt.IsZero() {
+			joinedAt = time.Now()
+		}
+		if err := tx.Create(&model.GroupMember{
+			GroupID:  groupID,
+			UserID:   pendingUser.ID,
+			Role:     role,
+			JoinedAt: joinedAt,
+		}).Error; err != nil {
+			return err
+		}
+		var invite model.Invite
+		err = tx.Where("group_id = ? AND LOWER(email) = LOWER(?) AND status = ?", groupID, email, "pending").First(&invite).Error
+		if err == nil {
+			continue
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+		token, err := generateToken()
+		if err != nil {
+			return err
+		}
+		// Invites are intentionally not emailed here. They remain visible in the
+		// group's invite management screen and can be sent again from there.
+		if err := tx.Create(&model.Invite{
+			GroupID:   groupID,
+			Email:     email,
+			Token:     token,
+			Status:    "pending",
+			Role:      role,
+			ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
+			InvitedBy: invitedBy,
+		}).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func normalizedMemberRole(role string) string {
+	if role == "manager" {
+		return "manager"
+	}
+	return "member"
 }
 
 func (u *GroupDataUsecase) ImportAsNewGroup(currentUserID uint, data *GroupDataExport) (uint, error) {

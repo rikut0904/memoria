@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"memoria/internal/domain/model"
@@ -106,8 +107,8 @@ func (h *InviteHandler) VerifyInvite(c echo.Context) error {
 	}
 
 	userExists := false
-	if _, err := h.userUsecase.GetUserByEmail(invite.Email); err == nil {
-		userExists = true
+	if user, err := h.userUsecase.GetUserByEmail(invite.Email); err == nil {
+		userExists = !strings.HasPrefix(user.FirebaseUID, "pending:")
 	}
 
 	return c.JSON(http.StatusOK, VerifyInviteResponse{

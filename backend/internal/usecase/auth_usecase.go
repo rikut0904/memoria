@@ -137,17 +137,30 @@ func (u *AuthUsecase) Signup(email, password, displayName, backPath string) (*mo
 		return nil, "", err
 	}
 
-	user := &model.User{
-		FirebaseUID: resp.LocalID,
-		Email:       resp.Email,
-		DisplayName: displayName,
-		Role:        "member",
-	}
-	if user.DisplayName == "" {
-		user.DisplayName = resp.Email
-	}
-	if err := u.userRepo.Create(user); err != nil {
-		return nil, "", err
+	user, err := u.userRepo.FindByEmail(resp.Email)
+	if err == nil && isPendingUser(user) {
+		user.FirebaseUID = resp.LocalID
+		if displayName != "" {
+			user.DisplayName = displayName
+		}
+		if err := u.userRepo.Update(user); err != nil {
+			return nil, "", err
+		}
+	} else if err != nil {
+		user = &model.User{
+			FirebaseUID: resp.LocalID,
+			Email:       resp.Email,
+			DisplayName: displayName,
+			Role:        "member",
+		}
+		if user.DisplayName == "" {
+			user.DisplayName = resp.Email
+		}
+		if err := u.userRepo.Create(user); err != nil {
+			return nil, "", err
+		}
+	} else {
+		return nil, "", errors.New("email already exists")
 	}
 
 	if u.isLocalEnvironment() {
@@ -308,6 +321,13 @@ func (u *AuthUsecase) ensureUser(firebaseUID, email string) (*model.User, error)
 		return existing, nil
 	}
 	if existing, err := u.userRepo.FindByEmail(email); err == nil && existing != nil {
+		if isPendingUser(existing) {
+			existing.FirebaseUID = firebaseUID
+			if err := u.userRepo.Update(existing); err != nil {
+				return nil, err
+			}
+			return existing, nil
+		}
 		if existing.FirebaseUID != firebaseUID {
 			return nil, errors.New("email already exists")
 		}
@@ -323,6 +343,10 @@ func (u *AuthUsecase) ensureUser(firebaseUID, email string) (*model.User, error)
 		return nil, err
 	}
 	return user, nil
+}
+
+func isPendingUser(user *model.User) bool {
+	return user != nil && strings.HasPrefix(user.FirebaseUID, "pending:")
 }
 
 func (u *AuthUsecase) signInWithPassword(email, password string) (*firebaseAuthResponse, error) {

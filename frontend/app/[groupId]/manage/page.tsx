@@ -71,15 +71,17 @@ export default function GroupManagementPage() {
       setCurrentGroup(groupId);
 
       try {
-        const [userRes, groupsRes, membersRes] = await Promise.all([
+        const [userRes, groupsRes, membersRes, invitesRes] = await Promise.all([
           api.get("/me"),
           api.get("/groups"),
           api.get(`/groups/${groupId}/members`),
+          api.get("/invites"),
         ]);
         const groups = groupsRes.data as Group[];
         const current = groups.find((g) => g.id === groupId) || null;
         setGroup(current);
         setMembers(membersRes.data || []);
+        setInvites(invitesRes.data || []);
         setUser(userRes.data);
       } catch (err) {
         console.error("Failed to fetch group data:", err);
@@ -135,6 +137,17 @@ export default function GroupManagementPage() {
     } catch (err) {
       console.error("Failed to delete invite:", err);
       setError(getErrorMessage(err, "招待の削除に失敗しました"));
+    }
+  };
+
+  const handleCopyInviteLink = async (token: string) => {
+    const inviteURL = `${window.location.origin}/invites/${token}`;
+    try {
+      await navigator.clipboard.writeText(inviteURL);
+      alert("招待リンクをコピーしました");
+    } catch (err) {
+      console.error("Failed to copy invite link:", err);
+      setError("招待リンクをコピーできませんでした");
     }
   };
 
@@ -227,7 +240,7 @@ export default function GroupManagementPage() {
                 {invites.map((invite) => (
                   <div
                     key={invite.id}
-                    className="flex justify-between items-center border rounded-lg p-3"
+                    className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border rounded-lg p-3"
                   >
                     <div>
                       <p className="font-medium text-gray-800">
@@ -238,12 +251,22 @@ export default function GroupManagementPage() {
                         {invite.status}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleDeleteInvite(invite.id)}
-                      className="text-sm text-red-600 hover:text-red-800"
-                    >
-                      削除
-                    </button>
+                    <div className="flex items-center gap-3">
+                      {invite.status === "pending" && (
+                        <button
+                          onClick={() => handleCopyInviteLink(invite.token)}
+                          className="text-sm text-primary-600 hover:text-primary-800"
+                        >
+                          リンクをコピー
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteInvite(invite.id)}
+                        className="text-sm text-red-600 hover:text-red-800"
+                      >
+                        削除
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
