@@ -273,7 +273,6 @@ export default function GroupManagementPage() {
             )}
           </div>
         </section>
-
       </main>
     </div>
   );

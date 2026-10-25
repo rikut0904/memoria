@@ -46,7 +46,13 @@ function LogoutIcon() {
   );
 }
 
-function UserTag({ userLabel, userInitial, email, onClick, expanded }: UserTagProps) {
+function UserTag({
+  userLabel,
+  userInitial,
+  email,
+  onClick,
+  expanded,
+}: UserTagProps) {
   return (
     <button
       type="button"
@@ -68,14 +74,31 @@ function UserTag({ userLabel, userInitial, email, onClick, expanded }: UserTagPr
       <span className="min-w-0 truncate text-sm font-semibold">
         {userLabel}
       </span>
-      <span aria-hidden="true" className="ml-1 text-xs text-gray-500">▾</span>
+      <span aria-hidden="true" className="ml-1 text-xs text-gray-500">
+        ▾
+      </span>
     </button>
   );
 }
 
-function UserMenu({ mobile, onClose, onLogout }: { mobile?: boolean; onClose: () => void; onLogout: () => void }) {
+function UserMenu({
+  mobile,
+  onClose,
+  onLogout,
+}: {
+  mobile?: boolean;
+  onClose: () => void;
+  onLogout: () => void;
+}) {
   return (
-    <div className={mobile ? "mt-2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm" : "absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"} role="menu">
+    <div
+      className={
+        mobile
+          ? "mt-2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+          : "absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+      }
+      role="menu"
+    >
       <Link
         href="/settings"
         onClick={onClose}
@@ -174,7 +197,12 @@ export default function AppHeader({
                   expanded={userMenuOpen}
                   onClick={() => setUserMenuOpen((previous) => !previous)}
                 />
-                {userMenuOpen && <UserMenu onClose={() => setUserMenuOpen(false)} onLogout={handleLogout} />}
+                {userMenuOpen && (
+                  <UserMenu
+                    onClose={() => setUserMenuOpen(false)}
+                    onLogout={handleLogout}
+                  />
+                )}
               </div>
             )}
             <div className="hidden items-center gap-2 xl:flex xl:gap-3">
@@ -271,7 +299,13 @@ export default function AppHeader({
                   expanded={userMenuOpen}
                   onClick={() => setUserMenuOpen((previous) => !previous)}
                 />
-                {userMenuOpen && <UserMenu mobile onClose={() => setUserMenuOpen(false)} onLogout={handleLogout} />}
+                {userMenuOpen && (
+                  <UserMenu
+                    mobile
+                    onClose={() => setUserMenuOpen(false)}
+                    onLogout={handleLogout}
+                  />
+                )}
               </div>
             )}
           </div>

@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import { clearCurrentGroup, getCurrentGroupId, setCurrentGroup } from "@/lib/group";
+import {
+  clearCurrentGroup,
+  getCurrentGroupId,
+  setCurrentGroup,
+} from "@/lib/group";
 import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 import AppHeader from "@/components/AppHeader";
@@ -81,7 +85,12 @@ export default function Home() {
   };
 
   const handleDeleteGroup = async (group: Group) => {
-    if (!confirm(`「${group.name}」を削除しますか？投稿・写真・旅行記録なども削除され、元に戻せません。`)) return;
+    if (
+      !confirm(
+        `「${group.name}」を削除しますか？投稿・写真・旅行記録なども削除され、元に戻せません。`,
+      )
+    )
+      return;
     if (!confirm("本当に削除する場合は、もう一度確認してください。")) return;
     setError("");
     setDeletingGroupId(group.id);
@@ -202,7 +211,9 @@ export default function Home() {
                       disabled={deletingGroupId !== null}
                       className="text-xs font-semibold text-red-600 hover:text-red-800 disabled:opacity-50"
                     >
-                      {deletingGroupId === group.id ? "削除中..." : "このグループを削除"}
+                      {deletingGroupId === group.id
+                        ? "削除中..."
+                        : "このグループを削除"}
                     </button>
                   </div>
                 </div>
