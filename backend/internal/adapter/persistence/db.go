@@ -49,6 +49,7 @@ func autoMigrate(db *gorm.DB) error {
 
 	models := []interface{}{
 		&model.User{},
+		&model.SignupProfile{},
 		&model.Group{},
 		&model.GroupMember{},
 		&model.Invite{},

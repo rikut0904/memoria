@@ -16,11 +16,14 @@ import (
 	"memoria/internal/adapter/auth"
 	"memoria/internal/domain/model"
 	"memoria/internal/domain/repository"
+
+	"gorm.io/gorm"
 )
 
 type AuthUsecase struct {
 	firebaseAuth       *auth.FirebaseAuth
 	userRepo           repository.UserRepository
+	signupProfileRepo  repository.SignupProfileRepository
 	appEnv             string
 	firebaseAPIKey     string
 	sessionTTL         time.Duration
@@ -45,12 +48,13 @@ func (e *AuthError) Error() string {
 	return e.Code
 }
 
-func NewAuthUsecase(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, appEnv string, firebaseAPIKey string, sessionTTL time.Duration, frontendBaseURL string, projectID string, authEmulatorHost string, verificationMailer interface {
+func NewAuthUsecase(firebaseAuth *auth.FirebaseAuth, userRepo repository.UserRepository, signupProfileRepo repository.SignupProfileRepository, appEnv string, firebaseAPIKey string, sessionTTL time.Duration, frontendBaseURL string, projectID string, authEmulatorHost string, verificationMailer interface {
 	SendEmailVerification(email, verificationURL string) error
 }, localVerificationURL string) *AuthUsecase {
 	return &AuthUsecase{
 		firebaseAuth:         firebaseAuth,
 		userRepo:             userRepo,
+		signupProfileRepo:    signupProfileRepo,
 		appEnv:               appEnv,
 		firebaseAPIKey:       firebaseAPIKey,
 		sessionTTL:           sessionTTL,
@@ -141,6 +145,9 @@ func (u *AuthUsecase) Signup(email, password, displayName, backPath string) (*mo
 		return nil, "", err
 	}
 	if !verified {
+		if err := u.saveSignupProfile(resp.LocalID, resp.Email, displayName); err != nil {
+			return nil, "", err
+		}
 		if err := u.sendVerifyEmail(resp.IDToken, backPath); err != nil {
 			log.Printf("Failed to send verify email: %v", err)
 		}
@@ -327,13 +334,39 @@ func (u *AuthUsecase) VerifyEmail(idToken string) error {
 }
 
 func (u *AuthUsecase) ensureUser(firebaseUID, email string) (*model.User, error) {
+	displayName := ""
+	var signupProfile *model.SignupProfile
+	if u.signupProfileRepo != nil {
+		profile, err := u.signupProfileRepo.FindByFirebaseUID(firebaseUID)
+		if err == nil {
+			signupProfile = profile
+			displayName = profile.DisplayName
+		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+	}
 	if existing, err := u.userRepo.FindByFirebaseUID(firebaseUID); err == nil && existing != nil {
+		if displayName != "" && existing.DisplayName == "" {
+			existing.DisplayName = displayName
+			if err := u.userRepo.Update(existing); err != nil {
+				return nil, err
+			}
+		}
+		if err := u.deleteSignupProfile(signupProfile); err != nil {
+			return nil, err
+		}
 		return existing, nil
 	}
 	if existing, err := u.userRepo.FindByEmail(email); err == nil && existing != nil {
 		if isPendingUser(existing) {
 			existing.FirebaseUID = firebaseUID
+			if displayName != "" {
+				existing.DisplayName = displayName
+			}
 			if err := u.userRepo.Update(existing); err != nil {
+				return nil, err
+			}
+			if err := u.deleteSignupProfile(signupProfile); err != nil {
 				return nil, err
 			}
 			return existing, nil
@@ -346,13 +379,37 @@ func (u *AuthUsecase) ensureUser(firebaseUID, email string) (*model.User, error)
 	user := &model.User{
 		FirebaseUID: firebaseUID,
 		Email:       email,
-		DisplayName: email,
+		DisplayName: displayName,
 		Role:        "member",
+	}
+	if user.DisplayName == "" {
+		user.DisplayName = email
 	}
 	if err := u.userRepo.Create(user); err != nil {
 		return nil, err
 	}
+	if err := u.deleteSignupProfile(signupProfile); err != nil {
+		return nil, err
+	}
 	return user, nil
+}
+
+func (u *AuthUsecase) saveSignupProfile(firebaseUID, email, displayName string) error {
+	if u.signupProfileRepo == nil {
+		return errors.New("signup profile storage is not configured")
+	}
+	return u.signupProfileRepo.Create(&model.SignupProfile{
+		FirebaseUID: firebaseUID,
+		Email:       email,
+		DisplayName: displayName,
+	})
+}
+
+func (u *AuthUsecase) deleteSignupProfile(profile *model.SignupProfile) error {
+	if profile == nil || u.signupProfileRepo == nil {
+		return nil
+	}
+	return u.signupProfileRepo.Delete(profile.ID)
 }
 
 func isPendingUser(user *model.User) bool {
