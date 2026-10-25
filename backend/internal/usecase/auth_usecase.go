@@ -106,7 +106,7 @@ func (u *AuthUsecase) Login(email, password, backPath string) (*model.User, stri
 	if err != nil {
 		return nil, "", "", "", err
 	}
-	if !verified && !u.isLocalEnvironment() {
+	if !verified {
 		if err := u.sendVerifyEmail(resp.IDToken, backPath); err != nil {
 			log.Printf("Failed to send verify email: %v", err)
 		}
@@ -135,6 +135,16 @@ func (u *AuthUsecase) Signup(email, password, displayName, backPath string) (*mo
 	resp, err := u.signUpWithPassword(email, password)
 	if err != nil {
 		return nil, "", err
+	}
+	verified, err := u.isEmailVerified(resp.IDToken)
+	if err != nil {
+		return nil, "", err
+	}
+	if !verified {
+		if err := u.sendVerifyEmail(resp.IDToken, backPath); err != nil {
+			log.Printf("Failed to send verify email: %v", err)
+		}
+		return nil, "", &AuthError{Code: "EMAIL_NOT_VERIFIED", Message: "メール認証が完了してからログインしてください。"}
 	}
 
 	user, err := u.userRepo.FindByEmail(resp.Email)

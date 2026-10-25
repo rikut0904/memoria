@@ -58,6 +58,9 @@ func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, "invalid session")
 		}
+		if !isVerifiedEmailToken(token) {
+			return echo.NewHTTPError(http.StatusUnauthorized, "email verification required")
+		}
 
 		user, err := m.userRepo.FindByFirebaseUID(token.UID)
 		if err != nil {
@@ -69,6 +72,9 @@ func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 			if err != nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, "user not found")
 			}
+		}
+		if strings.HasPrefix(user.FirebaseUID, "pending:") {
+			return echo.NewHTTPError(http.StatusUnauthorized, "account claim required")
 		}
 
 		now := time.Now()
@@ -89,6 +95,11 @@ func (m *AuthMiddleware) RequireAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+func isVerifiedEmailToken(token *fbauth.Token) bool {
+	verified, ok := token.Claims["email_verified"].(bool)
+	return ok && verified
+}
+
 func (m *AuthMiddleware) RequireFirebaseAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authHeader := c.Request().Header.Get("Authorization")
@@ -105,6 +116,9 @@ func (m *AuthMiddleware) RequireFirebaseAuth(next echo.HandlerFunc) echo.Handler
 		token, err := m.firebaseAuth.VerifyIDToken(c.Request().Context(), idToken)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, "invalid token")
+		}
+		if !isVerifiedEmailToken(token) {
+			return echo.NewHTTPError(http.StatusUnauthorized, "email verification required")
 		}
 
 		email, _ := token.Claims["email"].(string)
