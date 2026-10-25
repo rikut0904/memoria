@@ -163,7 +163,9 @@ func (u *InviteUsecase) AcceptInviteForUser(token string, user *model.User) erro
 		// Imported users already have a placeholder membership. Once the invited
 		// account claims that user record, accepting the invite only needs to
 		// finalize the invite instead of inserting a duplicate membership.
-		if existingMember.Role != invite.Role {
+		// Never downgrade an existing manager because an older member invite was
+		// accepted after a newer manager invite.
+		if existingMember.Role != "manager" && invite.Role == "manager" {
 			existingMember.Role = invite.Role
 			if err := u.groupMemberRepo.Update(existingMember); err != nil {
 				return err
