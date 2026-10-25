@@ -383,6 +383,7 @@ export default function SettingsPage() {
               type="button"
               onClick={() => {
                 setExportTarget("all");
+                setError("");
                 setModal("export");
               }}
               disabled={busy !== null}
@@ -405,6 +406,7 @@ export default function SettingsPage() {
               onClick={() => {
                 setImportFile(null);
                 setImportTarget("");
+                setError("");
                 setModal("import");
               }}
               disabled={busy !== null}
@@ -422,6 +424,15 @@ export default function SettingsPage() {
           description="保存したい範囲を選択してください。グループ単位のファイルは、あとで新しいグループとして復元できます。"
           onClose={closeModal}
         >
+          {error && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              {error}
+            </div>
+          )}
           <div className="space-y-3">
             <label className="flex cursor-pointer gap-3 rounded-xl border border-gray-200 p-4 hover:border-primary-300">
               <input
@@ -510,6 +521,15 @@ export default function SettingsPage() {
           description="既存グループを指定すると内容だけを追加します。指定しない場合は、JSON内のグループ情報から新しいグループを作成します。"
           onClose={closeModal}
         >
+          {error && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              {error}
+            </div>
+          )}
           <div className="space-y-5">
             <label className="block cursor-pointer rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-center hover:border-primary-400 hover:bg-primary-50">
               <span className="block font-semibold text-gray-800">
