@@ -1,0 +1,37 @@
+name: database-migrate
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "GitHub Environment containing the DATABASE_URL secret"
+        required: true
+        type: choice
+        options:
+          - stg
+          - prod
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: "1.27"
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: database-migrate-${{ inputs.environment }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: backend/go.sum
+      - name: Apply database migrations
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: go run ./cmd/migrate
