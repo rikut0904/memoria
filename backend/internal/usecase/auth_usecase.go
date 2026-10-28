@@ -439,7 +439,7 @@ func (u *AuthUsecase) callFirebaseAuth(endpoint string, payload map[string]any) 
 	if u.isLocalEnvironment() {
 		base = "http://" + u.authEmulatorHost
 	}
-	url := fmt.Sprintf("%s/identitytoolkit.googleapis.com/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
+	url := fmt.Sprintf("%s/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
 	body, _ := json.Marshal(payload)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
@@ -472,7 +472,7 @@ func (u *AuthUsecase) callFirebaseOob(endpoint string, payload map[string]any) (
 	if u.isLocalEnvironment() {
 		base = "http://" + u.authEmulatorHost
 	}
-	url := fmt.Sprintf("%s/identitytoolkit.googleapis.com/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
+	url := fmt.Sprintf("%s/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
 	body, _ := json.Marshal(payload)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
@@ -535,7 +535,7 @@ func (u *AuthUsecase) callFirebaseLookup(endpoint string, payload map[string]any
 	if u.isLocalEnvironment() {
 		base = "http://" + u.authEmulatorHost
 	}
-	url := fmt.Sprintf("%s/identitytoolkit.googleapis.com/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
+	url := fmt.Sprintf("%s/v1/%s?key=%s", base, endpoint, u.firebaseAPIKey)
 	body, _ := json.Marshal(payload)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
