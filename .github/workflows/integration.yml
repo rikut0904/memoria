@@ -17,7 +17,7 @@ jobs:
       - name: Start migration dependencies
         run: docker compose up -d --build postgres firebase ministack
       - name: Apply database migrations
-        run: docker compose run --rm --build --no-deps backend /app/migrate
+        run: docker compose run --rm --build --no-deps --entrypoint /app/migrate backend
       - name: Start backend
         run: docker compose up -d --build backend
       - name: Wait for backend health
