@@ -14,8 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Start local services
-        run: docker compose up -d --build postgres firebase ministack backend
+      - name: Start migration dependencies
+        run: docker compose up -d --build postgres firebase ministack
+      - name: Apply database migrations
+        run: docker compose run --rm --build --no-deps --entrypoint /app/migrate backend
+      - name: Start backend
+        run: docker compose up -d --build backend
       - name: Wait for backend health
         run: |
           set -euo pipefail

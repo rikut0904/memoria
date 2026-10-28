@@ -61,6 +61,12 @@ export default function GroupManagementPage() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState<User | null>(null);
+  const isGroupManager = Boolean(
+    user &&
+      members.some(
+        (member) => member.user_id === user.id && member.role === "manager",
+      ),
+  );
   useEffect(() => {
     const fetchGroup = async () => {
       if (!groupId || Number.isNaN(groupId)) {
@@ -78,9 +84,26 @@ export default function GroupManagementPage() {
         ]);
         const groups = groupsRes.data as Group[];
         const current = groups.find((g) => g.id === groupId) || null;
+        const currentUser = userRes.data as User;
+        const memberList = (membersRes.data || []) as Member[];
         setGroup(current);
-        setMembers(membersRes.data || []);
-        setUser(userRes.data);
+        setMembers(memberList);
+        setUser(currentUser);
+
+        if (
+          memberList.some(
+            (member) =>
+              member.user_id === currentUser.id && member.role === "manager",
+          )
+        ) {
+          try {
+            const invitesRes = await api.get("/invites");
+            setInvites(invitesRes.data || []);
+          } catch (inviteErr) {
+            console.error("Failed to fetch group invites:", inviteErr);
+            setInvites([]);
+          }
+        }
       } catch (err) {
         console.error("Failed to fetch group data:", err);
         setError(getErrorMessage(err, "グループ情報の取得に失敗しました"));
@@ -138,6 +161,17 @@ export default function GroupManagementPage() {
     }
   };
 
+  const handleCopyInviteLink = async (token: string) => {
+    const inviteURL = `${window.location.origin}/invites/${token}`;
+    try {
+      await navigator.clipboard.writeText(inviteURL);
+      alert("招待リンクをコピーしました");
+    } catch (err) {
+      console.error("Failed to copy invite link:", err);
+      setError("招待リンクをコピーできませんでした");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -185,71 +219,83 @@ export default function GroupManagementPage() {
           )}
         </section>
 
-        <section className="card">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">招待</h2>
-          <form
-            onSubmit={handleCreateInvite}
-            className="flex flex-col sm:flex-row gap-3"
-          >
-            <input
-              type="email"
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              placeholder="招待するメールアドレス"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              required
-            />
-            <select
-              value={inviteRole}
-              onChange={(e) => setInviteRole(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        {isGroupManager && (
+          <section className="card">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">招待</h2>
+            <form
+              onSubmit={handleCreateInvite}
+              className="flex flex-col sm:flex-row gap-3"
             >
-              <option value="member">通常メンバー</option>
-              <option value="manager">グループ管理者</option>
-            </select>
-            <button
-              type="submit"
-              disabled={creating}
-              className="px-5 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
-            >
-              {creating ? "送信中..." : "招待する"}
-            </button>
-          </form>
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="招待するメールアドレス"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                required
+              />
+              <select
+                value={inviteRole}
+                onChange={(e) => setInviteRole(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="member">通常メンバー</option>
+                <option value="manager">グループ管理者</option>
+              </select>
+              <button
+                type="submit"
+                disabled={creating}
+                className="px-5 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+              >
+                {creating ? "送信中..." : "招待する"}
+              </button>
+            </form>
 
-          <div className="mt-6">
-            <div className="text-lg font-semibold text-gray-800 mb-3">
-              招待一覧
-            </div>
-            {invites.length === 0 ? (
-              <p className="text-gray-500">未使用の招待はありません。</p>
-            ) : (
-              <div className="space-y-2">
-                {invites.map((invite) => (
-                  <div
-                    key={invite.id}
-                    className="flex justify-between items-center border rounded-lg p-3"
-                  >
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        {invite.email}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {invite.role === "manager" ? "管理者" : "メンバー"} /{" "}
-                        {invite.status}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteInvite(invite.id)}
-                      className="text-sm text-red-600 hover:text-red-800"
-                    >
-                      削除
-                    </button>
-                  </div>
-                ))}
+            <div className="mt-6">
+              <div className="text-lg font-semibold text-gray-800 mb-3">
+                招待一覧
               </div>
-            )}
-          </div>
-        </section>
+              {invites.length === 0 ? (
+                <p className="text-gray-500">未使用の招待はありません。</p>
+              ) : (
+                <div className="space-y-2">
+                  {invites.map((invite) => (
+                    <div
+                      key={invite.id}
+                      className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border rounded-lg p-3"
+                    >
+                      <div>
+                        <p className="font-medium text-gray-800">
+                          {invite.email}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {invite.role === "manager" ? "管理者" : "メンバー"} /{" "}
+                          {invite.status}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {invite.status === "pending" && (
+                          <button
+                            onClick={() => handleCopyInviteLink(invite.token)}
+                            className="text-sm text-primary-600 hover:text-primary-800"
+                          >
+                            リンクをコピー
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteInvite(invite.id)}
+                          className="text-sm text-red-600 hover:text-red-800"
+                        >
+                          削除
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

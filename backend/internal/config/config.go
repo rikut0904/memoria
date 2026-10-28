@@ -11,9 +11,8 @@ import (
 )
 
 type Config struct {
-	AppEnv      string
-	AppPort     string
-	AutoMigrate bool
+	AppEnv  string
+	AppPort string
 
 	// Database config (parsed from DATABASE_URL or individual env vars)
 	DBHost     string
@@ -46,15 +45,21 @@ type Config struct {
 }
 
 func Load() Config {
-	// Load .env file if it exists (ignore error if not found)
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables")
+	// Load local overrides first. Existing process environment variables take
+	// precedence, and .env fills values not provided by .env.local.
+	loadedEnvFile := false
+	for _, filename := range []string{".env.local", ".env"} {
+		if err := godotenv.Load(filename); err == nil {
+			loadedEnvFile = true
+		}
+	}
+	if !loadedEnvFile {
+		log.Println("No .env.local or .env file found, using environment variables")
 	}
 
 	cfg := Config{
-		AppEnv:      getEnv("APP_ENV", "local"),
-		AppPort:     getEnv("APP_PORT", "8080"),
-		AutoMigrate: getEnv("AUTO_MIGRATE", "true") != "false",
+		AppEnv:  getEnv("APP_ENV", "local"),
+		AppPort: getEnv("APP_PORT", "8080"),
 
 		FirebaseProjectID:        getEnv("FIREBASE_PROJECT_ID", ""),
 		FirebaseClientEmail:      getEnv("FIREBASE_CLIENT_EMAIL", ""),

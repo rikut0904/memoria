@@ -64,6 +64,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 
 	// Repositories
 	userRepo := persistence.NewUserRepository(db)
+	signupProfileRepo := persistence.NewSignupProfileRepository(db)
 	inviteRepo := persistence.NewInviteRepository(db)
 	groupRepo := persistence.NewGroupRepository(db)
 	groupMemberRepo := persistence.NewGroupMemberRepository(db)
@@ -83,12 +84,13 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	groupUsecase := usecase.NewGroupUsecase(groupRepo, groupMemberRepo)
 	// Firebase Session Cookie の上限は 14 日
 	sessionTTL := 14 * 24 * time.Hour
-	authUsecase := usecase.NewAuthUsecase(firebaseAuth, userRepo, cfg.AppEnv, cfg.FirebaseAPIKey, sessionTTL, cfg.FrontendBaseURL, cfg.FirebaseProjectID, cfg.FirebaseAuthEmulatorHost, mailer, cfg.LocalEmailVerificationURL)
+	authUsecase := usecase.NewAuthUsecase(firebaseAuth, userRepo, signupProfileRepo, cfg.AppEnv, cfg.FirebaseAPIKey, sessionTTL, cfg.FrontendBaseURL, cfg.FirebaseProjectID, cfg.FirebaseAuthEmulatorHost, mailer, cfg.LocalEmailVerificationURL)
 	inviteUsecase := usecase.NewInviteUsecase(inviteRepo, userRepo, groupRepo, groupMemberRepo, mailer)
 	albumUsecase := usecase.NewAlbumUsecase(albumRepo, photoRepo)
 	photoUsecase := usecase.NewPhotoUsecase(photoRepo, albumRepo, s3Service)
 	postUsecase := usecase.NewPostUsecase(postRepo, tagRepo, albumRepo, photoRepo)
 	tripUsecase := usecase.NewTripUsecase(tripRepo, itineraryRepo, wishlistRepo, expenseRepo, tripRelationRepo, tripDetailRepo, albumRepo, postRepo)
+	groupDataUsecase := usecase.NewGroupDataUsecase(db, s3Service)
 
 	// Handlers
 	userHandler := handler.NewUserHandler(userUsecase)
@@ -100,6 +102,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 	photoHandler := handler.NewPhotoHandler(photoUsecase)
 	postHandler := handler.NewPostHandler(postUsecase)
 	tripHandler := handler.NewTripHandler(tripUsecase)
+	groupDataHandler := handler.NewGroupDataHandler(groupDataUsecase)
 
 	// Middleware
 	authMiddleware := middleware.NewAuthMiddleware(firebaseAuth, userRepo, groupMemberRepo)
@@ -115,6 +118,7 @@ func BuildServer(cfg config.Config) (*echo.Echo, error) {
 		photoHandler,
 		postHandler,
 		tripHandler,
+		groupDataHandler,
 		authMiddleware,
 		cfg.FrontendBaseURL,
 		cfg.AllowedOrigins,
