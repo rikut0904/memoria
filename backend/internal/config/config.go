@@ -133,6 +133,35 @@ func (c Config) Validate() error {
 	return nil
 }
 
+// ValidateDatabase checks settings required by commands that connect directly
+// to PostgreSQL, including the migration command. Unlike Validate, this check
+// also applies to local runs because a missing database URL must not silently
+// fall back to an unrelated localhost database.
+func (c Config) ValidateDatabase() error {
+	if strings.TrimSpace(os.Getenv("DATABASE_URL")) != "" {
+		if c.DBHost == "" || c.DBUser == "" || c.DBName == "" {
+			return fmt.Errorf("DATABASE_URL is invalid: host, user, and database name are required")
+		}
+		return nil
+	}
+
+	missing := make([]string, 0, 4)
+	for name, value := range map[string]string{
+		"DB_HOST":     os.Getenv("DB_HOST"),
+		"DB_USER":     os.Getenv("DB_USER"),
+		"DB_PASSWORD": os.Getenv("DB_PASSWORD"),
+		"DB_NAME":     os.Getenv("DB_NAME"),
+	} {
+		if strings.TrimSpace(value) == "" {
+			missing = append(missing, name)
+		}
+	}
+	if len(missing) > 0 {
+		return fmt.Errorf("database configuration is missing: set DATABASE_URL or %s", strings.Join(missing, ", "))
+	}
+	return nil
+}
+
 func normalizePrivateKey(raw string) string {
 	if raw == "" {
 		return raw

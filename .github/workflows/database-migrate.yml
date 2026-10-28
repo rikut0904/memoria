@@ -33,5 +33,12 @@ jobs:
       - name: Apply database migrations
         working-directory: backend
         env:
+          APP_ENV: ${{ inputs.environment }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: go run ./cmd/migrate
+        run: |
+          set -euo pipefail
+          if [[ -z "${DATABASE_URL//[[:space:]]/}" ]]; then
+            echo "::error::DATABASE_URL is empty. Add DATABASE_URL to the '${{ inputs.environment }}' GitHub Environment secrets."
+            exit 1
+          fi
+          go run ./cmd/migrate
