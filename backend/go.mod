@@ -6,7 +6,7 @@ require (
 	firebase.google.com/go/v4 v4.22.0
 	github.com/aws/aws-sdk-go v1.55.8
 	github.com/joho/godotenv v1.5.1
-	github.com/labstack/echo/v4 v4.16.0
+	github.com/labstack/echo/v4 v4.16.2
 	golang.org/x/oauth2 v0.37.0
 	google.golang.org/api v0.308.0
 	gorm.io/driver/postgres v1.6.3
