@@ -9,6 +9,9 @@ import (
 
 func main() {
 	cfg := config.Load()
+	if err := cfg.ValidateDatabase(); err != nil {
+		log.Fatalf("invalid database configuration: %v", err)
+	}
 	db, err := persistence.NewMigrationDB(cfg)
 	if err != nil {
 		log.Fatalf("database connection failed: %v", err)
