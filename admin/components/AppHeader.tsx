@@ -4,8 +4,7 @@ import { ReactNode, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import api from "@/lib/api";
-import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
+import { clearAuthToken } from "@/lib/auth";
 import { signalLogout } from "@/lib/logoutSync";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 import MobileDialog from "@/components/MobileDialog";
@@ -38,13 +37,8 @@ export default function AppHeader({
 
   const handleLogout = async () => {
     clearAuthToken();
-    clearRefreshToken();
     signalLogout();
-    try {
-      await api.post("/logout");
-    } finally {
-      router.push(buildLoginUrl(getCurrentPathWithQuery()));
-    }
+    router.push(buildLoginUrl(getCurrentPathWithQuery()));
   };
 
   return (

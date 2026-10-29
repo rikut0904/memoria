@@ -1,7 +1,7 @@
 # DB Schema
 
 ## Users & Groups
-- users: id, firebase_uid, email, display_name, role(admin/member), last_access_at, created_at, updated_at
+- users: id, clerk_user_id, email, display_name, role(admin/member), last_access_at, created_at, updated_at
 - groups: id, name, created_by, created_at, updated_at
 - group_members: group_id, user_id, role(manager/member), joined_at
 - invites: id, group_id, email, token, status(pending/accepted/declined/expired), role(manager/member), expires_at, invited_by, created_at, updated_at

@@ -13,7 +13,7 @@ const techStack = [
       { name: "Next.js", description: "React フレームワーク" },
       { name: "TypeScript", description: "型安全な JavaScript" },
       { name: "Tailwind CSS", description: "ユーティリティベースの CSS" },
-      { name: "Firebase Auth", description: "認証管理" },
+      { name: "Clerk", description: "認証管理" },
     ],
   },
   {
@@ -177,7 +177,7 @@ export default function TechStackPage() {
                   <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">
                     &#10003;
                   </span>
-                  <span>Firebase Authentication による安全な認証</span>
+                  <span>Clerk による安全な認証</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-primary-600 dark:text-primary-400 font-bold mt-1">

@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
+import { clearAuthToken } from "@/lib/auth";
 import { readLogoutSignal } from "@/lib/logoutSync";
 
 const SEEN_KEY = "memoria_logout_seen";
+const logoutPath = "/login";
 
 export default function LogoutSync() {
   const pathname = usePathname();
@@ -19,10 +20,9 @@ export default function LogoutSync() {
 
       window.localStorage.setItem(SEEN_KEY, String(ts));
       clearAuthToken();
-      clearRefreshToken();
 
-      if (pathname !== "/login") {
-        window.location.replace("/login");
+      if (pathname !== logoutPath) {
+        window.location.replace(logoutPath);
       }
     };
 

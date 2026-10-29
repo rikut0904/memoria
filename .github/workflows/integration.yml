@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Start local services
-        run: docker compose up -d --build postgres firebase ministack backend
+        run: docker compose up -d --build postgres ministack backend
       - name: Wait for backend health
         run: |
           set -euo pipefail
@@ -26,7 +26,7 @@ jobs:
             sleep 2
           done
           docker compose ps
-          docker compose logs backend ministack firebase
+          docker compose logs backend ministack
           exit 1
       - name: Verify local service state
         run: |

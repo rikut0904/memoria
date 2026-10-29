@@ -14,7 +14,7 @@
 - Backend: Go (Echo), Clean Architecture, GORM
 - DB: PostgreSQL (Railway)
 - Storage: S3 (署名URL)
-- Auth: Firebase Authentication (email/password)
+- Auth: Clerk
 - Web Push: Firebase Cloud Messaging (FCM)
 
 ## 外部連携

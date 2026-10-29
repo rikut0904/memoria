@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import api from "@/lib/api";
-import { getAuthToken, getRefreshToken } from "@/lib/auth";
+import { getAuthToken } from "@/lib/auth";
 import MobileDialog from "@/components/MobileDialog";
 
 const APP_BASE_URL =
@@ -27,8 +27,7 @@ export default function InfoHeader() {
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const token = getAuthToken();
-    const refreshToken = getRefreshToken();
-    if (!token && !refreshToken) {
+    if (!token) {
       setIsAuthenticated(false);
       return;
     }

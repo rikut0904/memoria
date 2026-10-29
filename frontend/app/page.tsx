@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import api from "@/lib/api";
 import { setCurrentGroup } from "@/lib/group";
-import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
+import { clearAuthToken } from "@/lib/auth";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 import AppHeader from "@/components/AppHeader";
+import AppLoadingScreen from "@/components/AppLoadingScreen";
+import SiteFooter from "@/components/SiteFooter";
 
 interface User {
   id: number;
@@ -24,6 +27,7 @@ interface Group {
 
 export default function Home() {
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
@@ -33,6 +37,12 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
     const fetchGroups = async () => {
+      if (!isLoaded) return;
+      if (!isSignedIn) {
+        clearAuthToken();
+        router.replace(buildLoginUrl(getCurrentPathWithQuery()));
+        return;
+      }
       try {
         const userRes = await api.get("/me");
         setUser(userRes.data);
@@ -41,7 +51,6 @@ export default function Home() {
       } catch (err) {
         console.error("Failed to fetch groups:", err);
         clearAuthToken();
-        clearRefreshToken();
         router.replace(buildLoginUrl(getCurrentPathWithQuery()));
       } finally {
         setLoading(false);
@@ -50,7 +59,7 @@ export default function Home() {
     };
 
     fetchGroups();
-  }, [router]);
+  }, [isLoaded, isSignedIn, router]);
 
   const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,33 +87,19 @@ export default function Home() {
     router.push(`/${group.id}`);
   };
 
-  if (!authChecked) {
-    return null;
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-4xl font-bold text-primary-600 mb-4">
-            思い出memoria
-          </div>
-          <p className="text-gray-600">読み込み中...</p>
-        </div>
-      </div>
-    );
-  }
+  if (!isLoaded || !authChecked || loading) return <AppLoadingScreen />;
 
   return (
-    <div className="min-h-screen">
-      <AppHeader
-        maxWidthClassName="max-w-7xl"
-        menuHeading="思い出をひとつの場所に"
-        groupOptions={groups}
-        displayName={user?.display_name}
-        email={user?.email}
-        role={user?.role}
-      />
+    <>
+      <div className="min-h-screen">
+        <AppHeader
+          maxWidthClassName="max-w-7xl"
+          menuHeading="思い出をひとつの場所に"
+          groupOptions={groups}
+          displayName={user?.display_name}
+          email={user?.email}
+          role={user?.role}
+        />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
         <section className="card border border-primary-200 bg-white/90">
@@ -183,6 +178,8 @@ export default function Home() {
           )}
         </section>
       </main>
-    </div>
+      </div>
+      <SiteFooter />
+    </>
   );
 }

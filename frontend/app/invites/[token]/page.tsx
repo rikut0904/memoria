@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
-import axios from "axios";
 import api from "@/lib/api";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { setCurrentGroup } from "@/lib/group";
@@ -39,10 +38,6 @@ export default function InviteAcceptPage() {
   const [me, setMe] = useState<MeInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [accepting, setAccepting] = useState(false);
   const [declining, setDeclining] = useState(false);
   const backPath = normalizeBackPath(searchParams.get("back-path"));
@@ -52,7 +47,6 @@ export default function InviteAcceptPage() {
       try {
         const res = await api.get(`/invites/${token}`);
         setInviteInfo(res.data);
-        setDisplayName(res.data.email.split("@")[0]);
       } catch (err) {
         setError(getErrorMessage(err, "招待が無効または期限切れです"));
       } finally {
@@ -113,45 +107,6 @@ export default function InviteAcceptPage() {
       setError(getErrorMessage(err, "招待の拒否に失敗しました"));
     } finally {
       setDeclining(false);
-    }
-  };
-
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setInfo("");
-
-    if (password.length < 8) {
-      setError("パスワードは8文字以上で入力してください");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("パスワードが一致しません");
-      return;
-    }
-
-    setAccepting(true);
-    try {
-      await api.post(`/invites/${token}/signup`, {
-        email: inviteInfo!.email,
-        password,
-        display_name: displayName,
-        back_path: getCurrentPathWithQuery(),
-      });
-      setCurrentGroup(inviteInfo!.group_id, inviteInfo!.group_name);
-      alert("アカウントが作成されました！");
-      router.push(backPath || `/${inviteInfo!.group_id}`);
-    } catch (err) {
-      console.error("Failed to signup with invite:", err);
-      const code = axios.isAxiosError(err) ? err.response?.data?.code : "";
-      const message = getErrorMessage(err, "アカウント作成に失敗しました");
-      if (code === "EMAIL_NOT_VERIFIED") {
-        setInfo(message);
-      } else {
-        setError(message);
-      }
-    } finally {
-      setAccepting(false);
     }
   };
 
@@ -289,70 +244,18 @@ export default function InviteAcceptPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSignup} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              表示名
-            </label>
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="あなたの名前"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              パスワード（8文字以上）
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="••••••••"
-              required
-              minLength={8}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              パスワード（確認）
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="••••••••"
-              required
-              minLength={8}
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
-            </div>
-          )}
-          {info && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-              {info}
-            </div>
-          )}
-
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            アカウント作成とパスワード設定はClerkで行います。登録後、この招待ページに戻って招待を承認してください。
+          </p>
           <button
-            type="submit"
-            disabled={accepting}
-            className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            type="button"
+            onClick={() => router.push(buildLoginUrl(getCurrentPathWithQuery()))}
+            className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium"
           >
-            {accepting ? "アカウント作成中..." : "アカウントを作成"}
+            Clerkでログイン・新規登録
           </button>
-        </form>
+        </div>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">

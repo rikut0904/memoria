@@ -17,7 +17,7 @@
 - di: 依存注入
 
 ## Security
-- Firebase Authで認証
+- Clerkで認証
 - 管理者は `create-admin` コマンドで登録
 - 招待制
 - S3はプライベート、署名URLでアップロード

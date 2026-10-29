@@ -11,7 +11,7 @@ type BaseModel struct {
 
 type User struct {
 	BaseModel
-	FirebaseUID  string `gorm:"uniqueIndex;not null"`
+	ClerkUserID  string `gorm:"uniqueIndex;not null"`
 	Email        string `gorm:"uniqueIndex;not null"`
 	DisplayName  string
 	Role         string     `gorm:"not null"` // admin, member

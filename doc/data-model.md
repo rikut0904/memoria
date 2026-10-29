@@ -1,7 +1,7 @@
 # Data Model
 
 ## Users & Groups
-- users: id, firebase_uid, email, display_name, role, last_access_at, created_at, updated_at
+- users: id, clerk_user_id, email, display_name, role, last_access_at, created_at, updated_at
 - groups: id, name, created_by, created_at, updated_at
 - group_members: group_id, user_id, role(manager/member), joined_at
 - invites: id, group_id, email, token, status, role, expires_at, invited_by, created_at, updated_at

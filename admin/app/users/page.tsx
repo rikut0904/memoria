@@ -13,7 +13,7 @@ interface User {
   email: string;
   display_name: string;
   role: string;
-  firebase_uid: string;
+  clerk_user_id: string;
   created_at: string;
 }
 

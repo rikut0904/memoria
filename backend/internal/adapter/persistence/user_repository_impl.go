@@ -19,9 +19,9 @@ func (r *userRepositoryImpl) Create(user *model.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *userRepositoryImpl) FindByFirebaseUID(firebaseUID string) (*model.User, error) {
+func (r *userRepositoryImpl) FindByClerkUserID(clerkUserID string) (*model.User, error) {
 	var user model.User
-	if err := r.db.Where("firebase_uid = ?", firebaseUID).First(&user).Error; err != nil {
+	if err := r.db.Where("clerk_user_id = ?", clerkUserID).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import MobileDialog from "@/components/MobileDialog";
 
 const APP_BASE_URL =
@@ -60,6 +61,23 @@ export default function SiteHeader() {
           >
             アプリを開く
           </a>
+          <>
+              <Show when="signed-out">
+                <SignInButton mode="modal">
+                  <button type="button" className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-primary-50">
+                    ログイン
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button type="button" className="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700">
+                    新規登録
+                  </button>
+                </SignUpButton>
+              </Show>
+              <Show when="signed-in">
+                <UserButton />
+              </Show>
+          </>
         </div>
         <button
           type="button"

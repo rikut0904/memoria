@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
-import TokenBridge from "./token-bridge";
 import LogoutSync from "./logout-sync";
 import AdminAuthGuard from "@/components/AdminAuthGuard";
+import ClerkShell from "./clerk-shell";
 
 const siteTitle = "思い出memoria";
 const siteDescription =
@@ -50,13 +50,14 @@ export default function RootLayout({
         <GoogleAnalytics gaId="G-WLKP58YCP3" />
       </head>
       <body>
+        <ClerkShell>
         <Suspense fallback={null}>
-          <TokenBridge />
         </Suspense>
         <Suspense fallback={null}>
           <LogoutSync />
         </Suspense>
         <AdminAuthGuard>{children}</AdminAuthGuard>
+        </ClerkShell>
       </body>
     </html>
   );

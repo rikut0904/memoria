@@ -16,7 +16,6 @@ func RegisterRoutes(
 	e *echo.Echo,
 	userHandler *handler.UserHandler,
 	groupHandler *handler.GroupHandler,
-	authHandler *handler.AuthHandler,
 	inviteHandler *handler.InviteHandler,
 	albumHandler *handler.AlbumHandler,
 	photoHandler *handler.PhotoHandler,
@@ -26,7 +25,6 @@ func RegisterRoutes(
 	frontendBaseURL string,
 	allowedOriginsRaw string,
 	allowedOriginSuffixesRaw string,
-	appEnv string,
 ) {
 	// Middleware
 	e.Use(middleware.Logger())
@@ -108,18 +106,8 @@ func RegisterRoutes(
 	// API routes
 	api := e.Group("/api")
 
-	// Auth
-	api.POST("/login", authHandler.Login)
-	api.POST("/signup", authHandler.Signup)
-	api.POST("/logout", authHandler.Logout)
-	api.POST("/refresh", authHandler.Refresh)
-	if appEnv == "local" {
-		api.GET("/dev/auth/verify-email", authHandler.VerifyEmail)
-	}
-
 	// Public invite routes
 	api.GET("/invites/:token", inviteHandler.VerifyInvite)
-	api.POST("/invites/:token/signup", inviteHandler.SignupInvite)
 
 	// Protected routes
 	protected := api.Group("", authMiddleware.RequireAuth)

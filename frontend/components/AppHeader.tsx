@@ -4,8 +4,7 @@ import { ReactNode, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import api from "@/lib/api";
-import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
+import { clearAuthToken } from "@/lib/auth";
 import { clearCurrentGroup, setCurrentGroup } from "@/lib/group";
 import { signalLogout } from "@/lib/logoutSync";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
@@ -111,13 +110,8 @@ export default function AppHeader({
   const handleLogout = async () => {
     clearCurrentGroup();
     clearAuthToken();
-    clearRefreshToken();
     signalLogout();
-    try {
-      await api.post("/logout");
-    } finally {
-      router.push(buildLoginUrl(getCurrentPathWithQuery()));
-    }
+    router.push(buildLoginUrl(getCurrentPathWithQuery()));
   };
 
   const handleGroupSelect = (group: { id: number; name: string }) => {

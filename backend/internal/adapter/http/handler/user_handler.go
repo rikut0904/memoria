@@ -77,7 +77,7 @@ type UserResponse struct {
 	Email       string `json:"email"`
 	DisplayName string `json:"display_name"`
 	Role        string `json:"role"`
-	FirebaseUID string `json:"firebase_uid"`
+	ClerkUserID string `json:"clerk_user_id"`
 	CreatedAt   string `json:"created_at"`
 }
 
@@ -94,7 +94,7 @@ func (h *UserHandler) GetAllUsers(c echo.Context) error {
 			Email:       user.Email,
 			DisplayName: user.DisplayName,
 			Role:        user.Role,
-			FirebaseUID: user.FirebaseUID,
+			ClerkUserID: user.ClerkUserID,
 			CreatedAt:   user.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		}
 	}
@@ -120,7 +120,7 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 		Email:       user.Email,
 		DisplayName: user.DisplayName,
 		Role:        user.Role,
-		FirebaseUID: user.FirebaseUID,
+		ClerkUserID: user.ClerkUserID,
 		CreatedAt:   user.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	})
 }
@@ -152,7 +152,7 @@ func (h *UserHandler) UpdateUserRole(c echo.Context) error {
 		Email:       user.Email,
 		DisplayName: user.DisplayName,
 		Role:        user.Role,
-		FirebaseUID: user.FirebaseUID,
+		ClerkUserID: user.ClerkUserID,
 		CreatedAt:   user.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	})
 }

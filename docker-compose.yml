@@ -1,7 +1,6 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: memoria_postgres
     environment:
       POSTGRES_USER: memoria
       POSTGRES_PASSWORD: memoriapass
@@ -16,25 +15,8 @@ services:
       timeout: 5s
       retries: 10
 
-  firebase:
-    build:
-      context: ./docker/firebase
-    container_name: memoria_firebase
-    command: emulators:start --project demo-memoria --import=/opt/firebase/data --export-on-exit
-    # Firebase CLIはSIGINTで終了したときに--export-on-exitを実行する
-    stop_signal: SIGINT
-    stop_grace_period: 60s
-    ports:
-      - "29000:4000"
-      - "28081:8080"
-      - "29099:9099"
-    volumes:
-      # export先そのものをvolumeのルートにしない（EBUSY回避）
-      - memoria_firebase_data:/opt/firebase
-
   ministack:
     image: ministackorg/ministack:1.5.13
-    container_name: memoria_ministack
     environment:
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
@@ -63,7 +45,11 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: memoria_backend
+    env_file:
+      - path: ./backend/.env.local
+        required: false
+      - path: ./auth/.env.local
+        required: false
     environment:
       APP_ENV: local
       APP_PORT: 28080
@@ -74,9 +60,7 @@ services:
       DB_PASSWORD: memoriapass
       DB_NAME: memoria_db
       DB_SSLMODE: disable
-      FIREBASE_PROJECT_ID: demo-memoria
-      FIREBASE_API_KEY: local
-      FIREBASE_AUTH_EMULATOR_HOST: firebase:9099
+      DATABASE_URL: ""
       AWS_ENDPOINT: http://ministack:4566
       AWS_REGION: ap-northeast-1
       S3_BUCKET: memoria-local
@@ -84,7 +68,6 @@ services:
       S3_SECRET_KEY: test
       SES_FROM_EMAIL: no-reply@memoria.local
       FRONTEND_BASE_URL: http://localhost:23000
-      LOCAL_EMAIL_VERIFICATION_URL: http://localhost:28080/api/dev/auth/verify-email
       ALLOWED_ORIGINS: http://localhost:23000,http://localhost:23001,http://localhost:23002,http://localhost:23003,http://localhost:23004,http://localhost:23005
     ports:
       - "28080:28080"
@@ -94,8 +77,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      firebase:
-        condition: service_started
       ministack:
         condition: service_healthy
 
@@ -110,7 +91,7 @@ services:
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
         NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
         NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
-    container_name: memoria_frontend
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}
     environment:
       PORT: 23000
     ports:
@@ -131,7 +112,10 @@ services:
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
         NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
         NEXT_PUBLIC_APP_ENV: local
-    container_name: memoria_auth
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}
+    env_file:
+      - path: ./auth/.env.local
+        required: false
     environment:
       PORT: 23001
     ports:
@@ -148,7 +132,7 @@ services:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:28080
         NEXT_PUBLIC_APP_BASE_URL: http://localhost:23000
         NEXT_PUBLIC_AUTH_BASE_URL: http://localhost:23001
-    container_name: memoria_admin
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}
     environment:
       PORT: 23002
     ports:
@@ -168,7 +152,7 @@ services:
         NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
         NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
-    container_name: memoria_help
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}
     environment:
       PORT: 23003
     ports:
@@ -188,7 +172,7 @@ services:
         NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
         NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
-    container_name: memoria_info
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}
     environment:
       PORT: 23004
     ports:
@@ -208,7 +192,7 @@ services:
         NEXT_PUBLIC_INFO_BASE_URL: http://localhost:23004
         NEXT_PUBLIC_HELP_BASE_URL: http://localhost:23003
         NEXT_PUBLIC_CONTACT_BASE_URL: http://localhost:23005
-    container_name: memoria_contact
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}
     environment:
       PORT: 23005
     ports:
@@ -219,5 +203,4 @@ services:
 
 volumes:
   memoria_postgres_data:
-  memoria_firebase_data:
   memoria_ministack_data:

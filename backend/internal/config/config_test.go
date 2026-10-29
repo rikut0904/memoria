@@ -5,10 +5,7 @@ import "testing"
 func validNonLocalConfig() Config {
 	return Config{
 		AppEnv:              "stg",
-		FirebaseProjectID:   "project",
-		FirebaseClientEmail: "client@example.com",
-		FirebasePrivateKey:  "private-key",
-		FirebaseAPIKey:      "api-key",
+		ClerkSecretKey:      "sk_test_example",
 		FrontendBaseURL:     "https://example.com",
 		DBHost:              "localhost",
 		DBUser:              "lover",

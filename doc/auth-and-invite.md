@@ -1,7 +1,7 @@
 # Auth & Invite
 
 ## Auth
-- Firebase Authentication
+- Clerk Authentication
 - メール/パスワード方式
 
 ## Invite

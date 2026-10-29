@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"memoria/internal/domain/model"
 	"memoria/internal/usecase"
@@ -15,21 +14,13 @@ type InviteHandler struct {
 	inviteUsecase *usecase.InviteUsecase
 	groupUsecase  *usecase.GroupUsecase
 	userUsecase   *usecase.UserUsecase
-	authUsecase   *usecase.AuthUsecase
-	secureCookie  bool
-	sessionTTL    time.Duration
-	cookieDomain  string
 }
 
-func NewInviteHandler(inviteUsecase *usecase.InviteUsecase, groupUsecase *usecase.GroupUsecase, userUsecase *usecase.UserUsecase, authUsecase *usecase.AuthUsecase, secureCookie bool, sessionTTL time.Duration, cookieDomain string) *InviteHandler {
+func NewInviteHandler(inviteUsecase *usecase.InviteUsecase, groupUsecase *usecase.GroupUsecase, userUsecase *usecase.UserUsecase) *InviteHandler {
 	return &InviteHandler{
 		inviteUsecase: inviteUsecase,
 		groupUsecase:  groupUsecase,
 		userUsecase:   userUsecase,
-		authUsecase:   authUsecase,
-		secureCookie:  secureCookie,
-		sessionTTL:    sessionTTL,
-		cookieDomain:  cookieDomain,
 	}
 }
 
@@ -121,13 +112,6 @@ func (h *InviteHandler) VerifyInvite(c echo.Context) error {
 	})
 }
 
-type InviteSignupRequest struct {
-	Email       string `json:"email" validate:"required,email"`
-	Password    string `json:"password" validate:"required"`
-	DisplayName string `json:"display_name"`
-	BackPath    string `json:"back_path"`
-}
-
 type AcceptInviteResponse struct {
 	UserID      uint   `json:"user_id"`
 	Email       string `json:"email"`
@@ -147,49 +131,6 @@ func (h *InviteHandler) AcceptInvite(c echo.Context) error {
 	if err := h.inviteUsecase.AcceptInviteForUser(token, user); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
-	return c.JSON(http.StatusOK, AcceptInviteResponse{
-		UserID:      user.ID,
-		Email:       user.Email,
-		DisplayName: user.DisplayName,
-		Role:        user.Role,
-	})
-}
-
-func (h *InviteHandler) SignupInvite(c echo.Context) error {
-	token := c.Param("token")
-
-	var req InviteSignupRequest
-	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	invite, err := h.inviteUsecase.VerifyInvite(token)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	if invite.Email != req.Email {
-		return echo.NewHTTPError(http.StatusBadRequest, "email does not match invite")
-	}
-
-	backPath := sanitizeBackPath(req.BackPath)
-	user, sessionCookie, err := h.authUsecase.Signup(req.Email, req.Password, req.DisplayName, backPath)
-	if err != nil {
-		if authErr, ok := err.(*usecase.AuthError); ok {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"code":    authErr.Code,
-				"message": authErr.Message,
-			})
-		}
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	if err := h.inviteUsecase.AcceptInviteForUser(token, user); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	setSessionCookie(c, sessionCookie, h.secureCookie, int(h.sessionTTL.Seconds()), h.cookieDomain)
 
 	return c.JSON(http.StatusOK, AcceptInviteResponse{
 		UserID:      user.ID,

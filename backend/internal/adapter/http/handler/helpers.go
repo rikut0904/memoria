@@ -8,8 +8,7 @@ import (
 )
 
 func parseGroupID(c echo.Context) (uint, error) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		return 0, echo.NewHTTPError(http.StatusBadRequest, "invalid group id")
 	}
@@ -17,42 +16,9 @@ func parseGroupID(c echo.Context) (uint, error) {
 }
 
 func getGroupIDFromContext(c echo.Context) (uint, error) {
-	groupIDVal := c.Get("group_id")
-	groupID, ok := groupIDVal.(uint)
+	groupID, ok := c.Get("group_id").(uint)
 	if !ok {
 		return 0, echo.NewHTTPError(http.StatusBadRequest, "invalid group")
 	}
 	return groupID, nil
-}
-
-func setSessionCookie(c echo.Context, value string, secure bool, maxAge int, domain string) {
-	cookie := &http.Cookie{
-		Name:     "memoria_session",
-		Value:    value,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   secure,
-		SameSite: http.SameSiteLaxMode,
-		MaxAge:   maxAge,
-	}
-	if domain != "" {
-		cookie.Domain = domain
-	}
-	c.SetCookie(cookie)
-}
-
-func clearSessionCookie(c echo.Context, secure bool, domain string) {
-	cookie := &http.Cookie{
-		Name:     "memoria_session",
-		Value:    "",
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   secure,
-		SameSite: http.SameSiteLaxMode,
-		MaxAge:   -1,
-	}
-	if domain != "" {
-		cookie.Domain = domain
-	}
-	c.SetCookie(cookie)
 }

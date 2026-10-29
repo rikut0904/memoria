@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import "./globals.css";
-import TokenBridge from "./token-bridge";
+import ClerkShell from "./clerk-shell";
 
 const siteTitle = "思い出memoria";
 const siteDescription =
@@ -41,10 +41,11 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <ClerkShell>
         <Suspense fallback={null}>
-          <TokenBridge />
         </Suspense>
         {children}
+        </ClerkShell>
       </body>
     </html>
   );

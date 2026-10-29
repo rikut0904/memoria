@@ -7,7 +7,7 @@
 | 作業 | 説明 | 手段 |
 |------|------|------|
 | 初期管理者登録 | 最初のadminユーザーを作成 | `create-admin`コマンド |
-| 環境変数設定 | Firebase, AWS, Stripe等の設定 | .env |
+| 環境変数設定 | Clerk, AWS, Stripe等の設定 | .env.local |
 | Stripeプラン作成 | PremiumプランのPrice作成 | Stripeダッシュボード |
 | Webhook設定 | Stripe Webhookエンドポイント登録 | Stripeダッシュボード |
 

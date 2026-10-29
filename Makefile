@@ -1,4 +1,5 @@
 NEXTJS_PROJECTS := frontend auth admin info contact help
+COMPOSE_ENV_FILE := $(if $(wildcard auth/.env.local),--env-file auth/.env.local,)
 
 # ============================================================
 # Docker操作
@@ -6,8 +7,9 @@ NEXTJS_PROJECTS := frontend auth admin info contact help
 
 .PHONY: up down logs build ps install admin clean/all
 
+
 up: ## 全サービス起動
-	docker compose up --build
+	docker compose $(COMPOSE_ENV_FILE) up --build
 
 down: ## 全サービス停止
 	docker compose down
@@ -22,13 +24,13 @@ install: ## 全 Next.js プロジェクトの npm install
 	done
 
 build: 
-	docker compose build
+	docker compose $(COMPOSE_ENV_FILE) build
 
 ps: ## コンテナ状態確認
 	docker compose ps
 
-admin: ## ローカルFirebase Emulatorに管理者を作成
-	docker compose up -d postgres firebase ministack
+admin: ## Clerkユーザーに対応するローカル管理者を作成
+	docker compose up -d postgres ministack
 	docker compose run --rm --build --no-deps --entrypoint /app/create-admin backend
 
 # ============================================================
@@ -38,25 +40,25 @@ admin: ## ローカルFirebase Emulatorに管理者を作成
 .PHONY: up-frontend up-backend up-auth up-admin up-info up-contact up-help
 
 up-backend:
-	docker compose up --build backend
+	docker compose $(COMPOSE_ENV_FILE) up --build backend
 
 up-frontend:
-	docker compose up --build frontend backend
+	docker compose $(COMPOSE_ENV_FILE) up --build frontend backend
 
 up-auth:
-	docker compose up --build auth backend
+	docker compose $(COMPOSE_ENV_FILE) up --build auth backend
 
 up-admin:
-	docker compose up --build admin backend
+	docker compose $(COMPOSE_ENV_FILE) up --build admin backend
 
 up-info:
-	docker compose up --build info backend
+	docker compose $(COMPOSE_ENV_FILE) up --build info backend
 
 up-contact:
-	docker compose up --build contact backend
+	docker compose $(COMPOSE_ENV_FILE) up --build contact backend
 
 up-help:
-	docker compose up --build help backend
+	docker compose $(COMPOSE_ENV_FILE) up --build help backend
 
 # ============================================================
 # build

@@ -1,7 +1,7 @@
 # API Detail (Draft)
 
 Base: `/api`
-Auth: `Authorization: Bearer <Firebase ID Token>`
+Auth: `Authorization: Bearer <Clerk session token>`
 Content-Type: `application/json`
 
 ## Common Errors

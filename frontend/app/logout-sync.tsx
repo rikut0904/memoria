@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { clearAuthToken, clearRefreshToken } from "@/lib/auth";
+import { clearAuthToken } from "@/lib/auth";
 import { readLogoutSignal } from "@/lib/logoutSync";
 import { buildLoginUrl, getCurrentPathWithQuery } from "@/lib/backPath";
 
@@ -17,7 +17,6 @@ export default function LogoutSync() {
 
       window.localStorage.setItem(SEEN_KEY, String(ts));
       clearAuthToken();
-      clearRefreshToken();
 
       window.location.replace(buildLoginUrl(getCurrentPathWithQuery()));
     };

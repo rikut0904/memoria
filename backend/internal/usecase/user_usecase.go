@@ -1,24 +1,18 @@
 package usecase
 
 import (
-	"context"
 	"errors"
 
-	"memoria/internal/adapter/auth"
 	"memoria/internal/domain/model"
 	"memoria/internal/domain/repository"
 )
 
 type UserUsecase struct {
-	userRepo     repository.UserRepository
-	firebaseAuth *auth.FirebaseAuth
+	userRepo repository.UserRepository
 }
 
-func NewUserUsecase(userRepo repository.UserRepository, firebaseAuth *auth.FirebaseAuth) *UserUsecase {
-	return &UserUsecase{
-		userRepo:     userRepo,
-		firebaseAuth: firebaseAuth,
-	}
+func NewUserUsecase(userRepo repository.UserRepository) *UserUsecase {
+	return &UserUsecase{userRepo: userRepo}
 }
 
 func (u *UserUsecase) GetMe(userID uint) (*model.User, error) {
@@ -33,36 +27,6 @@ func (u *UserUsecase) UpdateDisplayName(userID uint, displayName string) (*model
 
 	user.DisplayName = displayName
 	if err := u.userRepo.Update(user); err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
-func (u *UserUsecase) CreateUserIfNotExists(firebaseUID, email, displayName string) (*model.User, error) {
-	if firebaseUID == "" || email == "" {
-		return nil, errors.New("firebase uid and email are required")
-	}
-
-	if existing, err := u.userRepo.FindByFirebaseUID(firebaseUID); err == nil && existing != nil {
-		return existing, nil
-	}
-
-	if existing, err := u.userRepo.FindByEmail(email); err == nil && existing != nil {
-		if existing.FirebaseUID != firebaseUID {
-			return nil, errors.New("email already exists")
-		}
-		return existing, nil
-	}
-
-	user := &model.User{
-		FirebaseUID: firebaseUID,
-		Email:       email,
-		DisplayName: displayName,
-		Role:        "member",
-	}
-
-	if err := u.userRepo.Create(user); err != nil {
 		return nil, err
 	}
 
@@ -106,18 +70,10 @@ func (u *UserUsecase) UpdateUserRole(userID uint, role string) (*model.User, err
 // 管理者用: ユーザー削除
 func (u *UserUsecase) DeleteUser(userID uint) error {
 	// ユーザー情報を取得
-	user, err := u.userRepo.FindByID(userID)
-	if err != nil {
+	if _, err := u.userRepo.FindByID(userID); err != nil {
 		return err
 	}
 
-	// Firebaseユーザーを削除
-	if err := u.firebaseAuth.DeleteUser(context.Background(), user.FirebaseUID); err != nil {
-		// Firebase削除に失敗してもログに記録してDB削除は続行
-		// （Firebaseユーザーが既に削除されている場合などを考慮）
-		// 本番環境ではログに記録すべき
-	}
-
-	// データベースからユーザーを削除
+	// ClerkアカウントはClerk Dashboardで管理し、ここではアプリケーションユーザーだけを削除する。
 	return u.userRepo.Delete(userID)
 }

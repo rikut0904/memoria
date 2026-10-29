@@ -21,7 +21,7 @@
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS
-- Firebase Authentication
+- Clerk Authentication
 
 ### Backend
 - Go 1.27
@@ -36,9 +36,9 @@
 
 環境は `local`、`stg`、`prod` の3種類です。PRごとの `preview` 環境は使用しません。
 
-- `local`: Docker Compose内のPostgreSQL、Firebase Emulator、MiniStackだけで動作
-- `stg`: 検証用Firebase/AWS/PostgreSQL
-- `prod`: 本番用Firebase/AWS/PostgreSQL
+- `local`: Docker Compose内のPostgreSQL、Clerk、MiniStackで動作
+- `stg`: 検証用Clerk/AWS/PostgreSQL
+- `prod`: 本番用Clerk/AWS/PostgreSQL
 
 ### Railway へのデプロイ
 
@@ -50,7 +50,7 @@ Railway は `DATABASE_URL` 環境変数に自動対応しています。
 
 ### 環境変数
 
-ローカル開発は `docker-compose.yml` に定義したPostgreSQL、Firebase Emulator、MiniStackを利用するため、`.env.local.example` は不要です。`make up` で起動できます。
+ローカル開発は `docker-compose.yml` に定義したPostgreSQL、MiniStackを利用し、Clerkの機密キーだけを `auth/.env.local` に設定します。`make up` で起動できます。
 
 各ディレクトリの `.env.example` はstg/prodのデプロイ先へ登録する変数一覧です。実際の秘密値はファイルへコミットせず、Railway・Vercel等の環境変数へ登録してください。
 
@@ -61,9 +61,9 @@ Railway は `DATABASE_URL` 環境変数に自動対応しています。
 make up
 ```
 
-ローカルの入口は `http://localhost:23000`、認証は `http://localhost:23001` です。Firebase Emulator UIは `http://localhost:29000`、MiniStackは `http://localhost:24566`、PostgreSQLは `localhost:25432` で確認できます。
+ローカルの入口は `http://localhost:23000`、認証は `http://localhost:23001` です。MiniStackは `http://localhost:24566`、PostgreSQLは `localhost:25432` で確認できます。
 
-停止は `make down` を使います。Firebase Emulator、PostgreSQL、MiniStackのデータはDocker volumeへ保存され、停止・再起動では削除されません。Firebase Emulatorは停止時に自動エクスポートします。
+停止は `make down` を使います。PostgreSQLとMiniStackのデータはDocker volumeへ保存され、停止・再起動では削除されません。
 
 ローカルデータを初期化する場合だけ `make clean/all`（volume削除を含む）を使います。
 
@@ -76,9 +76,9 @@ make up
 ## 初回セットアップ
 
 1. ローカルは `make up` で依存サービスを起動
-2. localではメール認証なしで、そのままログイン可能
-3. `make admin` で管理者ユーザーを作成
-4. stg/prodのみ、各環境のFirebase/AWS/PostgreSQLと環境変数を設定
+2. Clerkでユーザーを作成してログイン
+3. `make admin` でClerkユーザーに管理者権限を付与
+4. stg/prodのClerk/AWS/PostgreSQLと環境変数を設定
 
 ## ドキュメント
 

@@ -23,32 +23,26 @@ type Config struct {
 	DBName     string
 	DBSSLMode  string
 
-	FirebaseProjectID        string
-	FirebaseClientEmail      string
-	FirebasePrivateKey       string
-	FirebaseAPIKey           string
-	FirebaseAuthEmulatorHost string
+	ClerkSecretKey string
 
-	FrontendBaseURL           string
-	LocalEmailVerificationURL string
-	AllowedOrigins            string
-	AllowedOriginSuffixes     string
-	CookieDomain              string
-	EnableLocalStorageAuth    bool
-	SESFromEmail              string
-	SESInviteTemplatePath     string
-	AWSRegion                 string
-	S3Bucket                  string
-	S3Endpoint                string
-	S3AccessKey               string
-	S3SecretKey               string
-	AWSEndpoint               string
+	FrontendBaseURL       string
+	AllowedOrigins        string
+	AllowedOriginSuffixes string
+	CookieDomain          string
+	SESFromEmail          string
+	SESInviteTemplatePath string
+	AWSRegion             string
+	S3Bucket              string
+	S3Endpoint            string
+	S3AccessKey           string
+	S3SecretKey           string
+	AWSEndpoint           string
 }
 
 func Load() Config {
-	// Load .env file if it exists (ignore error if not found)
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables")
+	// Load local development variables if present. Production uses the process environment.
+	if err := godotenv.Load(".env.local"); err != nil {
+		log.Println("No .env.local file found, using environment variables")
 	}
 
 	cfg := Config{
@@ -56,26 +50,20 @@ func Load() Config {
 		AppPort:     getEnv("APP_PORT", "8080"),
 		AutoMigrate: getEnv("AUTO_MIGRATE", "true") != "false",
 
-		FirebaseProjectID:        getEnv("FIREBASE_PROJECT_ID", ""),
-		FirebaseClientEmail:      getEnv("FIREBASE_CLIENT_EMAIL", ""),
-		FirebasePrivateKey:       normalizePrivateKey(getEnv("FIREBASE_PRIVATE_KEY", "")),
-		FirebaseAPIKey:           getEnv("FIREBASE_API_KEY", ""),
-		FirebaseAuthEmulatorHost: getEnv("FIREBASE_AUTH_EMULATOR_HOST", ""),
+		ClerkSecretKey: getEnv("CLERK_SECRET_KEY", ""),
 
-		FrontendBaseURL:           getEnv("FRONTEND_BASE_URL", ""),
-		LocalEmailVerificationURL: getEnv("LOCAL_EMAIL_VERIFICATION_URL", ""),
-		AllowedOrigins:            getEnv("ALLOWED_ORIGINS", ""),
-		AllowedOriginSuffixes:     getEnv("ALLOWED_ORIGIN_SUFFIXES", ""),
-		CookieDomain:              getEnv("COOKIE_DOMAIN", ""),
-		EnableLocalStorageAuth:    getEnv("APP_ENV", "local") == "local",
-		SESFromEmail:              getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),
-		SESInviteTemplatePath:     getEnv("SES_INVITE_TEMPLATE_PATH", ""),
-		AWSRegion:                 getEnv("AWS_REGION", "ap-northeast-1"),
-		S3Bucket:                  getEnv("S3_BUCKET", ""),
-		S3Endpoint:                getEnv("S3_ENDPOINT", ""),
-		S3AccessKey:               getEnv("S3_ACCESS_KEY", ""),
-		S3SecretKey:               getEnv("S3_SECRET_KEY", ""),
-		AWSEndpoint:               getEnv("AWS_ENDPOINT", ""),
+		FrontendBaseURL:       getEnv("FRONTEND_BASE_URL", ""),
+		AllowedOrigins:        getEnv("ALLOWED_ORIGINS", ""),
+		AllowedOriginSuffixes: getEnv("ALLOWED_ORIGIN_SUFFIXES", ""),
+		CookieDomain:          getEnv("COOKIE_DOMAIN", ""),
+		SESFromEmail:          getEnv("SES_FROM_EMAIL", "no-reply@rikut0904.site"),
+		SESInviteTemplatePath: getEnv("SES_INVITE_TEMPLATE_PATH", ""),
+		AWSRegion:             getEnv("AWS_REGION", "ap-northeast-1"),
+		S3Bucket:              getEnv("S3_BUCKET", ""),
+		S3Endpoint:            getEnv("S3_ENDPOINT", ""),
+		S3AccessKey:           getEnv("S3_ACCESS_KEY", ""),
+		S3SecretKey:           getEnv("S3_SECRET_KEY", ""),
+		AWSEndpoint:           getEnv("AWS_ENDPOINT", ""),
 	}
 
 	// Parse DATABASE_URL if available (Railway, Heroku style)
@@ -105,11 +93,8 @@ func (c Config) Validate() error {
 
 	missing := make([]string, 0)
 	for name, value := range map[string]string{
-		"FIREBASE_PROJECT_ID":   c.FirebaseProjectID,
-		"FIREBASE_CLIENT_EMAIL": c.FirebaseClientEmail,
-		"FIREBASE_PRIVATE_KEY":  c.FirebasePrivateKey,
-		"FIREBASE_API_KEY":      c.FirebaseAPIKey,
-		"FRONTEND_BASE_URL":     c.FrontendBaseURL,
+		"CLERK_SECRET_KEY":  c.ClerkSecretKey,
+		"FRONTEND_BASE_URL": c.FrontendBaseURL,
 	} {
 		if strings.TrimSpace(value) == "" {
 			missing = append(missing, name)
@@ -126,15 +111,6 @@ func (c Config) Validate() error {
 		return fmt.Errorf("required configuration is missing for %s: %s", c.AppEnv, strings.Join(missing, ", "))
 	}
 	return nil
-}
-
-func normalizePrivateKey(raw string) string {
-	if raw == "" {
-		return raw
-	}
-	trimmed := strings.Trim(raw, "\"")
-	trimmed = strings.Trim(trimmed, "'")
-	return strings.ReplaceAll(trimmed, "\\n", "\n")
 }
 
 func parseDatabaseURL(databaseURL string, cfg *Config) {

@@ -1,7 +1,7 @@
 # API (Draft)
 
 Base: `/api`
-Auth: Firebase ID Token (Bearer) + X-Group-ID ヘッダー（グループスコープAPI）
+Auth: Clerk session token (Bearer) + X-Group-ID ヘッダー（グループスコープAPI）
 
 ## Health
 - GET `/health`
@@ -9,8 +9,6 @@ Auth: Firebase ID Token (Bearer) + X-Group-ID ヘッダー（グループスコ�
 ## Auth
 - POST `/login` ログイン
 - POST `/signup` 新規登録
-- POST `/logout` ログアウト
-- POST `/refresh` トークンリフレッシュ
 
 ## Invites（公開）
 - GET `/invites/:token` 招待トークン検証
