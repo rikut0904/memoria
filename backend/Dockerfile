@@ -6,6 +6,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/server ./cmd/server
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/create-admin ./cmd/create-admin
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/migrate ./cmd/migrate
 
 FROM alpine:3.24
 WORKDIR /app
@@ -13,6 +14,7 @@ RUN apk add --no-cache tzdata \
     && adduser -D appuser
 COPY --from=build /app/bin/server /app/server
 COPY --from=build /app/bin/create-admin /app/create-admin
+COPY --from=build /app/bin/migrate /app/migrate
 COPY --from=build /app/templates /app/templates
 USER appuser
 EXPOSE 8080

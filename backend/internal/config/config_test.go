@@ -51,3 +51,24 @@ func TestValidateAcceptsDatabaseURL(t *testing.T) {
 		t.Fatalf("expected valid DATABASE_URL configuration, got %v", err)
 	}
 }
+
+func TestValidateDatabaseRejectsMissingConfiguration(t *testing.T) {
+	for _, name := range []string{"DATABASE_URL", "DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"} {
+		t.Setenv(name, "")
+	}
+
+	if err := validNonLocalConfig().ValidateDatabase(); err == nil {
+		t.Fatal("expected missing database configuration error")
+	}
+}
+
+func TestValidateDatabaseAcceptsDatabaseURL(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://user:password@db.example.com/database")
+	for _, name := range []string{"DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"} {
+		t.Setenv(name, "")
+	}
+
+	if err := validNonLocalConfig().ValidateDatabase(); err != nil {
+		t.Fatalf("expected valid database configuration, got %v", err)
+	}
+}

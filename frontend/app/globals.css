@@ -183,8 +183,15 @@ ul {
 /* グリッド（カード一覧に使用） */
 .grid-card {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 300px));
+  justify-content: start;
+  gap: 24px;
+}
+
+@media (max-width: 1023px) {
+  .grid-card {
+    justify-content: center;
+  }
 }
 
 /* 管理画面のダークモード調整 */

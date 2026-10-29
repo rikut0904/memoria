@@ -24,7 +24,8 @@ type UserTagProps = {
   userLabel: string;
   userInitial: string;
   email?: string;
-  onLogout?: () => void;
+  onClick: () => void;
+  expanded: boolean;
 };
 
 function LogoutIcon() {
@@ -44,10 +45,20 @@ function LogoutIcon() {
   );
 }
 
-function UserTag({ userLabel, userInitial, email, onLogout }: UserTagProps) {
+function UserTag({
+  userLabel,
+  userInitial,
+  email,
+  onClick,
+  expanded,
+}: UserTagProps) {
   return (
-    <div
-      className="flex min-w-0 items-center gap-2 rounded-full border border-gray-200 bg-white py-1.5 pl-1.5 pr-2 text-gray-700 shadow-sm"
+    <button
+      type="button"
+      onClick={onClick}
+      aria-haspopup="menu"
+      aria-expanded={expanded}
+      className="flex min-w-0 items-center gap-2 rounded-full border border-gray-200 bg-white py-1.5 pl-1.5 pr-2 text-left text-gray-700 shadow-sm transition hover:border-primary-300 hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
       title={
         email && email !== userLabel ? `${userLabel}（${email}）` : userLabel
       }
@@ -62,17 +73,48 @@ function UserTag({ userLabel, userInitial, email, onLogout }: UserTagProps) {
       <span className="min-w-0 truncate text-sm font-semibold">
         {userLabel}
       </span>
-      {onLogout && (
-        <button
-          type="button"
-          onClick={onLogout}
-          className="ml-auto inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-          aria-label="ログアウト"
-          title="ログアウト"
-        >
-          <LogoutIcon />
-        </button>
-      )}
+      <span aria-hidden="true" className="ml-1 text-xs text-gray-500">
+        ▾
+      </span>
+    </button>
+  );
+}
+
+function UserMenu({
+  mobile,
+  onClose,
+  onLogout,
+}: {
+  mobile?: boolean;
+  onClose: () => void;
+  onLogout: () => void;
+}) {
+  return (
+    <div
+      className={
+        mobile
+          ? "mt-2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+          : "absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+      }
+      role="menu"
+    >
+      <Link
+        href="/settings"
+        onClick={onClose}
+        className="block px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-primary-50 hover:text-primary-700 focus-visible:bg-primary-50 focus-visible:outline-none"
+        role="menuitem"
+      >
+        アカウント設定
+      </Link>
+      <button
+        type="button"
+        onClick={onLogout}
+        className="flex w-full items-center gap-2 border-t border-gray-100 px-4 py-3 text-left text-sm font-semibold text-gray-700 transition hover:bg-red-50 hover:text-red-700 focus-visible:bg-red-50 focus-visible:outline-none"
+        role="menuitem"
+      >
+        <LogoutIcon />
+        ログアウト
+      </button>
     </div>
   );
 }
@@ -87,6 +129,7 @@ export default function AppHeader({
   role,
 }: AppHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
   const normalizedDisplayName = displayName?.trim() || "";
@@ -106,8 +149,9 @@ export default function AppHeader({
         管理画面
       </a>
     ) : null;
-
   const handleLogout = async () => {
+    setUserMenuOpen(false);
+    setMenuOpen(false);
     clearCurrentGroup();
     clearAuthToken();
     signalLogout();
@@ -117,6 +161,7 @@ export default function AppHeader({
   const handleGroupSelect = (group: { id: number; name: string }) => {
     setCurrentGroup(group.id, group.name);
     setMenuOpen(false);
+    setUserMenuOpen(false);
     router.push(`/${group.id}`);
   };
 
@@ -138,26 +183,25 @@ export default function AppHeader({
           </Link>
           <div className="flex min-w-0 items-center justify-end gap-2 sm:gap-3">
             {(displayName || email) && (
-              <div className="hidden xl:block">
+              <div className="relative hidden xl:block">
                 <UserTag
                   userLabel={userLabel}
                   userInitial={userInitial}
                   email={email}
+                  expanded={userMenuOpen}
+                  onClick={() => setUserMenuOpen((previous) => !previous)}
                 />
+                {userMenuOpen && (
+                  <UserMenu
+                    onClose={() => setUserMenuOpen(false)}
+                    onLogout={handleLogout}
+                  />
+                )}
               </div>
             )}
             <div className="hidden items-center gap-2 xl:flex xl:gap-3">
               {adminAction}
               {menuItems}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                aria-label="ログアウト"
-                title="ログアウト"
-              >
-                <LogoutIcon />
-              </button>
             </div>
             <button
               type="button"
@@ -199,7 +243,10 @@ export default function AppHeader({
           id="app-mobile-menu"
           label="アプリメニュー"
           triggerRef={menuTriggerRef}
-          onClose={() => setMenuOpen(false)}
+          onClose={() => {
+            setMenuOpen(false);
+            setUserMenuOpen(false);
+          }}
           className="fixed inset-y-0 right-0 z-50 h-full w-[min(20rem,85vw)] overflow-y-auto bg-white px-5 pb-6 pt-20 shadow-2xl xl:hidden"
         >
           <div className="flex min-h-full flex-col">
@@ -238,13 +285,21 @@ export default function AppHeader({
               {menuItems}
             </div>
             {(displayName || email) && (
-              <div className="mt-auto border-t border-gray-200 pt-5">
+              <div className="relative mt-auto border-t border-gray-200 pt-5">
                 <UserTag
                   userLabel={userLabel}
                   userInitial={userInitial}
                   email={email}
-                  onLogout={handleLogout}
+                  expanded={userMenuOpen}
+                  onClick={() => setUserMenuOpen((previous) => !previous)}
                 />
+                {userMenuOpen && (
+                  <UserMenu
+                    mobile
+                    onClose={() => setUserMenuOpen(false)}
+                    onLogout={handleLogout}
+                  />
+                )}
               </div>
             )}
           </div>

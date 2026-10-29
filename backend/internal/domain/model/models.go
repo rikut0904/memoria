@@ -18,6 +18,15 @@ type User struct {
 	LastAccessAt *time.Time `gorm:"index"`
 }
 
+// SignupProfile stores non-authoritative profile input until Firebase email
+// verification proves ownership of the account.
+type SignupProfile struct {
+	BaseModel
+	FirebaseUID string `gorm:"uniqueIndex;not null"`
+	Email       string `gorm:"uniqueIndex;not null"`
+	DisplayName string
+}
+
 type Group struct {
 	BaseModel
 	Name      string `gorm:"not null"`

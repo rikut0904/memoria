@@ -1,7 +1,9 @@
 package storage
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -60,6 +62,34 @@ func (s *S3Service) DeleteObject(key string) error {
 	_, err := s.client.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(s.bucket),
 		Key:    aws.String(key),
+	})
+	return err
+}
+
+func (s *S3Service) GetObject(key string) ([]byte, error) {
+	output, err := s.client.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer output.Body.Close()
+
+	data, err := io.ReadAll(output.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read S3 object: %w", err)
+	}
+	return data, nil
+}
+
+func (s *S3Service) PutObject(key string, data []byte, contentType string) error {
+	_, err := s.client.PutObject(&s3.PutObjectInput{
+		Bucket:        aws.String(s.bucket),
+		Key:           aws.String(key),
+		Body:          bytes.NewReader(data),
+		ContentLength: aws.Int64(int64(len(data))),
+		ContentType:   aws.String(contentType),
 	})
 	return err
 }
